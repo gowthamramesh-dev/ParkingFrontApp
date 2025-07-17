@@ -205,13 +205,13 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               }
               style={styles.picker}
             >
-              <Picker.Item label="Select Vehicle Type" value="" />
-              <Picker.Item label="Cycle" value="cycle" />
-              <Picker.Item label="Bike" value="bike" />
-              <Picker.Item label="Car" value="car" />
-              <Picker.Item label="Van" value="van" />
-              <Picker.Item label="Lorry" value="lorry" />
-              <Picker.Item label="Bus" value="bus" />
+              <Picker.Item color="#000" label="Select Vehicle Type" value="" />
+              <Picker.Item color="#000" label="Cycle" value="cycle" />
+              <Picker.Item color="#000" label="Bike" value="bike" />
+              <Picker.Item color="#000" label="Car" value="car" />
+              <Picker.Item color="#000" label="Van" value="van" />
+              <Picker.Item color="#000" label="Lorry" value="lorry" />
+              <Picker.Item color="#000" label="Bus" value="bus" />
             </Picker>
           </View>
           <View>
@@ -222,9 +222,14 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               }
               style={styles.picker}
             >
-              <Picker.Item label="Select Duration" value="" />
+              <Picker.Item color="#000" label="Select Duration" value="" />
               {[3, 6, 9, 12].map((m) => (
-                <Picker.Item key={m} label={`${m} months`} value={`${m}`} />
+                <Picker.Item
+                  color="#000"
+                  key={m}
+                  label={`${m} months`}
+                  value={`${m}`}
+                />
               ))}
             </Picker>
           </View>
@@ -262,15 +267,20 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               }
               style={styles.picker}
             >
-              <Picker.Item label="Select Payment Method" value="" />
-              <Picker.Item label="Cash" value="cash" />
-              <Picker.Item label="GPay" value="gpay" />
-              <Picker.Item label="PhonePe" value="phonepe" />
-              <Picker.Item label="Paytm" value="paytm" />
+              <Picker.Item
+                color="#000"
+                label="Select Payment Method"
+                value=""
+              />
+              <Picker.Item color="#000" label="Cash" value="cash" />
+              <Picker.Item color="#000" label="GPay" value="gpay" />
+              <Picker.Item color="#000" label="PhonePe" value="phonepe" />
+              <Picker.Item color="#000" label="Paytm" value="paytm" />
             </Picker>
           </View>
           <TextInput
             style={styles.input}
+            placeholderTextColor="#888"
             placeholder="End Date (YYYY-MM-DD)"
             value={formData.endDate}
             editable={false}

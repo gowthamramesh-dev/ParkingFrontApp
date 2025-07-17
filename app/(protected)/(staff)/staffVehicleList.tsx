@@ -34,7 +34,7 @@ const VALID_IONICONS = new Set([
 const SafeIonicon = ({ name, size = 22, color = "#000" }) => {
   const isValid = VALID_IONICONS.has(name);
   if (!isValid) {
-    console.warn(⚠ Invalid Ionicon: ${name});
+    console.warn(`⚠ Invalid Ionicon: ${name}`);
   }
   return (
     <Ionicons
@@ -80,7 +80,7 @@ const CheckinCard = ({ item }: any) => {
           <TouchableOpacity
             onPress={() => {
               Clipboard.setStringAsync(item.tokenId);
-              Alert.alert("Copied!", ${item.tokenId} copied to clipboard);
+              Alert.alert("Copied!", `${item.tokenId} copied to clipboard`);
             }}
           >
             <Text style={styles.tokenCopy}>
@@ -159,8 +159,10 @@ const VehicleScreen = () => {
   }, [isFocused, checkType, selected]);
 
   const getDataToShow = () => {
-    if (checkType === "checkins") return Array.isArray(checkins) ? checkins : [];
-    if (checkType === "checkouts") return Array.isArray(checkouts) ? checkouts : [];
+    if (checkType === "checkins")
+      return Array.isArray(checkins) ? checkins : [];
+    if (checkType === "checkouts")
+      return Array.isArray(checkouts) ? checkouts : [];
     return Array.isArray(VehicleListData) ? VehicleListData : [];
   };
 
@@ -196,7 +198,9 @@ const VehicleScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 30 }}
           ListHeaderComponent={
-            <View style={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}>
+            <View
+              style={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}
+            >
               <View style={styles.searchBar}>
                 <Ionicons name="search-outline" size={24} />
                 <TextInput
