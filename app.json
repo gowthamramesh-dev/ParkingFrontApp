@@ -41,14 +41,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      ["expo-camera"]
+      [
+        "expo-camera"
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
       "router": {},
-      "eas": {}
+      "eas": {
+        "projectId": "08f22b40-e3d5-4da1-a843-bd7bab29105d"
+      }
     },
     "owner": ""
   }

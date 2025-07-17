@@ -2,214 +2,465 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  FlatList,
+  TouchableOpacity,
   ActivityIndicator,
-  ScrollView,
-  Dimensions,
+  FlatList,
+  TextInput,
+  Alert,
+  Platform,
   StyleSheet,
 } from "react-native";
-import { ProgressChart } from "react-native-chart-kit";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useIsFocused } from "@react-navigation/native";
+import { useLocalSearchParams } from "expo-router";
+import * as Clipboard from "expo-clipboard";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
+
 import userAuthStore from "@/utils/store";
 
-const screenWidth = Dimensions.get("window").width;
-const chartWidth = screenWidth * 0.93;
+// ✅ Valid Icons
+const VALID_IONICONS = new Set([
+  "list-outline",
+  "bicycle-outline",
+  "car-sport-outline",
+  "car-outline",
+  "bus-outline",
+  "alert-circle-outline",
+]);
 
-const chartConfig = {
-  backgroundGradientFrom: "#ffffff",
-  backgroundGradientTo: "#ffffff",
-  color: (opacity = 1) => `rgba(0, 200, 83, ${opacity})`,
-  strokeWidth: 2,
-  barPercentage: 0,
-  useShadowColorFromDataset: false,
-  propsForBackgroundLines: {
-    stroke: "#e0e0e0",
-  },
+const SafeIonicon = ({ name, size = 22, color = "#000" }) => {
+  const isValid = VALID_IONICONS.has(name);
+  if (!isValid) {
+    console.warn(⚠ Invalid Ionicon: ${name});
+  }
+  return (
+    <Ionicons
+      name={isValid ? name : "alert-circle-outline"}
+      size={size}
+      color={color}
+    />
+  );
 };
 
-const ChartSection = ({ title, data }) => {
-  const types = Object.keys(data || {});
-  const counts = Object.values(data || {});
-  const labels = types.map((type, i) => `${counts[i]} ${type}`);
-  const max = Math.max(...counts, 1);
-  const normalizedData = counts.map((count) => count / max);
+const Vehicles = [
+  { name: "All", value: "all", icon: "list-outline" },
+  { name: "Cycle", value: "cycle", icon: "bicycle-outline" },
+  { name: "Bike", value: "bike", icon: "car-sport-outline" },
+  { name: "Car", value: "car", icon: "car-outline" },
+  { name: "Van", value: "van", icon: "bus-outline" },
+  { name: "Bus", value: "bus", icon: "bus-outline" },
+];
+
+// ✅ CheckinCard
+const CheckinCard = ({ item }: any) => {
+  const formattedDate = format(
+    new Date(item.entryDateTime),
+    "MMM d, yyyy - h:mm a"
+  );
 
   return (
-    <View style={styles.chartContainer}>
-      <Text style={styles.chartTitle}>{title}</Text>
-      <View style={styles.chartBox}>
-        <ProgressChart
-          data={{ labels, data: normalizedData }}
-          width={chartWidth}
-          height={220}
-          strokeWidth={13}
-          radius={30}
-          chartConfig={chartConfig}
-          hideLegend={false}
-        />
+    <View style={styles.card}>
+      <View style={styles.rowBetween}>
+        <View style={styles.row}>
+          <Text style={styles.cardName}>{item.name}</Text>
+          <Text
+            style={[
+              styles.statusText,
+              item.isCheckedOut ? styles.checkedOut : styles.active,
+            ]}
+          >
+            {item.isCheckedOut ? "Checked Out" : "Active"}
+          </Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.vehicleNo}>{item.vehicleNo}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              Clipboard.setStringAsync(item.tokenId);
+              Alert.alert("Copied!", ${item.tokenId} copied to clipboard);
+            }}
+          >
+            <Text style={styles.tokenCopy}>
+              <Ionicons name="copy-outline" size={12} /> Token
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.cardInfoBox}>
+        <View style={styles.rowBetween}>
+          <Text style={styles.vehicleType}>{item.vehicleType}</Text>
+          <Text style={styles.entryDate}>{formattedDate}</Text>
+        </View>
+        <View style={{ marginTop: 4 }}>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Paid Days</Text>
+            <Text style={styles.value}>{item.paidDays}</Text>
+          </View>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Rate</Text>
+            <Text style={styles.value}>
+              ₹
+              {isNaN(Number(item.perDayRate)) ||
+              isNaN(Number(item.paidDays)) ||
+              Number(item.paidDays) === 0
+                ? "0.00"
+                : (Number(item.perDayRate) / Number(item.paidDays)).toFixed(2)}
+              /day
+            </Text>
+          </View>
+          <View style={styles.rowBetween}>
+            <Text style={styles.label}>Total Paid</Text>
+            <Text style={styles.total}>₹{item.amount}</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
 };
 
-const TodayReport = () => {
-  const { report, fetchRevenueReport } = userAuthStore();
-  const [loading, setLoading] = useState(true);
+// ✅ Main Screen
+const VehicleScreen = () => {
+  const { staffId } = useLocalSearchParams();
+  const isFocused = useIsFocused();
+
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState("all");
+  const [checkType, setCheckType] = useState("checkins");
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const {
+    isLoading,
+    VehicleListData,
+    checkins,
+    checkouts,
+    fetchCheckins,
+    fetchCheckouts,
+    vehicleList,
+  } = userAuthStore((state) => state);
+
+  const handleList = async (type: string) => {
+    if (checkType === "checkins") {
+      await fetchCheckins(type, staffId as string);
+    } else if (checkType === "checkouts") {
+      await fetchCheckouts(type, staffId as string);
+    } else {
+      await vehicleList(type, "vehicleList", staffId as string);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      await fetchRevenueReport();
-      setLoading(false);
-    };
-    loadData();
-  }, []);
+    if (isFocused) {
+      handleList(selected);
+    }
+  }, [isFocused, checkType, selected]);
 
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="green" />
-        <Text style={styles.loaderText}>Loading today's report...</Text>
-      </View>
-    );
-  }
+  const getDataToShow = () => {
+    if (checkType === "checkins") return Array.isArray(checkins) ? checkins : [];
+    if (checkType === "checkouts") return Array.isArray(checkouts) ? checkouts : [];
+    return Array.isArray(VehicleListData) ? VehicleListData : [];
+  };
 
-  const vehicleList = report?.vehicles || [];
-  const revenue = report?.revenue || "₹0.00";
-  const totalVehicles = report?.totalVehicles || 0;
-  const role = report?.role || "N/A";
+  const dataToDisplay = getDataToShow();
+
+  const filteredData = dataToDisplay?.filter((item: any) => {
+    const matchesSearch =
+      item.vehicleNo?.toLowerCase().includes(search.toLowerCase()) ||
+      item.name?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesDate = filterDate
+      ? format(new Date(item.entryDateTime), "yyyy-MM-dd") ===
+        format(filterDate, "yyyy-MM-dd")
+      : true;
+
+    return matchesSearch && matchesDate;
+  });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerBox}>
-        <Text style={styles.headerTitle}>Today Report</Text>
-        <Text style={styles.roleText}>Role: {role}</Text>
-        <Text style={styles.revenueText}>
-          Revenue: {revenue} | Vehicles: {totalVehicles}
-        </Text>
-      </View>
-
-      <ScrollView>
-        <View style={styles.vehicleListBox}>
-          <View style={styles.vehicleListHeader}>
-            <Text style={styles.columnHeader}>Vehicle</Text>
-            <Text style={styles.columnHeader}>Type</Text>
-            <Text style={styles.columnHeader}>Amount</Text>
-            <Text style={styles.columnHeader}>By</Text>
-          </View>
-
-          <FlatList
-            data={vehicleList}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.vehicleRow}>
-                <Text style={styles.cell}>{item.numberPlate}</Text>
-                <Text style={styles.cell}>{item.vehicleType}</Text>
-                <Text style={styles.cell}>{item.amount}</Text>
-                <Text style={styles.cell}>{item.createdBy}</Text>
-              </View>
-            )}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No vehicle data available</Text>
-            }
-          />
+    <SafeAreaView style={styles.container}>
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#10B981" />
+          <Text style={{ marginTop: 8, color: "#6B7280" }}>
+            Loading Vehicles...
+          </Text>
         </View>
-      </ScrollView>
-    </View>
+      ) : (
+        <FlatList
+          data={filteredData}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => <CheckinCard item={item} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 30 }}
+          ListHeaderComponent={
+            <View style={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}>
+              <View style={styles.searchBar}>
+                <Ionicons name="search-outline" size={24} />
+                <TextInput
+                  placeholder="Search vehicle"
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
+                />
+              </View>
+
+              <View style={styles.vehicleFilterContainer}>
+                <Text style={styles.vehicleHeading}>Vehicles</Text>
+                <FlatList
+                  data={Vehicles}
+                  horizontal
+                  keyExtractor={(item) => item.value}
+                  renderItem={({ item }) => {
+                    const isSelected = selected === item.value;
+                    return (
+                      <TouchableOpacity
+                        style={[
+                          styles.vehicleButton,
+                          isSelected
+                            ? styles.selectedVehicle
+                            : styles.unselectedVehicle,
+                        ]}
+                        onPress={() => {
+                          setSelected(item.value);
+                          handleList(item.value);
+                        }}
+                      >
+                        <SafeIonicon
+                          name={item.icon}
+                          size={22}
+                          color={isSelected ? "#fff" : "#000"}
+                        />
+                        <Text
+                          style={
+                            isSelected
+                              ? styles.selectedText
+                              : styles.unselectedText
+                          }
+                        >
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+
+              <View style={styles.filterRow}>
+                <View style={{ flex: 1 }}>
+                  <Picker
+                    selectedValue={checkType}
+                    onValueChange={(val) => setCheckType(val)}
+                  >
+                    <Picker.Item label="Check In" value="checkins" />
+                    <Picker.Item label="Check Out" value="checkouts" />
+                    <Picker.Item label="Vehicle List" value="list" />
+                  </Picker>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setShowDatePicker(true)}
+                  style={styles.dateButton}
+                >
+                  <Text style={styles.dateButtonText}>
+                    {filterDate
+                      ? format(filterDate, "MMM dd, yyyy")
+                      : "Pick Date"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={filterDate || new Date()}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "inline" : "default"}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (event.type === "set" && selectedDate) {
+                      setFilterDate(selectedDate);
+                    }
+                  }}
+                />
+              )}
+            </View>
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyTextContainer}>
+              <Text style={styles.emptyText}>No vehicle data found</Text>
+            </View>
+          }
+        />
+      )}
+    </SafeAreaView>
   );
 };
 
+export default VehicleScreen;
+
+// ✅ Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F3F4F6",
   },
-  loaderContainer: {
+  loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "white",
   },
-  loaderText: {
-    marginTop: 8,
-    color: "#6B7280",
-  },
-  headerBox: {
-    marginVertical: 16,
-    marginHorizontal: 16,
+  searchBar: {
     backgroundColor: "white",
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    height: 48,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingHorizontal: 8,
+    backgroundColor: "white",
+    height: 48,
+  },
+  vehicleFilterContainer: {
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 6,
     elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-  },
-  roleText: {
-    color: "#6B7280",
-  },
-  revenueText: {
-    color: "#16A34A",
-    fontWeight: "600",
-  },
-  chartContainer: {
-    width: screenWidth,
     alignItems: "center",
-    paddingVertical: 10,
   },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
+  vehicleHeading: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
-  chartBox: {
+  vehicleButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 8,
-    shadowColor: "#A7F3D0",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 3,
+    marginHorizontal: 5,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  vehicleListBox: {
-    backgroundColor: "white",
-    marginHorizontal: 16,
-    marginBottom: 24,
-    borderRadius: 8,
-    overflow: "hidden",
+  selectedVehicle: {
+    backgroundColor: "#059669",
+  },
+  unselectedVehicle: {
+    backgroundColor: "#4ade80",
+  },
+  selectedText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  unselectedText: {
+    color: "#000",
+    fontSize: 14,
+  },
+  filterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  dateButton: {
+    backgroundColor: "#DBEAFE",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     elevation: 1,
   },
-  vehicleListHeader: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#86efac",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+  dateButtonText: {
+    color: "#1D4ED8",
+    fontSize: 14,
   },
-  vehicleRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-  },
-  columnHeader: {
-    width: "25%",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  cell: {
-    width: "25%",
-    textAlign: "center",
+  emptyTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 30,
   },
   emptyText: {
-    textAlign: "center",
-    padding: 16,
+    color: "#6B7280",
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  cardName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginRight: 6,
+  },
+  statusText: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  checkedOut: {
+    backgroundColor: "#FEE2E2",
+    color: "#B91C1C",
+  },
+  active: {
+    backgroundColor: "#D1FAE5",
+    color: "#065F46",
+  },
+  vehicleNo: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginRight: 6,
+  },
+  tokenCopy: {
+    fontSize: 12,
+    color: "#10B981",
+  },
+  cardInfoBox: {
+    backgroundColor: "#F3F4F6",
+    marginTop: 6,
+    borderRadius: 4,
+    padding: 8,
+  },
+  vehicleType: {
+    fontSize: 14,
+    color: "#374151",
+    textTransform: "capitalize",
+  },
+  entryDate: {
+    fontSize: 14,
     color: "#6B7280",
   },
+  label: {
+    fontSize: 14,
+    color: "#374151",
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#1F2937",
+  },
+  total: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#4B5563",
+  },
 });
-
-export default TodayReport;
