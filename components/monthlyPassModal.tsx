@@ -164,6 +164,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
           <TextInput
             style={styles.input}
             placeholder="Customer Name"
+            placeholderTextColor="#888"
             value={formData.name}
             onChangeText={(text: string) =>
               setFormData({ ...formData, name: text })
@@ -172,6 +173,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
           <TextInput
             style={styles.input}
             placeholder="Mobile Number"
+            placeholderTextColor="#888"
             maxLength={10}
             value={formData.mobile}
             onChangeText={(text: string) =>
@@ -351,6 +353,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   picker: {
+    color: "black",
     height: 48,
     backgroundColor: "#DBEAFE",
     marginBottom: 12,

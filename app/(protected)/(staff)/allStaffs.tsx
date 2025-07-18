@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  SafeAreaView,
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
@@ -13,6 +12,7 @@ import userAuthStore from "@/utils/store";
 import { useRouter } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AllStaffs = () => {
   const { getAllStaffs, staffs, isLoading } = userAuthStore();
@@ -97,6 +97,8 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   header: {
+    backgroundColor: "white",
+    borderRadius: 4,
     height: 48,
     justifyContent: "center",
     alignItems: "center",
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
     marginTop: -14, // To vertically center 28px icon
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#1F2937", // Tailwind gray-800
   },

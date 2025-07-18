@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  SafeAreaView,
   TouchableOpacity,
   Alert,
   Modal,
@@ -20,6 +19,7 @@ import { BlurView } from "expo-blur";
 import userAuthStore from "@/utils/store";
 import { useNavigation } from "@react-navigation/native";
 import ToastManager, { Toast } from "toastify-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const AllStaffs = () => {
   const { getAllStaffs, staffs, isLoading, deleteStaff, updateStaff } =
@@ -157,11 +157,14 @@ const AllStaffs = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <View style={styles.headers}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={28} color="#1F2937" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Staff Details</Text>
+        <Text style={styles.headerTitle}>Staff details</Text>
       </View>
 
       {isLoading ? (
@@ -393,6 +396,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 24,
     gap: 8,
+  },
+  headers: {
+    backgroundColor: "white",
+    borderRadius: 4,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    left: 0,
+    top: "50%",
+    marginTop: -14, // To vertically center 28px icon
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1F2937", // Tailwind gray-800
   },
   headerText: {
     fontSize: 24,

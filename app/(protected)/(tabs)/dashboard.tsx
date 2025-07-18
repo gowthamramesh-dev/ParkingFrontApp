@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 const chartWidth = screenWidth * 0.95;
@@ -221,6 +222,8 @@ const PieChartSection = ({ title, data }: { title: string; data: any[] }) => {
 };
 
 const TodayReport = () => {
+  const navigation = useNavigation<any>();
+
   const {
     hydrated,
     getDashboardData,
@@ -245,14 +248,6 @@ const TodayReport = () => {
   const [paymentMethod, setPaymentMethod] = useState<
     { method: string; amount: number }[]
   >([]);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await getDashboardData();
-    setRefreshing(false);
-  }, [getDashboardData]);
-
   useEffect(() => {
     if (hydrated) {
       getDashboardData();
@@ -309,6 +304,15 @@ const TodayReport = () => {
       legendFontSize: 15,
     }));
   }, [staffData]);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", () => {
+      if (hydrated) {
+        getDashboardData();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   return (
     <LinearGradient colors={["#f3f4f6", "#e5e7eb"]} style={styles.container}>
@@ -323,12 +327,7 @@ const TodayReport = () => {
         </View>
       </Animated.View>
 
-      <ScrollView
-        style={{ marginBottom: 60 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+      <ScrollView style={{ marginBottom: 60 }}>
         <View style={{ paddingBottom: 24 }}>
           <ScrollView
             horizontal

@@ -42,7 +42,20 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Protected guard={isLogged}>
-        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(protected)/(tabs)"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(protected)/(staff)"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="listPage"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!isLogged}>
         <Stack.Screen name="splash" options={{ headerShown: false }} />

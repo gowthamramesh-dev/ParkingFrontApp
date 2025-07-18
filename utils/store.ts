@@ -121,8 +121,9 @@ interface UserAuthState extends Partial<VehicleData> {
   monthlyPassActive: MonthlyPass[] | null;
   monthlyPassExpired: MonthlyPass[] | null;
   hydrated: boolean;
+  revenueData: Report | null;
 
-  fetchRevenueReport: () => Promise<void>;
+  fetchRevenueReport: (staffId?: string) => Promise<void>;
   fetchCheckins: (vehicle: string, staffId?: string) => Promise<void>;
   fetchCheckouts: (vehicle: string, staffId?: string) => Promise<void>;
   vehicleList: (
@@ -233,6 +234,9 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
   monthlyPassExpired: null,
   hydrated: false,
   revenueData: null,
+  selectedStaffRevenue: [],
+  totalRevenue: 0,
+  totalVehicles: 0,
 
   restoreSession: async () => {
     try {
@@ -757,34 +761,29 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     }
   },
 
-  fetchRevenueReport: async () => {
-    set({ isLoading: true });
-
+  fetchRevenueReport: async (staffId) => {
     try {
+      set({ isLoading: true });
       const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        throw new Error("Token not found. Please login again.");
-      }
 
-      const response = await axios.get(`${URL}api/getRevenueReport`, {
+      const res = await fetch(`${URL}api/getRevenueReport?staffId=${staffId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch revenue");
+
       set({
-        revenueData: response.data,
-        loading: false,
+        selectedStaffRevenue: data.vehicles,
+        totalRevenue: data.revenue,
+        totalVehicles: data.totalVehicles,
+        isLoading: false,
       });
-    } catch (err: any) {
-      console.error("Revenue fetch error:", err);
-      set({
-        error:
-          err?.response?.data?.message ||
-          err.message ||
-          "Failed to fetch revenue",
-        loading: false,
-      });
+    } catch (err) {
+      console.error("Error fetching revenue:", err);
+      set({ isLoading: false });
     }
   },
 

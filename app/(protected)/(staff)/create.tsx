@@ -70,14 +70,14 @@ const CreateStaff = () => {
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={styles.container}
         >
-          <View style={styles.headerContainer}>
+          <View style={styles.header}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.backButton}
             >
               <Ionicons name="arrow-back" size={28} color="#1F2937" />
             </TouchableOpacity>
-            <Text style={styles.headerText}>Create Staff</Text>
+            <Text style={styles.headerTitle}>Create Staff</Text>
           </View>
 
           <Text style={styles.label}>Username</Text>
@@ -147,7 +147,7 @@ const CreateStaff = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#F3F4F6",
   },
   scrollContent: {
     paddingBottom: 30,
@@ -157,23 +157,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
   },
-  headerContainer: {
+  header: {
+    backgroundColor: "white",
+    borderRadius: 4,
     height: 48,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 24,
     position: "relative",
   },
   backButton: {
     position: "absolute",
     left: 0,
     top: "50%",
-    transform: [{ translateY: -14 }],
+    marginTop: -14, // To vertically center 28px icon
   },
-  headerText: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#1F2937",
+    color: "#1F2937", // Tailwind gray-800
   },
   label: {
     fontSize: 18,

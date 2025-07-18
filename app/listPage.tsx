@@ -10,10 +10,14 @@ import {
 import StaffVehicleList from "@/app/(protected)/(staff)/staffVehicleList";
 import StaffRevenue from "@/app/(protected)/(staff)/staffRevenue";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("vehiclelist");
   const [user, setUser] = useState({});
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,48 +41,58 @@ const Index = () => {
   };
 
   return (
-    <>
-      <StatusBar
-        backgroundColor="transparent"
-        translucent
-        barStyle="dark-content"
-      />
-      <View style={styles.container}>
-        {/* Tabs */}
-        <View style={styles.tabWrapper}>
-          <View style={styles.tabRow}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <StatusBar
+          backgroundColor="transparent"
+          translucent
+          barStyle="dark-content"
+        />
+        <View style={styles.container}>
+          <View style={styles.header}>
             <TouchableOpacity
-              style={[
-                styles.tabButton,
-                activeTab === "vehiclelist"
-                  ? styles.vehicleTabActive
-                  : styles.tabInactive,
-              ]}
-              onPress={() => setActiveTab("vehiclelist")}
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
             >
-              <Text style={styles.tabText}>Vehicle List</Text>
+              <Ionicons name="arrow-back" size={28} color="#1F2937" />
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.tabButton,
-                activeTab === "revenue"
-                  ? styles.revenueTabActive
-                  : styles.tabInactive,
-              ]}
-              onPress={() => setActiveTab("revenue")}
-            >
-              <Text style={styles.tabText}>Revenue</Text>
-            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Staff Report</Text>
+          </View>
+          <View></View>
+          {/* Tabs */}
+          <View style={styles.tabWrapper}>
+            <View style={styles.tabRow}>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  activeTab === "vehiclelist"
+                    ? styles.vehicleTabActive
+                    : styles.tabInactive,
+                ]}
+                onPress={() => setActiveTab("vehiclelist")}
+              >
+                <Text style={styles.tabText}>Vehicle List</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  activeTab === "revenue"
+                    ? styles.revenueTabActive
+                    : styles.tabInactive,
+                ]}
+                onPress={() => setActiveTab("revenue")}
+              >
+                <Text style={styles.tabText}>Revenue</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* Content */}
+          <View style={styles.contentContainer}>
+            <ScrollView>{renderTabContent()}</ScrollView>
           </View>
         </View>
-
-        {/* Content */}
-        <View style={styles.contentContainer}>
-          <ScrollView>{renderTabContent()}</ScrollView>
-        </View>
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -88,6 +102,26 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 16,
+  },
+  header: {
+    backgroundColor: "white",
+    borderRadius: 4,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    left: 0,
+    top: "50%",
+    marginTop: -14, // To vertically center 28px icon
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1F2937", // Tailwind gray-800
   },
   tabWrapper: {
     backgroundColor: "#fff",

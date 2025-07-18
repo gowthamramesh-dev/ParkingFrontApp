@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pickerContainer: {
-    height: 48,
+    flex: 1,
     width: "100%",
     borderRadius: 4,
     borderWidth: 1,

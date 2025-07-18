@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import MonthlyPassModal from "../../../components/monthlyPassModal";
 import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const TABS = ["create", "active", "expired"] as const;
 
@@ -30,6 +31,18 @@ const MonthlyPass = () => {
     isLoading,
     extendMonthlyPass,
   } = userAuthStore();
+  const navigation = useNavigation<any>();
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", async () => {
+      if (activeTab !== "create") {
+        setIsTabLoading(true);
+        await getMonthlyPass(activeTab);
+        setIsTabLoading(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     const fetchTabData = async () => {

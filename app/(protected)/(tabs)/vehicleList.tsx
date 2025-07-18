@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   Text,
   TouchableOpacity,
@@ -15,7 +14,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
-
+import { useNavigation } from "@react-navigation/native";
 import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
 
@@ -91,6 +90,8 @@ const CheckinCard = ({ item }: any) => {
 };
 
 const VehicleList = () => {
+  const navigation = useNavigation<any>();
+
   const Vehicles: Vehicle[] = [
     { name: "All", value: "all", icon: "list-outline" },
     { name: "Cycle", value: "cycle", icon: "bicycle-outline" },
@@ -118,6 +119,13 @@ const VehicleList = () => {
   useEffect(() => {
     handleList("all");
   }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", () => {
+      handleList("all");
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     handleList(selected, checkType);

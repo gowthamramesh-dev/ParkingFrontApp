@@ -55,10 +55,13 @@ export default function TabLayout() {
             headerShown: false,
             tabBarActiveTintColor: "#3CDF70",
             tabBarStyle: {
+              alignItems: "center",
               backgroundColor: "#ffffff",
               borderTopWidth: 1,
               borderTopColor: "#E5E7EB",
               height: 60,
+              paddingBottom: 0,
+              marginBottom: 0,
               position: "absolute",
               bottom: 0,
             },
@@ -108,7 +111,6 @@ export default function TabLayout() {
           <Tabs.Screen name="staffs" options={{ href: null }} />
           <Tabs.Screen name="updateProfile" options={{ href: null }} />
           <Tabs.Screen name="priceDetails" options={{ href: null }} />
-          <Tabs.Screen name="splash" options={{ href: null }} />
         </Tabs>
       </SafeAreaView>
     </KeyboardAvoidingView>
