@@ -11,6 +11,7 @@ import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useAuthStore from "../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
 const vehicleTypes = ["cycle", "bike", "car", "van", "lorry", "bus"];
 
@@ -142,6 +143,7 @@ const CheckIn = () => {
             selectedValue={vehicleType}
             onValueChange={setVehicleType}
             style={styles.picker}
+            itemStyle={{ fontSize: 16 }}
           >
             <Picker.Item label="Select Vehicle Type" value="" />
             {vehicleTypes.map((type) => (
@@ -168,6 +170,7 @@ const CheckIn = () => {
             selectedValue={days}
             onValueChange={(val) => setDays(val)}
             style={styles.picker}
+            itemStyle={{ fontSize: 16 }}
           >
             <Picker.Item label="Select Days" value="" />
             {[...Array(7)].map((_, i) => (
@@ -185,6 +188,7 @@ const CheckIn = () => {
             selectedValue={paymentMethod}
             onValueChange={setPaymentMethod}
             style={styles.picker}
+            itemStyle={{ fontSize: 16 }}
           >
             <Picker.Item color="#000" label="Select Payment Method" value="" />
             <Picker.Item color="#000" label="Cash" value="cash" />
@@ -217,7 +221,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: RFValue(18),
     fontWeight: "bold",
   },
   formContainer: {
@@ -238,7 +242,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e5e7eb",
     backgroundColor: "#ebf8ff",
-    fontSize: 16,
+    fontSize: RFValue(14),
   },
   pickerContainer: {
     flex: 1,
@@ -256,7 +260,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   amountText: {
-    fontSize: 20,
+    fontSize: RFValue(16),
     fontWeight: "600",
   },
   submitButton: {
@@ -267,7 +271,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: RFValue(16),
     color: "#ffffff",
     fontWeight: "600",
   },

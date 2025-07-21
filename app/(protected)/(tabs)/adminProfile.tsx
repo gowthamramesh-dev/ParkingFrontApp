@@ -83,7 +83,6 @@ const Profile = () => {
         base64Image,
         ""
       );
-      console.log(res);
       if (res.success) {
         Toast.show({
           type: "success",
@@ -191,6 +190,14 @@ const Profile = () => {
       </View>
     );
   }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  // useEffect(() => {
+  //     const unsubscribe = navigation.addListener("tabPress", () => {
+  //       handleList("all");
+  //     });
+
+  //     return unsubscribe;
+  //   }, [navigation]);
 
   return (
     <View style={styles.container}>

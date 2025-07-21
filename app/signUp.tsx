@@ -179,7 +179,7 @@ const Signup = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#d1fae5", // Tailwind's green-100
+    backgroundColor: "#d1fae5",
   },
   scrollContent: {
     flexGrow: 1,

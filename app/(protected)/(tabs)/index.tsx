@@ -12,11 +12,12 @@ import {
 import CheckIn from "@/components/CheckIn";
 import CheckOut from "@/components/CheckOut";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { RFValue } from "react-native-responsive-fontsize";
 
 LogBox.ignoreAllLogs(false);
 
 ErrorUtils.setGlobalHandler((error, isFatal) => {
-  console.log("❌ Global Error:", error.message);
+  console.log(" Global Error:", error.message);
 });
 
 const Index = () => {
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   greetingText: {
-    fontSize: 24,
+    fontSize: RFValue(18),
     marginBottom: 20,
     color: "#111827",
   },
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   toggleText: {
-    fontSize: 20,
+    fontSize: RFValue(16),
     color: "#ffffff",
   },
   contentWrapper: {

@@ -6,11 +6,10 @@ import {
   View,
   Pressable,
   Dimensions,
-  Image,
   StyleSheet,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { RFValue } from "react-native-responsive-fontsize";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const ParkingSplashScreen = () => {
@@ -68,7 +67,7 @@ const ParkingSplashScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.innerContainer}>
         {/* Top Content */}
@@ -93,8 +92,8 @@ const ParkingSplashScreen = () => {
               {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }],
-                width: screenWidth * 0.85,
-                height: screenWidth * 0.85,
+                width: screenWidth * 0.75,
+                height: screenWidth * 0.75,
               },
             ]}
           />
@@ -129,11 +128,11 @@ const ParkingSplashScreen = () => {
               color="#fff"
               style={{ marginRight: 8 }}
             />
-            <Text style={styles.buttonText}>Let's Start</Text>
+            <Text style={styles.buttonText}>Let&apos;s Start</Text>
           </Pressable>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -158,14 +157,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 32,
+    fontSize: RFValue(22),
     fontWeight: "bold",
     color: "#000",
     marginBottom: 8,
     textAlign: "center",
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: RFValue(14),
     color: "#fff",
     opacity: 0.9,
     marginBottom: 32,
@@ -177,14 +176,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contentTitle: {
-    fontSize: 20,
+    fontSize: RFValue(16),
     fontWeight: "bold",
     color: "#000",
     marginBottom: 8,
     textAlign: "center",
   },
   contentDescription: {
-    fontSize: 16,
+    fontSize: RFValue(12),
     color: "#fff",
     opacity: 0.9,
     marginTop: 16,
@@ -192,11 +191,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "100%",
-    marginBottom: 40,
+    marginBottom: 60,
     borderWidth: 1,
     borderColor: "#fff",
     borderRadius: 999,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 24,
   },
   button: {
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: RFValue(14),
     fontWeight: "bold",
   },
 });

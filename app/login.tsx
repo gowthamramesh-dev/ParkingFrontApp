@@ -19,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import userAuthStore from "../utils/store";
 import { Link } from "expo-router";
 import ToastManager, { Toast } from "toastify-react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   appTitle: {
-    fontSize: 32,
+    fontSize: RFValue(26),
     marginBottom: 12,
   },
   formWrapper: {
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sectionHeaderText: {
-    fontSize: 24,
+    fontSize: RFValue(20),
   },
   inputGroup: {
     flexDirection: "row",
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -14,
     left: 12,
-    fontSize: 16,
+    fontSize: RFValue(12),
     backgroundColor: "#fff",
     zIndex: 10,
     color: "#374151", // Tailwind gray-700
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     paddingHorizontal: 8,
-    fontSize: 16,
+    fontSize: RFValue(12),
     color: "#1F2937", // Tailwind gray-800
   },
   linkWrapper: {
@@ -225,13 +226,13 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "#4CAF50",
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
   loginButtonText: {
-    fontSize: 20,
+    fontSize: RFValue(16),
     color: "#fff",
     fontWeight: "600",
   },
