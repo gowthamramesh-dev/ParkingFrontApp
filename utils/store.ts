@@ -710,7 +710,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       const token = get().token || (await AsyncStorage.getItem("token"));
       const updateBody: any = { username, oldPassword };
       if (newPassword) updateBody.password = newPassword;
-      if (avatar) updateBody.avatar = avatar;
+      if (avatar) updateBody.profileImage = avatar;
 
       const res = await fetch(`${URL}api/updateAdmin/${id}`, {
         method: "PUT",

@@ -80,21 +80,10 @@ const Profile = () => {
         parsedUser._id,
         parsedUser.username,
         "",
-        base64Image
+        base64Image,
+        ""
       );
-    }
-
-    if (!result.canceled) {
-      const selectedImage = result.assets[0].uri;
-      setAvatar(selectedImage);
-
-      const res = await updateProfile(
-        parsedUser._id,
-        parsedUser.username,
-        "",
-        selectedImage
-      );
-
+      console.log(res);
       if (res.success) {
         Toast.show({
           type: "success",
