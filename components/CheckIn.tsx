@@ -137,7 +137,7 @@ const CheckIn = () => {
           autoCapitalize="characters"
           style={styles.input}
         />
-
+        ``
         <View style={styles.pickerContainer}>
           <Picker
             selectedValue={vehicleType}
