@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DropDownPicker from "react-native-dropdown-picker";
 import useAuthStore from "../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -24,6 +27,10 @@ const CheckIn = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [days, setDays] = useState("1");
   const [amount, setAmount] = useState(0);
+
+  const [vehicleTypeOpen, setVehicleTypeOpen] = useState(false);
+  const [daysOpen, setDaysOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const { checkIn, fetchPrices, priceData } = useAuthStore();
 
@@ -117,108 +124,144 @@ const CheckIn = () => {
     clearForm();
   };
 
+  const handleOpen = useCallback((dropdown, open) => {
+    setVehicleTypeOpen(dropdown === "vehicle" && open);
+    setDaysOpen(dropdown === "days" && open);
+    setPaymentOpen(dropdown === "payment" && open);
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Check In</Text>
-      <View style={styles.formContainer}>
-        <TextInput
-          placeholder="Name"
-          value={name}
-          placeholderTextColor="#888"
-          onChangeText={setName}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Vehicle Number"
-          value={vehicleNo}
-          placeholderTextColor="#888"
-          onChangeText={setVehicleNo}
-          onBlur={() => setVehicleNo(vehicleNo.toUpperCase())}
-          autoCapitalize="characters"
-          style={styles.input}
-        />
-        ``
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={vehicleType}
-            onValueChange={setVehicleType}
-            style={styles.picker}
-            itemStyle={{ fontSize: 16 }}
-          >
-            <Picker.Item label="Select Vehicle Type" value="" />
-            {vehicleTypes.map((type) => (
-              <Picker.Item
-                key={type}
-                color="#000"
-                label={type.charAt(0).toUpperCase() + type.slice(1)}
-                value={type}
-              />
-            ))}
-          </Picker>
-        </View>
-        <TextInput
-          placeholder="Mobile Number"
-          maxLength={10}
-          value={mobile}
-          placeholderTextColor="#888"
-          onChangeText={setMobile}
-          keyboardType="number-pad"
-          style={styles.input}
-        />
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={days}
-            onValueChange={(val) => setDays(val)}
-            style={styles.picker}
-            itemStyle={{ fontSize: 16 }}
-          >
-            <Picker.Item label="Select Days" value="" />
-            {[...Array(7)].map((_, i) => (
-              <Picker.Item
-                color="#000"
-                key={i + 1}
-                label={`${i + 1} Day${i > 0 ? "s" : ""}`}
-                value={`${i + 1}`}
-              />
-            ))}
-          </Picker>
-        </View>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={paymentMethod}
-            onValueChange={setPaymentMethod}
-            style={styles.picker}
-            itemStyle={{ fontSize: 16 }}
-          >
-            <Picker.Item color="#000" label="Select Payment Method" value="" />
-            <Picker.Item color="#000" label="Cash" value="cash" />
-            <Picker.Item color="#000" label="GPay" value="gpay" />
-            <Picker.Item color="#000" label="PhonePe" value="phonepe" />
-            <Picker.Item color="#000" label="Paytm" value="paytm" />
-          </Picker>
-        </View>
-        <View style={styles.amountContainer}>
-          <Text style={styles.amountText}>Amount: ₹{amount}</Text>
-        </View>
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color="#10B981" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+      >
+        <View style={styles.container}>
+          <Text style={styles.title}>Check In</Text>
+          <View style={styles.formContainer}>
+            <TextInput
+              placeholder="Name"
+              value={name}
+              placeholderTextColor="#888"
+              onChangeText={setName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Vehicle Number"
+              value={vehicleNo}
+              placeholderTextColor="#888"
+              onChangeText={setVehicleNo}
+              onBlur={() => setVehicleNo(vehicleNo.toUpperCase())}
+              autoCapitalize="characters"
+              style={styles.input}
+            />
+
+            <DropDownPicker
+              textStyle={{ color: "#000" }}
+              labelStyle={{ color: "#000" }}
+              open={vehicleTypeOpen}
+              value={vehicleType}
+              items={vehicleTypes.map((type) => ({
+                label: type.charAt(0).toUpperCase() + type.slice(1),
+                value: type,
+              }))}
+              setOpen={(open) => handleOpen("vehicle", open)}
+              setValue={setVehicleType}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownList}
+              textStyle={{ fontSize: RFValue(14) }}
+              placeholder="Select Vehicle Type"
+              zIndex={3000}
+              zIndexInverse={1000}
+            />
+
+            <TextInput
+              placeholder="Mobile Number"
+              maxLength={10}
+              value={mobile}
+              placeholderTextColor="#888"
+              onChangeText={setMobile}
+              keyboardType="number-pad"
+              style={styles.input}
+            />
+
+            <DropDownPicker
+              textStyle={{ color: "#000" }}
+              labelStyle={{ color: "#000" }}
+              open={daysOpen}
+              value={days}
+              items={[...Array(7)].map((_, i) => ({
+                label: `${i + 1} Day${i > 0 ? "s" : ""}`,
+                value: `${i + 1}`,
+              }))}
+              setOpen={(open) => handleOpen("days", open)}
+              setValue={setDays}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownList}
+              textStyle={{ fontSize: RFValue(14) }}
+              placeholder="Select Days"
+              zIndex={2000}
+              zIndexInverse={900}
+            />
+
+            <DropDownPicker
+              textStyle={{ color: "#000" }}
+              labelStyle={{ color: "#000" }}
+              open={paymentOpen}
+              value={paymentMethod}
+              items={[
+                { label: "Cash", value: "cash" },
+                { label: "GPay", value: "gpay" },
+                { label: "PhonePe", value: "phonepe" },
+                { label: "Paytm", value: "paytm" },
+              ]}
+              setOpen={(open) => handleOpen("payment", open)}
+              setValue={setPaymentMethod}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownList}
+              textStyle={{ fontSize: RFValue(14) }}
+              placeholder="Select Payment Method"
+              zIndex={1000}
+              zIndexInverse={800}
+            />
+
+            <View style={styles.amountContainer}>
+              <Text style={styles.amountText}>Amount: ₹{amount}</Text>
             </View>
-          ) : (
-            <Text style={styles.submitButtonText}>Enter</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-      <ToastManager showCloseIcon={false} />
-    </View>
+
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleSubmit}
+            >
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="#10B981" />
+                </View>
+              ) : (
+                <Text style={styles.submitButtonText}>Enter</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          <ToastManager showCloseIcon={false} />
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     padding: 16,
     gap: 20,
+    zIndex: 4000,
+    flex: 1,
   },
   title: {
     fontSize: RFValue(18),
@@ -233,6 +276,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     padding: 16,
     gap: 12,
+    zIndex: 4000,
   },
   input: {
     height: 48,
@@ -244,17 +288,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#ebf8ff",
     fontSize: RFValue(14),
   },
-  pickerContainer: {
-    flex: 1,
-    width: "100%",
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#ebf8ff",
-  },
-  picker: {
+  dropdown: {
     height: 48,
-    backgroundColor: "transparent",
+    backgroundColor: "#ebf8ff",
+    borderColor: "#e5e7eb",
+  },
+  dropdownList: {
+    backgroundColor: "#ebf8ff",
+    borderColor: "#e5e7eb",
   },
   amountContainer: {
     alignItems: "center",

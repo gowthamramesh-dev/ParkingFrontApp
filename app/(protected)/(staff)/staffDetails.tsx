@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-} from "react-native";
+import { Text, TouchableOpacity, SafeAreaView, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 const StaffDetails = () => {

@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import DatePicker from "@react-native-community/datetimepicker";
 import useAuthStore from "../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 
 interface FormData {
   name: string;
@@ -30,7 +30,7 @@ type VehicleType = "cycle" | "bike" | "car" | "van" | "lorry" | "bus";
 interface MonthlyPassModalProps {
   isModalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
-  onPassCreated: (pass: any) => void; // Adjusted to `any` to accommodate potential pass structure
+  onPassCreated: (pass: any) => void;
 }
 
 const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
@@ -38,7 +38,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
   setModalVisible,
   onPassCreated,
 }) => {
-  const [isDatePickerVisible, setDatePickerVisible] = useState<boolean>(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -53,49 +53,74 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
 
   const { createMonthlyPass, priceData } = useAuthStore();
 
+  const [openVehicleType, setOpenVehicleType] = useState(false);
+  const [openDuration, setOpenDuration] = useState(false);
+  const [openPayment, setOpenPayment] = useState(false);
+
+  const vehicleTypeItems = [
+    { label: "Cycle", value: "cycle" },
+    { label: "Bike", value: "bike" },
+    { label: "Car", value: "car" },
+    { label: "Van", value: "van" },
+    { label: "Lorry", value: "lorry" },
+    { label: "Bus", value: "bus" },
+  ];
+
+  const durationItems = [
+    { label: "3 months", value: "3" },
+    { label: "6 months", value: "6" },
+    { label: "9 months", value: "9" },
+    { label: "12 months", value: "12" },
+  ];
+
+  const paymentMethodItems = [
+    { label: "Cash", value: "cash" },
+    { label: "GPay", value: "gpay" },
+    { label: "PhonePe", value: "phonepe" },
+    { label: "Paytm", value: "paytm" },
+  ];
+
   useEffect(() => {
     if (formData.startDate && formData.duration) {
       const startDate = new Date(formData.startDate);
       const months = parseInt(formData.duration, 10);
       const endDate = new Date(startDate);
       endDate.setMonth(startDate.getMonth() + months);
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         endDate: endDate.toISOString().split("T")[0],
-      });
+      }));
     }
   }, [formData.startDate, formData.duration]);
 
   const calculateAmount = () => {
     const duration = parseInt(formData.duration || "0");
     const vehicleType = formData.vehicleType as VehicleType;
-
     if (!priceData?.monthlyPrices || !vehicleType || !duration) return 0;
-
     const monthlyRate = Number(priceData.monthlyPrices[vehicleType]);
-    if (isNaN(monthlyRate)) return 0;
-
-    return monthlyRate * duration;
+    return isNaN(monthlyRate) ? 0 : monthlyRate * duration;
   };
 
   const handleCreatePass = async () => {
     setIsLoading(true);
-    if (
-      !formData.name ||
-      !formData.vehicleNo ||
-      !formData.mobile ||
-      !formData.vehicleType ||
-      !formData.duration ||
-      !formData.paymentMethod ||
-      !formData.startDate
-    ) {
+    const requiredFields = [
+      "name",
+      "vehicleNo",
+      "mobile",
+      "vehicleType",
+      "duration",
+      "paymentMethod",
+      "startDate",
+    ];
+    const missing = requiredFields.some((field) => !formData[field]);
+
+    if (missing) {
       Toast.show({
         type: "error",
         text1: "Error",
         text2: "Please fill all required fields",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       setIsLoading(false);
       return;
@@ -109,7 +134,6 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
         text2: "Could not determine amount. Please check prices.",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       setIsLoading(false);
       return;
@@ -125,7 +149,6 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
         text2: result.error || "Error in API",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       return;
     }
@@ -136,7 +159,6 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
       text2: "Pass Created Successfully",
       position: "top",
       visibilityTime: 2000,
-      autoHide: true,
     });
 
     setFormData({
@@ -166,27 +188,23 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
             placeholder="Customer Name"
             placeholderTextColor="#888"
             value={formData.name}
-            onChangeText={(text: string) =>
-              setFormData({ ...formData, name: text })
-            }
+            onChangeText={(text) => setFormData({ ...formData, name: text })}
           />
           <TextInput
             style={styles.input}
             placeholder="Mobile Number"
             placeholderTextColor="#888"
             maxLength={10}
-            value={formData.mobile}
-            onChangeText={(text: string) =>
-              setFormData({ ...formData, mobile: text })
-            }
             keyboardType="phone-pad"
+            value={formData.mobile}
+            onChangeText={(text) => setFormData({ ...formData, mobile: text })}
           />
           <TextInput
             style={styles.input}
             placeholder="Vehicle Number"
             placeholderTextColor="#888"
-            keyboardType="default"
             value={formData.vehicleNo}
+            keyboardType="default"
             onChangeText={(text) =>
               setFormData({ ...formData, vehicleNo: text })
             }
@@ -199,50 +217,54 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
             autoCapitalize="characters"
           />
 
-          <View>
-            <Picker
-              selectedValue={formData.vehicleType}
-              onValueChange={(text) =>
-                setFormData({ ...formData, vehicleType: text })
-              }
-              style={styles.picker}
-            >
-              <Picker.Item color="#000" label="Select Vehicle Type" value="" />
-              <Picker.Item color="#000" label="Cycle" value="cycle" />
-              <Picker.Item color="#000" label="Bike" value="bike" />
-              <Picker.Item color="#000" label="Car" value="car" />
-              <Picker.Item color="#000" label="Van" value="van" />
-              <Picker.Item color="#000" label="Lorry" value="lorry" />
-              <Picker.Item color="#000" label="Bus" value="bus" />
-            </Picker>
-          </View>
-          <View>
-            <Picker
-              selectedValue={formData.duration}
-              onValueChange={(text) =>
-                setFormData({ ...formData, duration: text })
-              }
-              style={styles.picker}
-            >
-              <Picker.Item color="#000" label="Select Duration" value="" />
-              {[3, 6, 9, 12].map((m) => (
-                <Picker.Item
-                  color="#000"
-                  key={m}
-                  label={`${m} months`}
-                  value={`${m}`}
-                />
-              ))}
-            </Picker>
-          </View>
+          <DropDownPicker
+            textStyle={{ color: "#000" }}
+            labelStyle={{ color: "#000" }}
+            open={openVehicleType}
+            value={formData.vehicleType}
+            items={vehicleTypeItems}
+            setOpen={setOpenVehicleType}
+            setValue={(cb) =>
+              setFormData((prev) => ({
+                ...prev,
+                vehicleType: cb(prev.vehicleType),
+              }))
+            }
+            setItems={() => {}}
+            placeholder="Select Vehicle Type"
+            style={styles.picker}
+            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
+            zIndex={3000}
+            zIndexInverse={1000}
+          />
+
+          <DropDownPicker
+            textStyle={{ color: "#000" }}
+            labelStyle={{ color: "#000" }}
+            open={openDuration}
+            value={formData.duration}
+            items={durationItems}
+            setOpen={setOpenDuration}
+            setValue={(cb) =>
+              setFormData((prev) => ({ ...prev, duration: cb(prev.duration) }))
+            }
+            setItems={() => {}}
+            placeholder="Select Duration"
+            style={styles.picker}
+            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
+            zIndex={2000}
+            zIndexInverse={2000}
+          />
+
           <TouchableOpacity
             style={styles.datePickerButton}
             onPress={() => setDatePickerVisible(true)}
           >
             <Text style={styles.datePickerText}>
-              {formData.startDate ? formData.startDate : "Select Start Date"}
+              {formData.startDate || "Select Start Date"}
             </Text>
           </TouchableOpacity>
+
           {isDatePickerVisible && (
             <DatePicker
               value={
@@ -261,32 +283,36 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               }}
             />
           )}
-          <View>
-            <Picker
-              selectedValue={formData.paymentMethod}
-              onValueChange={(text) =>
-                setFormData({ ...formData, paymentMethod: text })
-              }
-              style={styles.picker}
-            >
-              <Picker.Item
-                color="#000"
-                label="Select Payment Method"
-                value=""
-              />
-              <Picker.Item color="#000" label="Cash" value="cash" />
-              <Picker.Item color="#000" label="GPay" value="gpay" />
-              <Picker.Item color="#000" label="PhonePe" value="phonepe" />
-              <Picker.Item color="#000" label="Paytm" value="paytm" />
-            </Picker>
-          </View>
+
+          <DropDownPicker
+            textStyle={{ color: "#000" }}
+            labelStyle={{ color: "#000" }}
+            open={openPayment}
+            value={formData.paymentMethod}
+            items={paymentMethodItems}
+            setOpen={setOpenPayment}
+            setValue={(cb) =>
+              setFormData((prev) => ({
+                ...prev,
+                paymentMethod: cb(prev.paymentMethod),
+              }))
+            }
+            setItems={() => {}}
+            placeholder="Select Payment Method"
+            style={styles.picker}
+            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
+            zIndex={1000}
+            zIndexInverse={3000}
+          />
+
           <TextInput
             style={styles.input}
-            placeholderTextColor="#888"
             placeholder="End Date (YYYY-MM-DD)"
+            placeholderTextColor="#888"
             value={formData.endDate}
             editable={false}
           />
+
           {formData.vehicleType && formData.duration && (
             <View style={styles.amountContainer}>
               <Text style={styles.amountText}>
@@ -297,6 +323,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               </Text>
             </View>
           )}
+
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.cancelButton}
@@ -309,7 +336,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
               onPress={handleCreatePass}
             >
               {isLoading ? (
-                <View style={styles.loadingContainer}>
+                <View style={styles.loader}>
                   <ActivityIndicator size="small" color="#10B981" />
                 </View>
               ) : (
@@ -336,6 +363,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 8,
     width: "80%",
+    zIndex: 4000,
   },
   modalTitle: {
     fontSize: 18,
@@ -353,11 +381,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   picker: {
-    color: "black",
-    height: 48,
     backgroundColor: "#DBEAFE",
     marginBottom: 12,
-    borderRadius: 2,
+    borderColor: "#e5e7eb",
   },
   datePickerButton: {
     borderWidth: 1,
@@ -405,9 +431,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
   },
-  loadingContainer: {
-    backgroundColor: "#ffffff",
-    padding: 4,
+  loader: {
+    backgroundColor: "#fff",
+    padding: 8,
     borderRadius: 50,
   },
 });

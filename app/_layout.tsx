@@ -2,7 +2,13 @@ import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import userAuthStore from "@/utils/store";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, Text, TextInput } from "react-native";
+
+if (Text.defaultProps == null) Text.defaultProps = {};
+Text.defaultProps.allowFontScaling = false;
+
+if (TextInput.defaultProps == null) TextInput.defaultProps = {};
+TextInput.defaultProps.allowFontScaling = false;
 
 export default function RootLayout() {
   // Extract state using selectors (avoids unnecessary renders)
@@ -35,7 +41,7 @@ export default function RootLayout() {
   if (!hydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="blue" />
+        <ActivityIndicator size="large" color="lightgreen" />
       </View>
     );
   }

@@ -2,17 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
   StyleSheet,
+  Dimensions,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { format } from "date-fns";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { PieChart } from "react-native-chart-kit";
-import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import userAuthStore from "@/utils/store";
 

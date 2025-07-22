@@ -73,7 +73,7 @@ const AllStaffs = () => {
 
       {/* Loader / List */}
       {isLoading ? (
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="lightgreen" />
       ) : staffs.length === 0 ? (
         <Text style={styles.emptyText}>No staff found</Text>
       ) : (

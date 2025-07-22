@@ -3,8 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const URL = "https://parking-servers-1.onrender.com/";
-// const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
+// const URL = "https://parking-servers-1.onrender.com/";
+const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
 
 interface StaffPerformance {
   username: string;
@@ -584,11 +584,20 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
 
-      return { success: true, receipt: data.receipt };
+      if (!res.ok || !data.receipt) {
+        throw new Error(data.message || "Checkout failed");
+      }
+
+      return {
+        success: true,
+        receipt: data.receipt,
+      };
     } catch (err: any) {
-      return { success: false, error: err.message };
+      return {
+        success: false,
+        error: err.message || "Something went wrong",
+      };
     } finally {
       set({ isLoading: false });
     }

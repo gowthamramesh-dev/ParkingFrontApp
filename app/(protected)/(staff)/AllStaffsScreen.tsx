@@ -128,17 +128,17 @@ const AllStaffs = () => {
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <View style={styles.cardHeader}>
+      <View style={styles.cardRow}>
         <Text style={styles.username}>{item.username}</Text>
         <View style={styles.actionIcons}>
           <TouchableOpacity onPress={() => setSelectedStaff(item)}>
-            <Ionicons name="eye-outline" size={22} color="gray" />
+            <Ionicons name="eye-outline" size={22} color="#065F46" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleEditPress(item)}>
-            <Ionicons name="create-outline" size={22} color="blue" />
+            <Ionicons name="create-outline" size={22} color="#2563EB" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleDelete(item._id)}>
-            <Ionicons name="trash-outline" size={22} color="red" />
+            <Ionicons name="trash-outline" size={22} color="#DC2626" />
           </TouchableOpacity>
         </View>
       </View>
@@ -168,7 +168,7 @@ const AllStaffs = () => {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="lightgreen" />
       ) : staffs.length === 0 ? (
         <Text style={styles.noStaffText}>No staff found</Text>
       ) : (
@@ -183,7 +183,7 @@ const AllStaffs = () => {
       <Modal visible={isModalVisible} animationType="slide" transparent>
         {renderBlurWrapper(
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>✏ Edit Staff Details</Text>
+            <Text style={styles.modalTitle}> Edit Staff Details</Text>
 
             <TextInput
               value={editUsername}
@@ -250,13 +250,13 @@ const AllStaffs = () => {
       >
         {renderBlurWrapper(
           <View style={styles.viewBox}>
-            <Text style={styles.viewTitle}>👤 Staff Details</Text>
+            <Text style={styles.viewTitle}> Staff Credentials</Text>
 
             <View style={styles.viewSection}>
               <View style={styles.viewRow}>
                 <Ionicons
                   name="person-circle-outline"
-                  size={24}
+                  size={22}
                   color="#4B5563"
                 />
                 <View>
@@ -269,7 +269,7 @@ const AllStaffs = () => {
 
               <View style={styles.viewRowBetween}>
                 <View style={styles.viewRow}>
-                  <Ionicons name="key-outline" size={24} color="#4B5563" />
+                  <Ionicons name="key-outline" size={20} color="#4B5563" />
                   <View>
                     <Text style={styles.viewLabel}>Password</Text>
                     <Text style={styles.viewValue}>
@@ -323,57 +323,118 @@ const AllStaffs = () => {
 };
 
 const styles = StyleSheet.create({
-  modalBox: {
-    backgroundColor: "white",
-    width: "92%",
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB", // gray-50
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
-  modalTitle: {
+
+  headers: {
+    backgroundColor: "#ffffff", // green-600
+    borderRadius: 10,
+    height: 54,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+    position: "relative",
+  },
+  backButton: {
+    position: "absolute",
+    left: 16,
+    top: "50%",
+    marginTop: -14,
+  },
+  headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#047857",
-    marginBottom: 16,
-    textAlign: "center",
+    color: "#000000",
   },
-  inputField: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: "#DBEAFE",
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  card: {
+    backgroundColor: "#ECFDF5", // green-50
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  username: {
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#065F46", // green-700
+  },
+  actionIcons: {
+    flexDirection: "row",
+    gap: 16,
+    alignItems: "center",
+  },
+  noStaffText: {
+    textAlign: "center",
     fontSize: 16,
+    color: "#6B7280",
+    marginTop: 40,
+  },
+
+  // ✅ Modal Box (edit or view)
+  modalBox: {
+    backgroundColor: "#FFFFFF",
+    width: "92%",
+    borderRadius: 16,
+    padding: 24,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#16A34A",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+
+  // ✅ Input Field
+  inputField: {
+    backgroundColor: "#F0FDF4", // green-50
+    borderWidth: 1,
+    borderColor: "#BBF7D0", // green-200
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    borderRadius: 10,
     marginBottom: 12,
   },
   passwordContainer: {
     position: "relative",
-    marginBottom: 12,
   },
   eyeIcon: {
     position: "absolute",
-    right: 10,
-    top: 12,
+    right: 14,
+    top: 14,
   },
+
+  // ✅ Modal Buttons
   modalActions: {
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 12,
+    marginTop: 10,
   },
   cancelButton: {
-    backgroundColor: "#E5E7EB",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  saveButton: {
-    backgroundColor: "#10B981",
-    paddingHorizontal: 20,
+    backgroundColor: "#E5E7EB", // gray-200
+    paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 8,
   },
@@ -381,80 +442,24 @@ const styles = StyleSheet.create({
     color: "#1F2937",
     fontWeight: "500",
   },
+  saveButton: {
+    backgroundColor: "#16A34A", // green-600
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
   saveText: {
     color: "white",
     fontWeight: "600",
   },
-  container: {
-    flex: 1,
-    backgroundColor: "#F3F4F6",
-    paddingHorizontal: 16,
-    paddingTop: 24,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 24,
-    gap: 8,
-  },
-  headers: {
-    backgroundColor: "white",
-    borderRadius: 4,
-    height: 48,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-    position: "relative",
-  },
-  backButton: {
-    position: "absolute",
-    left: 0,
-    top: "50%",
-    marginTop: -14, // To vertically center 28px icon
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1F2937", // Tailwind gray-800
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1F2937",
-  },
-  noStaffText: {
-    textAlign: "center",
-    color: "#6B7280",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  username: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  actionIcons: {
-    flexDirection: "row",
-    gap: 16,
-  },
+
+  // ✅ BlurView Modal
   androidBlur: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    // backgroundColor: "rgba(147, 197, 253, 0.1)",
     paddingHorizontal: 16,
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   blurView: {
     flex: 1,
@@ -462,23 +467,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
   },
+
+  // ✅ View Staff Modal
   viewBox: {
-    backgroundColor: "white",
-    width: "100%",
+    backgroundColor: "#FFFFFF",
+    width: "92%",
     borderRadius: 16,
     padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
+    elevation: 10,
   },
   viewTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 24,
+    color: "#16A34A",
     textAlign: "center",
-    color: "#4338CA", // indigo-700
+    marginBottom: 20,
   },
   viewSection: {
     gap: 16,
@@ -486,29 +489,25 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#DBEAFE", // blue-100
-    borderRadius: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginBottom: 8,
+    gap: 10,
+    backgroundColor: "#F0FDF4",
+    borderRadius: 10,
+    padding: 12,
   },
   viewRowBetween: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#DBEAFE",
-    borderRadius: 4,
-    paddingVertical: 8,
+    backgroundColor: "#F0FDF4",
+    borderRadius: 10,
     paddingHorizontal: 16,
   },
   viewLabel: {
-    fontSize: 10,
+    fontSize: 12,
     color: "#6B7280",
-    textTransform: "uppercase",
-    letterSpacing: 1,
   },
   viewValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: "#1F2937",
   },
@@ -517,15 +516,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   closeButton: {
-    marginTop: 32,
-    backgroundColor: "#10B981",
+    marginTop: 24,
+    backgroundColor: "#16A34A",
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 4,
+    borderRadius: 8,
   },
   closeButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     textAlign: "center",
     fontWeight: "600",
   },

@@ -11,12 +11,12 @@ import {
 import React, { useEffect, useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import { useNavigation } from "@react-navigation/native";
 import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
+import DropDownPicker from "react-native-dropdown-picker";
 
 type Vehicle = {
   name: string;
@@ -102,6 +102,12 @@ const VehicleList = () => {
   ];
 
   const [checkType, setCheckType] = useState("checkins");
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([
+    { label: "Check In", value: "checkins" },
+    { label: "Check Out", value: "checkouts" },
+  ]);
+
   const { vehicleList, VehicleListData } = userAuthStore();
   const [selected, setSelected] = useState("all");
   const [loading, setLoading] = useState(false);
@@ -181,25 +187,41 @@ const VehicleList = () => {
         />
       </View>
 
-      <View style={styles.rowFilter}>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={checkType}
-            onValueChange={setCheckType}
-            style={{ height: 50, backgroundColor: "transparent" }}
+      <View style={{ zIndex: 1000 }}>
+        <View style={styles.rowFilter}>
+          <View style={styles.pickerWrapper}>
+            <DropDownPicker
+              textStyle={{ color: "#000" }}
+              labelStyle={{ color: "#000" }}
+              open={open}
+              value={checkType}
+              items={items}
+              setOpen={setOpen}
+              setValue={setCheckType}
+              setItems={setItems}
+              style={{
+                backgroundColor: "white",
+                borderColor: "#ccc",
+                height: 48,
+              }}
+              dropDownContainerStyle={{
+                backgroundColor: "#f0f0f0",
+                borderColor: "#ccc",
+              }}
+              placeholder="Select Type"
+              zIndex={1000}
+              zIndexInverse={3000}
+            />
+          </View>
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.dateBtn}
           >
-            <Picker.Item color="#000" label="Check In" value="checkins" />
-            <Picker.Item color="#000" label="Check Out" value="checkouts" />
-          </Picker>
+            <Text style={styles.dateBtnText}>
+              {filterDate ? format(filterDate, "MMM dd, yyyy") : "Pick Date"}
+            </Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={styles.dateBtn}
-        >
-          <Text style={styles.dateBtnText}>
-            {filterDate ? format(filterDate, "MMM dd, yyyy") : "Pick Date"}
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {showDatePicker && (
@@ -286,11 +308,6 @@ const styles = StyleSheet.create({
   rowFilter: { flexDirection: "row", alignItems: "center", gap: 8 },
   pickerWrapper: {
     flex: 1,
-    height: 60,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    borderRadius: 4,
   },
   dateBtn: {
     backgroundColor: "#d1fae5",
@@ -323,21 +340,25 @@ const styles = StyleSheet.create({
   },
   nameStatusContainer: {
     flexDirection: "row",
-    gap: 8,
+    gap: 4,
     alignItems: "center",
   },
   vehicleName: { fontSize: 18, fontWeight: "600", color: "#111827" },
   status: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    fontSize: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    fontSize: 10,
     borderRadius: 999,
     fontWeight: "600",
   },
   statusOut: { backgroundColor: "#fee2e2", color: "#b91c1c" },
   statusActive: { backgroundColor: "#d1fae5", color: "#047857" },
-  vehicleNoContainer: { flexDirection: "row", alignItems: "center", gap: 4 },
-  vehicleNo: { fontSize: 16, color: "#6b7280" },
+  vehicleNoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  vehicleNo: { fontSize: 14, color: "#6b7280" },
   tokenCopy: { fontSize: 12, color: "#10b981" },
   detailsContainer: {
     backgroundColor: "#f3f4f6",

@@ -4,11 +4,10 @@ import {
   View,
   ScrollView,
   FlatList,
-  RefreshControl,
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ProgressChart, PieChart } from "react-native-chart-kit";
 import userAuthStore from "@/utils/store";
 import { LinearGradient } from "expo-linear-gradient";
@@ -282,7 +281,6 @@ const TodayReport = () => {
     setVehicleList(updatedVehicleList);
     setPaymentMethod(paymentList);
   }, [checkins, checkouts, allData, VehicleTotalMoney, PaymentMethod]);
-
   const revenueChartData = useMemo(() => {
     return Object.entries(VehicleTotalMoney || {}).map(
       ([type, money], index) => ({

@@ -15,13 +15,12 @@ import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import DropDownPicker from "react-native-dropdown-picker";
 import { format } from "date-fns";
 
 import userAuthStore from "@/utils/store";
 
-// ✅ Valid Icons
 const VALID_IONICONS = new Set([
   "list-outline",
   "bicycle-outline",
@@ -54,8 +53,7 @@ const Vehicles = [
   { name: "Bus", value: "bus", icon: "bus-outline" },
 ];
 
-// ✅ CheckinCard
-const CheckinCard = ({ item }: any) => {
+const CheckinCard = ({ item }) => {
   const formattedDate = format(
     new Date(item.entryDateTime),
     "MMM d, yyyy - h:mm a"
@@ -121,7 +119,6 @@ const CheckinCard = ({ item }: any) => {
   );
 };
 
-// ✅ Main Screen
 const VehicleScreen = () => {
   const { staffId } = useLocalSearchParams();
   const isFocused = useIsFocused();
@@ -129,8 +126,13 @@ const VehicleScreen = () => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("all");
   const [checkType, setCheckType] = useState("checkins");
-  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [filterDate, setFilterDate] = useState(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [openDropDown, setOpenDropDown] = useState(false);
+  const [dropDownItems, setDropDownItems] = useState([
+    { label: "Check In", value: "checkins" },
+    { label: "Check Out", value: "checkouts" },
+  ]);
 
   const {
     isLoading,
@@ -142,13 +144,13 @@ const VehicleScreen = () => {
     vehicleList,
   } = userAuthStore((state) => state);
 
-  const handleList = async (type: string) => {
+  const handleList = async (type) => {
     if (checkType === "checkins") {
-      await fetchCheckins(type, staffId as string);
+      await fetchCheckins(type, staffId);
     } else if (checkType === "checkouts") {
-      await fetchCheckouts(type, staffId as string);
+      await fetchCheckouts(type, staffId);
     } else {
-      await vehicleList(type, "vehicleList", staffId as string);
+      await vehicleList(type, "vehicleList", staffId);
     }
   };
 
@@ -168,7 +170,7 @@ const VehicleScreen = () => {
 
   const dataToDisplay = getDataToShow();
 
-  const filteredData = dataToDisplay?.filter((item: any) => {
+  const filteredData = dataToDisplay?.filter((item) => {
     const matchesSearch =
       item.vehicleNo?.toLowerCase().includes(search.toLowerCase()) ||
       item.name?.toLowerCase().includes(search.toLowerCase());
@@ -183,6 +185,7 @@ const VehicleScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={{ zIndex: 9999 }} />
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#10B981" />
@@ -191,112 +194,119 @@ const VehicleScreen = () => {
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => <CheckinCard item={item} />}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 30 }}
-          ListHeaderComponent={
-            <View
-              style={{ paddingHorizontal: 16, paddingVertical: 16, gap: 12 }}
-            >
-              <View style={styles.searchBar}>
-                <Ionicons name="search-outline" size={24} />
-                <TextInput
-                  placeholder="Search vehicle"
-                  value={search}
-                  onChangeText={setSearch}
-                  style={styles.searchInput}
-                />
-              </View>
+        <>
+          <View style={{ padding: 16, zIndex: 1000 }}>
+            <View style={styles.searchBar}>
+              <Ionicons name="search-outline" size={24} />
+              <TextInput
+                placeholder="Search vehicle"
+                value={search}
+                onChangeText={setSearch}
+                style={styles.searchInput}
+              />
+            </View>
 
-              <View style={styles.vehicleFilterContainer}>
-                <Text style={styles.vehicleHeading}>Vehicles</Text>
-                <FlatList
-                  data={Vehicles}
-                  horizontal
-                  keyExtractor={(item) => item.value}
-                  renderItem={({ item }) => {
-                    const isSelected = selected === item.value;
-                    return (
-                      <TouchableOpacity
-                        style={[
-                          styles.vehicleButton,
+            <View style={styles.vehicleFilterContainer}>
+              <Text style={styles.vehicleHeading}>Vehicles</Text>
+              <FlatList
+                data={Vehicles}
+                horizontal
+                keyExtractor={(item) => item.value}
+                renderItem={({ item }) => {
+                  const isSelected = selected === item.value;
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.vehicleButton,
+                        isSelected
+                          ? styles.selectedVehicle
+                          : styles.unselectedVehicle,
+                      ]}
+                      onPress={() => {
+                        setSelected(item.value);
+                        handleList(item.value);
+                      }}
+                    >
+                      <SafeIonicon
+                        name={item.icon}
+                        size={22}
+                        color={isSelected ? "#fff" : "#000"}
+                      />
+                      <Text
+                        style={
                           isSelected
-                            ? styles.selectedVehicle
-                            : styles.unselectedVehicle,
-                        ]}
-                        onPress={() => {
-                          setSelected(item.value);
-                          handleList(item.value);
-                        }}
+                            ? styles.selectedText
+                            : styles.unselectedText
+                        }
                       >
-                        <SafeIonicon
-                          name={item.icon}
-                          size={22}
-                          color={isSelected ? "#fff" : "#000"}
-                        />
-                        <Text
-                          style={
-                            isSelected
-                              ? styles.selectedText
-                              : styles.unselectedText
-                          }
-                        >
-                          {item.name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  }}
-                  showsHorizontalScrollIndicator={false}
-                />
-              </View>
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                }}
+                showsHorizontalScrollIndicator={false}
+              />
+            </View>
 
-              <View style={styles.filterRow}>
-                <View style={{ flex: 1 }}>
-                  <Picker
-                    selectedValue={checkType}
-                    onValueChange={(val) => setCheckType(val)}
-                  >
-                    <Picker.Item label="Check In" value="checkins" />
-                    <Picker.Item label="Check Out" value="checkouts" />
-                    <Picker.Item label="Vehicle List" value="list" />
-                  </Picker>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setShowDatePicker(true)}
-                  style={styles.dateButton}
-                >
-                  <Text style={styles.dateButtonText}>
-                    {filterDate
-                      ? format(filterDate, "MMM dd, yyyy")
-                      : "Pick Date"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {showDatePicker && (
-                <DateTimePicker
-                  value={filterDate || new Date()}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "inline" : "default"}
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (event.type === "set" && selectedDate) {
-                      setFilterDate(selectedDate);
-                    }
+            <View style={[styles.filterRow, { zIndex: 1000 }]}>
+              <View style={{ flex: 1, zIndex: 1000 }}>
+                <DropDownPicker
+                  textStyle={{ color: "#000" }}
+                  labelStyle={{ color: "#000" }}
+                  open={openDropDown}
+                  value={checkType}
+                  items={dropDownItems}
+                  setOpen={setOpenDropDown}
+                  setValue={setCheckType}
+                  setItems={setDropDownItems}
+                  containerStyle={{ height: 44 }}
+                  style={{ borderRadius: 6, borderColor: "white" }}
+                  dropDownContainerStyle={{
+                    borderRadius: 6,
+                    borderColor: "white",
                   }}
                 />
-              )}
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={styles.dateButton}
+              >
+                <Text style={styles.dateButtonText}>
+                  {filterDate
+                    ? format(filterDate, "MMM dd, yyyy")
+                    : "Pick Date"}
+                </Text>
+              </TouchableOpacity>
             </View>
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyTextContainer}>
-              <Text style={styles.emptyText}>No vehicle data found</Text>
-            </View>
-          }
-        />
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={filterDate || new Date()}
+                mode="date"
+                display={Platform.OS === "ios" ? "inline" : "default"}
+                onChange={(event, selectedDate) => {
+                  setShowDatePicker(false);
+                  if (event.type === "set" && selectedDate) {
+                    setFilterDate(selectedDate);
+                  }
+                }}
+              />
+            )}
+          </View>
+
+          <FlatList
+            data={filteredData}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => <CheckinCard item={item} />}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 30 }}
+            ListEmptyComponent={
+              <View style={styles.emptyTextContainer}>
+                <Text style={styles.emptyText}>No vehicle data found</Text>
+              </View>
+            }
+          />
+        </>
       )}
     </SafeAreaView>
   );
@@ -304,7 +314,6 @@ const VehicleScreen = () => {
 
 export default VehicleScreen;
 
-// ✅ Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -320,6 +329,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 6,
+    marginBottom: 6,
     paddingHorizontal: 8,
     height: 48,
   },
@@ -368,6 +378,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    marginTop: 10,
   },
   dateButton: {
     backgroundColor: "#DBEAFE",

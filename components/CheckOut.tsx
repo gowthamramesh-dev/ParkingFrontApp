@@ -11,12 +11,14 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Scan from "./Scan";
 import userAuthStore from "@/utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
-
+import CheckoutModal from "./ExtraPayModel";
 const CheckOut = () => {
   const [Toscan, setToscan] = useState(false);
   const [tokenId, settokenId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { checkOut } = userAuthStore();
+  const [receiptData, setReceiptData] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -35,6 +37,7 @@ const CheckOut = () => {
 
     const result = await checkOut(tokenId);
     setIsLoading(false);
+
     if (!result.success) {
       Toast.show({
         type: "error",
@@ -46,15 +49,21 @@ const CheckOut = () => {
       });
       return;
     }
-    Toast.show({
-      type: "success",
-      text1: "Vehicle Checked out",
-      position: "top",
-      visibilityTime: 2000,
-      autoHide: true,
-    });
 
-    settokenId("");
+    if (result.receipt?.table?.extraDays > 0) {
+      setReceiptData(result.receipt);
+      setShowModal(true);
+    } else {
+      Toast.show({
+        type: "success",
+        text1: "Vehicle Checked Out",
+        text2: "No extra charges.",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      settokenId("");
+    }
   };
 
   return (
@@ -98,6 +107,23 @@ const CheckOut = () => {
           )}
         </TouchableOpacity>
       </View>
+
+      <CheckoutModal
+        visible={showModal}
+        receipt={receiptData}
+        onClose={() => setShowModal(false)}
+        onProceed={() => {
+          setShowModal(false);
+          settokenId("");
+          Toast.show({
+            type: "success",
+            text1: "Vehicle Checked Out",
+            text2: "Extra payment confirmed.",
+            position: "top",
+          });
+        }}
+      />
+
       <ToastManager showCloseIcon={false} />
     </View>
   );
