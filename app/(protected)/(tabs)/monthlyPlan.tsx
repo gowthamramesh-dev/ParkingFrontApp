@@ -13,6 +13,7 @@ import MonthlyPassModal from "../../../components/monthlyPassModal";
 import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
 import { useNavigation } from "@react-navigation/native";
+import AccessControl from "@/components/AccessControl";
 
 const TABS = ["create", "active", "expired"] as const;
 
@@ -161,108 +162,114 @@ const MonthlyPass = () => {
         : [];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerBox}>
-        <Text style={styles.headerTitle}>Monthly Pass</Text>
-      </View>
+    <AccessControl required="monthlyPass">
+      <View style={styles.container}>
+        <View style={styles.headerBox}>
+          <Text style={styles.headerTitle}>Monthly Pass</Text>
+        </View>
 
-      <View style={styles.tabsRow}>
-        {TABS.map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            style={[
-              styles.tabButton,
-              activeTab === tab ? styles.activeTab : styles.inactiveTab,
-            ]}
-            disabled={isTabLoading}
-            onPress={() => setActiveTab(tab)}
-          >
-            <Text
-              style={
-                activeTab === tab
-                  ? styles.activeTabText
-                  : styles.inactiveTabText
-              }
+        <View style={styles.tabsRow}>
+          {TABS.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tabButton,
+                activeTab === tab ? styles.activeTab : styles.inactiveTab,
+              ]}
+              disabled={isTabLoading}
+              onPress={() => setActiveTab(tab)}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Text>
+              <Text
+                style={
+                  activeTab === tab
+                    ? styles.activeTabText
+                    : styles.inactiveTabText
+                }
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {activeTab === "create" ? (
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => setModalVisible(true)}
+            disabled={isLoading}
+          >
+            <Text style={styles.createButtonText}>Create New Pass</Text>
           </TouchableOpacity>
-        ))}
-      </View>
+        ) : isTabLoading ? (
+          <ActivityIndicator
+            size="large"
+            color="#22c55e"
+            style={styles.loader}
+          />
+        ) : (
+          <FlatList
+            data={data}
+            renderItem={renderPassItem}
+            keyExtractor={(item) => item._id}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No {activeTab} passes</Text>
+            }
+          />
+        )}
 
-      {activeTab === "create" ? (
-        <TouchableOpacity
-          style={styles.createButton}
-          onPress={() => setModalVisible(true)}
-          disabled={isLoading}
-        >
-          <Text style={styles.createButtonText}>Create New Pass</Text>
-        </TouchableOpacity>
-      ) : isTabLoading ? (
-        <ActivityIndicator size="large" color="#22c55e" style={styles.loader} />
-      ) : (
-        <FlatList
-          data={data}
-          renderItem={renderPassItem}
-          keyExtractor={(item) => item._id}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No {activeTab} passes</Text>
-          }
-        />
-      )}
-
-      <Modal visible={showDurationModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Extend Duration</Text>
-            <View style={styles.durationOptions}>
-              {[3, 6, 9, 12].map((m) => (
-                <TouchableOpacity
-                  key={m}
-                  onPress={() => setSelectedMonths(m)}
-                  style={[
-                    styles.durationButton,
-                    selectedMonths === m
-                      ? styles.selectedDuration
-                      : styles.unselectedDuration,
-                  ]}
-                >
-                  <Text
-                    style={
+        <Modal visible={showDurationModal} transparent animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Extend Duration</Text>
+              <View style={styles.durationOptions}>
+                {[3, 6, 9, 12].map((m) => (
+                  <TouchableOpacity
+                    key={m}
+                    onPress={() => setSelectedMonths(m)}
+                    style={[
+                      styles.durationButton,
                       selectedMonths === m
-                        ? styles.selectedDurationText
-                        : styles.unselectedDurationText
-                    }
+                        ? styles.selectedDuration
+                        : styles.unselectedDuration,
+                    ]}
                   >
-                    {m} mo
-                  </Text>
+                    <Text
+                      style={
+                        selectedMonths === m
+                          ? styles.selectedDurationText
+                          : styles.unselectedDurationText
+                      }
+                    >
+                      {m} mo
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowDurationModal(false)}
+                >
+                  <Text>Cancel</Text>
                 </TouchableOpacity>
-              ))}
-            </View>
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowDurationModal(false)}
-              >
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.extendButton}
-                onPress={handleExtend}
-              >
-                <Text style={styles.extendButtonText}>Extend</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.extendButton}
+                  onPress={handleExtend}
+                >
+                  <Text style={styles.extendButtonText}>Extend</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <MonthlyPassModal
-        isModalVisible={isModalVisible}
-        setModalVisible={setModalVisible}
-        onPassCreated={handlePassCreated}
-      />
-    </View>
+        <MonthlyPassModal
+          isModalVisible={isModalVisible}
+          setModalVisible={setModalVisible}
+          onPassCreated={handlePassCreated}
+        />
+      </View>
+    </AccessControl>
   );
 };
 

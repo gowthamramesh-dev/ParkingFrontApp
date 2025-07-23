@@ -13,6 +13,7 @@ import CheckIn from "@/components/CheckIn";
 import CheckOut from "@/components/CheckOut";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RFValue } from "react-native-responsive-fontsize";
+import AccessControl from "@/components/AccessControl";
 
 LogBox.ignoreAllLogs(false);
 
@@ -36,38 +37,40 @@ const Index = () => {
 
   return (
     <>
-      <StatusBar
-        backgroundColor="transparent"
-        translucent
-        barStyle="dark-content"
-      />
-      <View style={styles.container}>
-        <View>
-          <View style={styles.headerBox}>
-            <Text style={styles.greetingText}>Hey {user?.username},</Text>
+      <AccessControl required="home">
+        <StatusBar
+          backgroundColor="transparent"
+          translucent
+          barStyle="dark-content"
+        />
+        <View style={styles.container}>
+          <View>
+            <View style={styles.headerBox}>
+              <Text style={styles.greetingText}>Hey {user?.username},</Text>
 
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={styles.checkInButton}
-                onPress={() => setIsCheck(true)}
-              >
-                <Text style={styles.toggleText}>Check In</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.checkOutButton}
-                onPress={() => setIsCheck(false)}
-              >
-                <Text style={styles.toggleText}>Check Out</Text>
-              </TouchableOpacity>
+              <View style={styles.toggleContainer}>
+                <TouchableOpacity
+                  style={styles.checkInButton}
+                  onPress={() => setIsCheck(true)}
+                >
+                  <Text style={styles.toggleText}>Check In</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.checkOutButton}
+                  onPress={() => setIsCheck(false)}
+                >
+                  <Text style={styles.toggleText}>Check Out</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
+          <View style={styles.contentWrapper}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {isCheck ? <CheckIn /> : <CheckOut />}
+            </ScrollView>
+          </View>
         </View>
-        <View style={styles.contentWrapper}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {isCheck ? <CheckIn /> : <CheckOut />}
-          </ScrollView>
-        </View>
-      </View>
+      </AccessControl>
     </>
   );
 };

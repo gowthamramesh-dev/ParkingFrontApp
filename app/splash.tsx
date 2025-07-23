@@ -7,7 +7,6 @@ import {
   Pressable,
   Dimensions,
   StyleSheet,
-  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { RFValue } from "react-native-responsive-fontsize";

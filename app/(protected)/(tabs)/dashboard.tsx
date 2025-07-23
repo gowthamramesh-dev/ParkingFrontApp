@@ -15,6 +15,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
+import AccessControl from "@/components/AccessControl";
 
 const screenWidth = Dimensions.get("window").width;
 const chartWidth = screenWidth * 0.95;
@@ -313,318 +314,323 @@ const TodayReport = () => {
   }, [navigation]);
 
   return (
-    <LinearGradient colors={["#f3f4f6", "#e5e7eb"]} style={styles.container}>
-      <Animated.View entering={FadeInDown.duration(300)} style={styles.header}>
-        <View style={styles.headerRow}>
-          {/* Back Button */}
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          {/* Title */}
-          <Text style={styles.title}>Admin Dashboard</Text>
-        </View>
-      </Animated.View>
-
-      <ScrollView style={{ marginBottom: 60 }}>
-        <View style={{ paddingBottom: 24 }}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 8 }}
-          >
-            <ChartSection title="All Vehicles" data={allData} />
-            <ChartSection title="Check In" data={checkins} />
-            <ChartSection title="Check Out" data={checkouts} />
-            <PieChartSection
-              title="Revenue by Vehicle"
-              data={revenueChartData}
-            />
-            <PieChartSection title="Staff Check-Ins" data={staffChartData} />
-          </ScrollView>
-        </View>
-
-        {/* Vehicles Table */}
+    <AccessControl required="dashboard">
+      <LinearGradient colors={["#f3f4f6", "#e5e7eb"]} style={styles.container}>
         <Animated.View
-          entering={FadeInDown.duration(500).delay(200)}
-          style={styles.tableContainer}
+          entering={FadeInDown.duration(300)}
+          style={styles.header}
         >
-          <View
-            style={{
-              padding: 16,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
-            >
-              Vehicles
-            </Text>
+          <View style={styles.headerRow}>
+            {/* Back Button */}
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            {/* Title */}
+            <Text style={styles.title}>Admin Dashboard</Text>
           </View>
-          {Array.isArray(vehicleList) && vehicleList.length > 0 ? (
-            <FlatList
-              data={vehicleList}
-              keyExtractor={(item) => item.vehicle}
-              ListHeaderComponent={() => (
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.tableHeaderText, { width: "20%" }]}>
-                    Vehicle
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "20%" }]}>
-                    IN
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "20%" }]}>
-                    Out
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "20%" }]}>
-                    All
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "20%" }]}>
-                    Money
-                  </Text>
-                </View>
-              )}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  entering={FadeInDown.duration(400).delay(index * 100)}
-                  style={styles.tableRow}
-                >
-                  <Text style={[styles.tableRowText, { width: "20%" }]}>
-                    {item.vehicle}
-                  </Text>
-                  <Text style={[styles.tableRowText, { width: "20%" }]}>
-                    {item.checkin}
-                  </Text>
-                  <Text style={[styles.tableRowText, { width: "20%" }]}>
-                    {item.checkout}
-                  </Text>
-                  <Text style={[styles.tableRowText, { width: "20%" }]}>
-                    {item.total}
-                  </Text>
-                  <Text style={[styles.tableRowMoney, { width: "20%" }]}>
-                    ₹{item.money}
-                  </Text>
-                </Animated.View>
-              )}
-            />
-          ) : (
-            <Text style={styles.noData}>No vehicle data available</Text>
-          )}
         </Animated.View>
 
-        {/* Payment Methods Table */}
-        <Animated.View
-          entering={FadeInDown.duration(500).delay(400)}
-          style={styles.tableContainer}
-        >
-          <View
-            style={{
-              padding: 16,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
+        <ScrollView style={{ marginBottom: 60 }}>
+          <View style={{ paddingBottom: 24 }}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 8 }}
             >
-              Payment Methods
-            </Text>
-          </View>
-          {Array.isArray(paymentMethod) && paymentMethod.length > 0 ? (
-            <FlatList
-              data={paymentMethod}
-              keyExtractor={(item) => item.method}
-              ListHeaderComponent={() => (
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.tableHeaderText, { width: "50%" }]}>
-                    Payment
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "50%" }]}>
-                    Money
-                  </Text>
-                </View>
-              )}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  entering={FadeInDown.duration(400).delay(index * 100)}
-                  style={styles.tableRow}
-                >
-                  <Text style={[styles.tableRowText, { width: "50%" }]}>
-                    {item.method}
-                  </Text>
-                  <Text style={[styles.tableRowMoney, { width: "50%" }]}>
-                    ₹{item.amount}
-                  </Text>
-                </Animated.View>
-              )}
-            />
-          ) : (
-            <Text style={styles.noData}>No payment data available</Text>
-          )}
-        </Animated.View>
-
-        {/* Staff Performance Table */}
-        <Animated.View
-          entering={FadeInDown.duration(500).delay(600)}
-          style={styles.tableContainer}
-        >
-          <View
-            style={{
-              padding: 16,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
-            >
-              Staff Performance
-            </Text>
-          </View>
-          {Array.isArray(staffData) && staffData.length > 0 ? (
-            <FlatList
-              data={staffData}
-              keyExtractor={(item) => item.username}
-              ListHeaderComponent={() => (
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.tableHeaderText, { width: "25%" }]}>
-                    Staff
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "25%" }]}>
-                    Check-Ins
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "25%" }]}>
-                    Check-Outs
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: "25%" }]}>
-                    Revenue
-                  </Text>
-                </View>
-              )}
-              renderItem={({ item, index }) => (
-                <Animated.View
-                  entering={FadeInDown.duration(400).delay(index * 100)}
-                  style={styles.tableRow}
-                >
-                  <Text style={[styles.tableRowText, { width: "25%" }]}>
-                    {item.username || "Unknown"}
-                  </Text>
-                  <Text style={[styles.tableRowText, { width: "25%" }]}>
-                    {item.checkIns || 0}
-                  </Text>
-                  <Text style={[styles.tableRowText, { width: "25%" }]}>
-                    {item.checkOuts || 0}
-                  </Text>
-                  <Text style={[styles.tableRowMoney, { width: "25%" }]}>
-                    ₹{item.revenue || 0}
-                  </Text>
-                </Animated.View>
-              )}
-            />
-          ) : (
-            <Text style={styles.noData}>No staff data available</Text>
-          )}
-        </Animated.View>
-
-        {/* Transaction Logs Table */}
-        <Animated.View
-          entering={FadeInDown.duration(500).delay(800)}
-          style={styles.tableContainer}
-        >
-          <View
-            style={{
-              padding: 16,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text
-              style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
-            >
-              Transaction Logs
-            </Text>
-          </View>
-          {Array.isArray(transactionLogs) && transactionLogs.length > 0 ? (
-            <ScrollView horizontal>
-              <View>
-                <View
-                  style={[
-                    styles.tableHeader,
-                    { flexDirection: "row", paddingVertical: 12 },
-                  ]}
-                >
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    ID
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    Type
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    Vehicle
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 128 }]}>
-                    Time
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    Staff
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    Amount
-                  </Text>
-                  <Text style={[styles.tableHeaderText, { width: 80 }]}>
-                    Payment
-                  </Text>
-                </View>
-                <FlatList
-                  data={transactionLogs}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item, index }) => (
-                    <Animated.View
-                      entering={FadeInDown.duration(400).delay(index * 100)}
-                      style={[
-                        styles.tableRow,
-                        { flexDirection: "row", paddingVertical: 12 },
-                      ]}
-                    >
-                      <Text style={[styles.tableRowText, { width: 80 }]}>
-                        {item.id}
-                      </Text>
-                      <Text style={[styles.tableRowText, { width: 80 }]}>
-                        {item.type}
-                      </Text>
-                      <Text style={[styles.tableRowText, { width: 80 }]}>
-                        {item.vehicleType || "N/A"}
-                      </Text>
-                      <Text style={[styles.tableRowText, { width: 128 }]}>
-                        {item.timestamp
-                          ? new Date(item.timestamp).toLocaleString()
-                          : "N/A"}
-                      </Text>
-                      <Text style={[styles.tableRowText, { width: 80 }]}>
-                        {item.staff || "Unknown"}
-                      </Text>
-                      <Text style={[styles.tableRowMoney, { width: 80 }]}>
-                        ₹{item.amount || 0}
-                      </Text>
-                      <Text style={[styles.tableRowText, { width: 80 }]}>
-                        {item.paymentMethod || "N/A"}
-                      </Text>
-                    </Animated.View>
-                  )}
-                />
-              </View>
+              <ChartSection title="All Vehicles" data={allData} />
+              <ChartSection title="Check In" data={checkins} />
+              <ChartSection title="Check Out" data={checkouts} />
+              <PieChartSection
+                title="Revenue by Vehicle"
+                data={revenueChartData}
+              />
+              <PieChartSection title="Staff Check-Ins" data={staffChartData} />
             </ScrollView>
-          ) : (
-            <Text style={styles.noData}>No transaction logs available</Text>
-          )}
-        </Animated.View>
-      </ScrollView>
-    </LinearGradient>
+          </View>
+
+          {/* Vehicles Table */}
+          <Animated.View
+            entering={FadeInDown.duration(500).delay(200)}
+            style={styles.tableContainer}
+          >
+            <View
+              style={{
+                padding: 16,
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
+              >
+                Vehicles
+              </Text>
+            </View>
+            {Array.isArray(vehicleList) && vehicleList.length > 0 ? (
+              <FlatList
+                data={vehicleList}
+                keyExtractor={(item) => item.vehicle}
+                ListHeaderComponent={() => (
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.tableHeaderText, { width: "20%" }]}>
+                      Vehicle
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "20%" }]}>
+                      IN
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "20%" }]}>
+                      Out
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "20%" }]}>
+                      All
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "20%" }]}>
+                      Money
+                    </Text>
+                  </View>
+                )}
+                renderItem={({ item, index }) => (
+                  <Animated.View
+                    entering={FadeInDown.duration(400).delay(index * 100)}
+                    style={styles.tableRow}
+                  >
+                    <Text style={[styles.tableRowText, { width: "20%" }]}>
+                      {item.vehicle}
+                    </Text>
+                    <Text style={[styles.tableRowText, { width: "20%" }]}>
+                      {item.checkin}
+                    </Text>
+                    <Text style={[styles.tableRowText, { width: "20%" }]}>
+                      {item.checkout}
+                    </Text>
+                    <Text style={[styles.tableRowText, { width: "20%" }]}>
+                      {item.total}
+                    </Text>
+                    <Text style={[styles.tableRowMoney, { width: "20%" }]}>
+                      ₹{item.money}
+                    </Text>
+                  </Animated.View>
+                )}
+              />
+            ) : (
+              <Text style={styles.noData}>No vehicle data available</Text>
+            )}
+          </Animated.View>
+
+          {/* Payment Methods Table */}
+          <Animated.View
+            entering={FadeInDown.duration(500).delay(400)}
+            style={styles.tableContainer}
+          >
+            <View
+              style={{
+                padding: 16,
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
+              >
+                Payment Methods
+              </Text>
+            </View>
+            {Array.isArray(paymentMethod) && paymentMethod.length > 0 ? (
+              <FlatList
+                data={paymentMethod}
+                keyExtractor={(item) => item.method}
+                ListHeaderComponent={() => (
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.tableHeaderText, { width: "50%" }]}>
+                      Payment
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "50%" }]}>
+                      Money
+                    </Text>
+                  </View>
+                )}
+                renderItem={({ item, index }) => (
+                  <Animated.View
+                    entering={FadeInDown.duration(400).delay(index * 100)}
+                    style={styles.tableRow}
+                  >
+                    <Text style={[styles.tableRowText, { width: "50%" }]}>
+                      {item.method}
+                    </Text>
+                    <Text style={[styles.tableRowMoney, { width: "50%" }]}>
+                      ₹{item.amount}
+                    </Text>
+                  </Animated.View>
+                )}
+              />
+            ) : (
+              <Text style={styles.noData}>No payment data available</Text>
+            )}
+          </Animated.View>
+
+          {/* Staff Performance Table */}
+          <Animated.View
+            entering={FadeInDown.duration(500).delay(600)}
+            style={styles.tableContainer}
+          >
+            <View
+              style={{
+                padding: 16,
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
+              >
+                Staff Performance
+              </Text>
+            </View>
+            {Array.isArray(staffData) && staffData.length > 0 ? (
+              <FlatList
+                data={staffData}
+                keyExtractor={(item) => item.username}
+                ListHeaderComponent={() => (
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.tableHeaderText, { width: "25%" }]}>
+                      Staff
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "25%" }]}>
+                      Check-Ins
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "25%" }]}>
+                      Check-Outs
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: "25%" }]}>
+                      Revenue
+                    </Text>
+                  </View>
+                )}
+                renderItem={({ item, index }) => (
+                  <Animated.View
+                    entering={FadeInDown.duration(400).delay(index * 100)}
+                    style={styles.tableRow}
+                  >
+                    <Text style={[styles.tableRowText, { width: "25%" }]}>
+                      {item.username || "Unknown"}
+                    </Text>
+                    <Text style={[styles.tableRowText, { width: "25%" }]}>
+                      {item.checkIns || 0}
+                    </Text>
+                    <Text style={[styles.tableRowText, { width: "25%" }]}>
+                      {item.checkOuts || 0}
+                    </Text>
+                    <Text style={[styles.tableRowMoney, { width: "25%" }]}>
+                      ₹{item.revenue || 0}
+                    </Text>
+                  </Animated.View>
+                )}
+              />
+            ) : (
+              <Text style={styles.noData}>No staff data available</Text>
+            )}
+          </Animated.View>
+
+          {/* Transaction Logs Table */}
+          <Animated.View
+            entering={FadeInDown.duration(500).delay(800)}
+            style={styles.tableContainer}
+          >
+            <View
+              style={{
+                padding: 16,
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ fontSize: 20, fontWeight: "bold", color: "#374151" }}
+              >
+                Transaction Logs
+              </Text>
+            </View>
+            {Array.isArray(transactionLogs) && transactionLogs.length > 0 ? (
+              <ScrollView horizontal>
+                <View>
+                  <View
+                    style={[
+                      styles.tableHeader,
+                      { flexDirection: "row", paddingVertical: 12 },
+                    ]}
+                  >
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      ID
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      Type
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      Vehicle
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 128 }]}>
+                      Time
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      Staff
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      Amount
+                    </Text>
+                    <Text style={[styles.tableHeaderText, { width: 80 }]}>
+                      Payment
+                    </Text>
+                  </View>
+                  <FlatList
+                    data={transactionLogs}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item, index }) => (
+                      <Animated.View
+                        entering={FadeInDown.duration(400).delay(index * 100)}
+                        style={[
+                          styles.tableRow,
+                          { flexDirection: "row", paddingVertical: 12 },
+                        ]}
+                      >
+                        <Text style={[styles.tableRowText, { width: 80 }]}>
+                          {item.id}
+                        </Text>
+                        <Text style={[styles.tableRowText, { width: 80 }]}>
+                          {item.type}
+                        </Text>
+                        <Text style={[styles.tableRowText, { width: 80 }]}>
+                          {item.vehicleType || "N/A"}
+                        </Text>
+                        <Text style={[styles.tableRowText, { width: 128 }]}>
+                          {item.timestamp
+                            ? new Date(item.timestamp).toLocaleString()
+                            : "N/A"}
+                        </Text>
+                        <Text style={[styles.tableRowText, { width: 80 }]}>
+                          {item.staff || "Unknown"}
+                        </Text>
+                        <Text style={[styles.tableRowMoney, { width: 80 }]}>
+                          ₹{item.amount || 0}
+                        </Text>
+                        <Text style={[styles.tableRowText, { width: 80 }]}>
+                          {item.paymentMethod || "N/A"}
+                        </Text>
+                      </Animated.View>
+                    )}
+                  />
+                </View>
+              </ScrollView>
+            ) : (
+              <Text style={styles.noData}>No transaction logs available</Text>
+            )}
+          </Animated.View>
+        </ScrollView>
+      </LinearGradient>
+    </AccessControl>
   );
 };
 

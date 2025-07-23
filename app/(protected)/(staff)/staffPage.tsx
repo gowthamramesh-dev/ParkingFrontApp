@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import userAuthStore from "@/utils/store";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import AccessControl from "@/components/AccessControl";
 
 const AccountSettings = () => {
   const router = useRouter();
@@ -32,36 +33,38 @@ const AccountSettings = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={28} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Staff Settings</Text>
-      </View>
-      <View>
-        {menuItems.map(({ label, icon, route }, idx) => (
+    <AccessControl required="staffSettings">
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
           <TouchableOpacity
-            key={idx}
-            onPress={() => router.push(route)}
-            style={styles.menuItem}
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
           >
-            <View style={styles.menuLeft}>
-              <Ionicons name={icon} size={28} color="#2d6a4f" />
-              <Text style={styles.menuLabel}>{label}</Text>
-            </View>
-            <Ionicons
-              name="chevron-forward-outline"
-              size={22}
-              color="#2d6a4f"
-            />
+            <Ionicons name="arrow-back" size={28} color="#1F2937" />
           </TouchableOpacity>
-        ))}
-      </View>
-    </SafeAreaView>
+          <Text style={styles.headerTitle}>Staff Settings</Text>
+        </View>
+        <View>
+          {menuItems.map(({ label, icon, route }, idx) => (
+            <TouchableOpacity
+              key={idx}
+              onPress={() => router.push(route)}
+              style={styles.menuItem}
+            >
+              <View style={styles.menuLeft}>
+                <Ionicons name={icon} size={28} color="#2d6a4f" />
+                <Text style={styles.menuLabel}>{label}</Text>
+              </View>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={22}
+                color="#2d6a4f"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

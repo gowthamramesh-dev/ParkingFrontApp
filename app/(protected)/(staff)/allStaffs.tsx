@@ -13,9 +13,11 @@ import { useRouter } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AccessControl from "@/components/AccessControl";
 
 const AllStaffs = () => {
-  const { getAllStaffs, staffs, isLoading } = userAuthStore();
+  const { getAllStaffs, staffs, isLoading, getStaffPermission } =
+    userAuthStore();
   const router = useRouter();
   const navigation = useNavigation();
 
@@ -38,20 +40,24 @@ const AllStaffs = () => {
   const renderItem = ({ item }: any) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() =>
+      onPress={() => {
+        getStaffPermission(item._id);
         router.push({
           pathname: "/listPage",
           params: {
             staffId: item._id,
             username: item.username,
           },
-        })
-      }
+        });
+      }}
     >
       <View style={styles.cardContent}>
-        <Text style={styles.staffName}>👤 {item.username}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons name="person-circle" size={28} color="#22C55E" />
+          <Text style={styles.staffName}> {item.username}</Text>
+        </View>
         <Text style={styles.buildingInfo}>
-          Building: {item.building?.name || "N/A"}{" "}
+          {item.building?.name || "N/A"}{" "}
           {item.building?.location ? `(${item.building.location})` : ""}
         </Text>
       </View>
@@ -59,33 +65,35 @@ const AllStaffs = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={28} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Staff Lists</Text>
-      </View>
+    <AccessControl required="ViewStaff">
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={28} color="#1F2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Staff Lists</Text>
+        </View>
 
-      {/* Loader / List */}
-      {isLoading ? (
-        <ActivityIndicator size="large" color="lightgreen" />
-      ) : staffs.length === 0 ? (
-        <Text style={styles.emptyText}>No staff found</Text>
-      ) : (
-        <FlatList
-          data={staffs}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-        />
-      )}
+        {/* Loader / List */}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="lightgreen" />
+        ) : staffs.length === 0 ? (
+          <Text style={styles.emptyText}>No staff found</Text>
+        ) : (
+          <FlatList
+            data={staffs}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+          />
+        )}
 
-      <Toast />
-    </SafeAreaView>
+        <Toast />
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 
@@ -117,29 +125,34 @@ const styles = StyleSheet.create({
     color: "#1F2937", // Tailwind gray-800
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#ECFDF5", // Tailwind green-50
+    borderColor: "#22C55E", // Tailwind green-500
+    borderWidth: 1,
     padding: 16,
-    borderRadius: 10,
+    borderRadius: 16,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowColor: "#22C55E",
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   cardContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
   },
   staffName: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
+    color: "#065F46", // Tailwind green-900
   },
   buildingInfo: {
     fontSize: 14,
-    color: "#6B7280", // Tailwind gray-600
+    color: "#10B981", // Tailwind green-500
   },
+
   emptyText: {
     textAlign: "center",
     color: "#6B7280", // Tailwind gray-500

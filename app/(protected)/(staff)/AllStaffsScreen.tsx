@@ -20,6 +20,7 @@ import userAuthStore from "@/utils/store";
 import { useNavigation } from "@react-navigation/native";
 import ToastManager, { Toast } from "toastify-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AccessControl from "@/components/AccessControl";
 
 const AllStaffs = () => {
   const { getAllStaffs, staffs, isLoading, deleteStaff, updateStaff } =
@@ -156,169 +157,173 @@ const AllStaffs = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headers}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={28} color="#1F2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Staff details</Text>
-      </View>
+    <AccessControl required="edit/DeleteStaff">
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headers}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={28} color="#1F2937" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Staff details</Text>
+        </View>
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color="lightgreen" />
-      ) : staffs.length === 0 ? (
-        <Text style={styles.noStaffText}>No staff found</Text>
-      ) : (
-        <FlatList
-          data={staffs}
-          keyExtractor={(item) => item._id}
-          renderItem={renderItem}
-        />
-      )}
+        {isLoading ? (
+          <ActivityIndicator size="large" color="lightgreen" />
+        ) : staffs.length === 0 ? (
+          <Text style={styles.noStaffText}>No staff found</Text>
+        ) : (
+          <FlatList
+            data={staffs}
+            keyExtractor={(item) => item._id}
+            renderItem={renderItem}
+          />
+        )}
 
-      {/* Edit Modal */}
-      <Modal visible={isModalVisible} animationType="slide" transparent>
-        {renderBlurWrapper(
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}> Edit Staff Details</Text>
+        {/* Edit Modal */}
+        <Modal visible={isModalVisible} animationType="slide" transparent>
+          {renderBlurWrapper(
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}> Edit Staff Details</Text>
 
-            <TextInput
-              value={editUsername}
-              onChangeText={setEditUsername}
-              placeholder="Username"
-              style={styles.inputField}
-            />
-
-            <View style={styles.passwordContainer}>
               <TextInput
-                value={editPassword}
-                onChangeText={setEditPassword}
-                placeholder="New Password (optional)"
-                secureTextEntry={!passwordVisible}
+                value={editUsername}
+                onChangeText={setEditUsername}
+                placeholder="Username"
                 style={styles.inputField}
               />
-              <TouchableOpacity
-                onPress={() => setPasswordVisible(!passwordVisible)}
-                style={styles.eyeIcon}
-              >
-                <Ionicons
-                  name={passwordVisible ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color="gray"
+
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  value={editPassword}
+                  onChangeText={setEditPassword}
+                  placeholder="New Password (optional)"
+                  secureTextEntry={!passwordVisible}
+                  style={styles.inputField}
                 />
-              </TouchableOpacity>
-            </View>
-
-            <TextInput
-              value={buildingName}
-              onChangeText={setBuildingName}
-              placeholder="Building Name"
-              style={styles.inputField}
-            />
-
-            <TextInput
-              value={buildingLocation}
-              onChangeText={setBuildingLocation}
-              placeholder="Building Location"
-              style={[styles.inputField, { marginBottom: 16 }]}
-            />
-
-            <View style={styles.modalActions}>
-              <Pressable
-                onPress={() => setModalVisible(false)}
-                style={styles.cancelButton}
-              >
-                <Text style={styles.cancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable onPress={handleSaveUpdate} style={styles.saveButton}>
-                <Text style={styles.saveText}>Save</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-      </Modal>
-
-      {/* View Staff Modal */}
-      <Modal
-        visible={!!selectedStaff}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setSelectedStaff(null)}
-      >
-        {renderBlurWrapper(
-          <View style={styles.viewBox}>
-            <Text style={styles.viewTitle}> Staff Credentials</Text>
-
-            <View style={styles.viewSection}>
-              <View style={styles.viewRow}>
-                <Ionicons
-                  name="person-circle-outline"
-                  size={22}
-                  color="#4B5563"
-                />
-                <View>
-                  <Text style={styles.viewLabel}>Username</Text>
-                  <Text style={styles.viewValue}>
-                    {selectedStaff?.username}
-                  </Text>
-                </View>
+                <TouchableOpacity
+                  onPress={() => setPasswordVisible(!passwordVisible)}
+                  style={styles.eyeIcon}
+                >
+                  <Ionicons
+                    name={passwordVisible ? "eye-outline" : "eye-off-outline"}
+                    size={20}
+                    color="gray"
+                  />
+                </TouchableOpacity>
               </View>
 
-              <View style={styles.viewRowBetween}>
+              <TextInput
+                value={buildingName}
+                onChangeText={setBuildingName}
+                placeholder="Building Name"
+                style={styles.inputField}
+              />
+
+              <TextInput
+                value={buildingLocation}
+                onChangeText={setBuildingLocation}
+                placeholder="Building Location"
+                style={[styles.inputField, { marginBottom: 16 }]}
+              />
+
+              <View style={styles.modalActions}>
+                <Pressable
+                  onPress={() => setModalVisible(false)}
+                  style={styles.cancelButton}
+                >
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
+                <Pressable onPress={handleSaveUpdate} style={styles.saveButton}>
+                  <Text style={styles.saveText}>Save</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </Modal>
+
+        {/* View Staff Modal */}
+        <Modal
+          visible={!!selectedStaff}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setSelectedStaff(null)}
+        >
+          {renderBlurWrapper(
+            <View style={styles.viewBox}>
+              <Text style={styles.viewTitle}> Staff Credentials</Text>
+
+              <View style={styles.viewSection}>
                 <View style={styles.viewRow}>
-                  <Ionicons name="key-outline" size={20} color="#4B5563" />
+                  <Ionicons
+                    name="person-circle-outline"
+                    size={22}
+                    color="#4B5563"
+                  />
                   <View>
-                    <Text style={styles.viewLabel}>Password</Text>
+                    <Text style={styles.viewLabel}>Username</Text>
                     <Text style={styles.viewValue}>
-                      {passwordVisible ? selectedStaff?.password : "••••••••"}
+                      {selectedStaff?.username}
                     </Text>
                   </View>
                 </View>
-                <View style={styles.iconActions}>
-                  <TouchableOpacity
-                    onPress={() => setPasswordVisible(!passwordVisible)}
-                  >
-                    <Ionicons
-                      name={passwordVisible ? "eye-outline" : "eye-off-outline"}
-                      size={22}
-                      color="gray"
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      Clipboard.setString(selectedStaff?.password || "");
-                      Platform.OS === "android"
-                        ? ToastAndroid.show(
-                            "Password copied!",
-                            ToastAndroid.SHORT
-                          )
-                        : Toast.show({
-                            type: "success",
-                            text1: "Password copied!",
-                          });
-                    }}
-                  >
-                    <Ionicons name="copy-outline" size={22} color="gray" />
-                  </TouchableOpacity>
+
+                <View style={styles.viewRowBetween}>
+                  <View style={styles.viewRow}>
+                    <Ionicons name="key-outline" size={20} color="#4B5563" />
+                    <View>
+                      <Text style={styles.viewLabel}>Password</Text>
+                      <Text style={styles.viewValue}>
+                        {passwordVisible ? selectedStaff?.password : "••••••••"}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.iconActions}>
+                    <TouchableOpacity
+                      onPress={() => setPasswordVisible(!passwordVisible)}
+                    >
+                      <Ionicons
+                        name={
+                          passwordVisible ? "eye-outline" : "eye-off-outline"
+                        }
+                        size={22}
+                        color="gray"
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        Clipboard.setString(selectedStaff?.password || "");
+                        Platform.OS === "android"
+                          ? ToastAndroid.show(
+                              "Password copied!",
+                              ToastAndroid.SHORT
+                            )
+                          : Toast.show({
+                              type: "success",
+                              text1: "Password copied!",
+                            });
+                      }}
+                    >
+                      <Ionicons name="copy-outline" size={22} color="gray" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
+
+              <Pressable
+                onPress={() => setSelectedStaff(null)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </Pressable>
             </View>
+          )}
+        </Modal>
 
-            <Pressable
-              onPress={() => setSelectedStaff(null)}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        )}
-      </Modal>
-
-      <ToastManager showCloseIcon={false} />
-    </SafeAreaView>
+        <ToastManager showCloseIcon={false} />
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

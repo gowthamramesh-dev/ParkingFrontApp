@@ -15,6 +15,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import userAuthStore from "@/utils/store";
 import { useNavigation } from "@react-navigation/native";
 import ToastManager, { Toast } from "toastify-react-native";
+import AccessControl from "@/components/AccessControl";
 
 const CreateStaff = () => {
   const [username, setUsername] = useState("");
@@ -64,83 +65,85 @@ const CreateStaff = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={styles.container}
-        >
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={28} color="#1F2937" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Create Staff</Text>
-          </View>
-
-          <Text style={styles.label}>Username</Text>
-          <TextInput
-            placeholder="Enter username"
-            value={username}
-            placeholderTextColor="#888"
-            onChangeText={setUsername}
-            style={styles.input}
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholderTextColor="#888"
-              placeholder="Enter password"
-              secureTextEntry={!showPassword}
-              style={styles.passwordInput}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={22}
-                color="gray"
-              />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.label}>Building Name</Text>
-          <TextInput
-            placeholder="Enter building name (e.g., Building A)"
-            value={buildingName}
-            placeholderTextColor="#888"
-            onChangeText={setBuildingName}
-            style={styles.input}
-          />
-
-          <Text style={styles.label}>Building Location</Text>
-          <TextInput
-            placeholder="Enter building location (e.g., Vellore)"
-            value={buildingLocation}
-            placeholderTextColor="#888"
-            onChangeText={setBuildingLocation}
-            style={styles.input}
-          />
-
-          <TouchableOpacity
-            onPress={handleCreateStaff}
-            disabled={isLoading}
-            style={styles.submitButton}
+    <AccessControl required="createStaff">
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            style={styles.container}
           >
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.submitButtonText}>Create Staff</Text>
-            )}
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </ScrollView>
-      <ToastManager showCloseIcon={false} />
-    </SafeAreaView>
+            <View style={styles.header}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
+              >
+                <Ionicons name="arrow-back" size={28} color="#1F2937" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Create Staff</Text>
+            </View>
+
+            <Text style={styles.label}>Username</Text>
+            <TextInput
+              placeholder="Enter username"
+              value={username}
+              placeholderTextColor="#888"
+              onChangeText={setUsername}
+              style={styles.input}
+            />
+
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.passwordContainer}>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                placeholderTextColor="#888"
+                placeholder="Enter password"
+                secureTextEntry={!showPassword}
+                style={styles.passwordInput}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={22}
+                  color="gray"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Building Name</Text>
+            <TextInput
+              placeholder="Enter building name (e.g., Building A)"
+              value={buildingName}
+              placeholderTextColor="#888"
+              onChangeText={setBuildingName}
+              style={styles.input}
+            />
+
+            <Text style={styles.label}>Building Location</Text>
+            <TextInput
+              placeholder="Enter building location (e.g., Vellore)"
+              value={buildingLocation}
+              placeholderTextColor="#888"
+              onChangeText={setBuildingLocation}
+              style={styles.input}
+            />
+
+            <TouchableOpacity
+              onPress={handleCreateStaff}
+              disabled={isLoading}
+              style={styles.submitButton}
+            >
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.submitButtonText}>Create Staff</Text>
+              )}
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </ScrollView>
+        <ToastManager showCloseIcon={false} />
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

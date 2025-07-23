@@ -15,6 +15,7 @@ import { useRouter } from "expo-router";
 import userAuthStore from "../../../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AccessControl from "@/components/AccessControl";
 
 const Profile = () => {
   const { user, logOut, updateProfile } = userAuthStore();
@@ -178,134 +179,128 @@ const Profile = () => {
     setNewPassword("");
   };
 
-  const initial = parsedUser?.username?.trim()?.charAt(0)?.toUpperCase() || "U";
-
-  if (!parsedUser || parsedUser.role !== "admin") {
-    return (
-      <View style={styles.centeredViewWhite}>
-        <Text style={styles.accessDeniedText}>Access Denied</Text>
-        <Text style={styles.subText}>
-          You are not authorized to view this page.
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <View style={styles.innerContainer}>
-        <View style={styles.headerCard}>
-          <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profile Settings</Text>
-            <View style={{ width: 24 }} />
+    <AccessControl required="account">
+      <View style={styles.container}>
+        <View style={styles.innerContainer}>
+          <View style={styles.headerCard}>
+            <View style={styles.headerRow}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Profile Settings</Text>
+              <View style={{ width: 24 }} />
+            </View>
           </View>
-        </View>
 
-        <View>
-          <View style={styles.avatarContainer}>
-            <TouchableOpacity onPress={pickImage} style={styles.centeredItems}>
-              {avatar ? (
-                <Image source={{ uri: avatar }} style={styles.avatarImage} />
-              ) : (
-                <View style={styles.avatarFallback}>
-                  <Text style={styles.avatarInitial}>{initial}</Text>
+          <View>
+            <View style={styles.avatarContainer}>
+              <TouchableOpacity
+                onPress={pickImage}
+                style={styles.centeredItems}
+              >
+                {avatar ? (
+                  <Image source={{ uri: avatar }} style={styles.avatarImage} />
+                ) : (
+                  <View style={styles.avatarFallback}>
+                    <Text style={styles.avatarInitial}>I</Text>
+                  </View>
+                )}
+                <Text style={styles.uploadText}>
+                  Click to upload a new photo
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.card}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Username</Text>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputText}>{parsedUser?.username}</Text>
                 </View>
-              )}
-              <Text style={styles.uploadText}>Click to upload a new photo</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Username</Text>
-              <View style={styles.inputBox}>
-                <Text style={styles.inputText}>{parsedUser?.username}</Text>
               </View>
-            </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <View style={styles.inputBox}>
-                <Text style={styles.inputText}>{parsedUser?.email}</Text>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Email</Text>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputText}>{parsedUser?.email}</Text>
+                </View>
               </View>
+
+              <TouchableOpacity
+                onPress={() => setShowModal(true)}
+                style={styles.editBtn}
+              >
+                <Text style={styles.editBtnText}>Edit Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
+                <Text style={styles.logoutBtnText}>Logout</Text>
+              </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              onPress={() => setShowModal(true)}
-              style={styles.editBtn}
-            >
-              <Text style={styles.editBtnText}>Edit Profile</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-              <Text style={styles.logoutBtnText}>Logout</Text>
-            </TouchableOpacity>
           </View>
         </View>
-      </View>
 
-      {showModal && (
-        <Modal visible={showModal} animationType="fade" transparent>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Update Profile</Text>
+        {showModal && (
+          <Modal visible={showModal} animationType="fade" transparent>
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalBox}>
+                <Text style={styles.modalTitle}>Update Profile</Text>
 
-              <TextInput
-                value={username}
-                onChangeText={setUsername}
-                style={styles.modalInput}
-                placeholderTextColor="#888"
-                placeholder="Enter new username"
-              />
-              <TextInput
-                value={oldPassword}
-                onChangeText={setOldPassword}
-                secureTextEntry
-                placeholderTextColor="#888"
-                style={styles.modalInput}
-                placeholder="Enter old password"
-              />
-              <TextInput
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry
-                placeholderTextColor="#888"
-                style={styles.modalInput}
-                placeholder="Enter new password"
-              />
+                <TextInput
+                  value={username}
+                  onChangeText={setUsername}
+                  style={styles.modalInput}
+                  placeholderTextColor="#888"
+                  placeholder="Enter new username"
+                />
+                <TextInput
+                  value={oldPassword}
+                  onChangeText={setOldPassword}
+                  secureTextEntry
+                  placeholderTextColor="#888"
+                  style={styles.modalInput}
+                  placeholder="Enter old password"
+                />
+                <TextInput
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                  placeholderTextColor="#888"
+                  style={styles.modalInput}
+                  placeholder="Enter new password"
+                />
 
-              <View style={styles.modalActions}>
-                <TouchableOpacity
-                  style={styles.cancelBtn}
-                  onPress={() => setShowModal(false)}
-                >
-                  <Text style={styles.cancelText}>Cancel</Text>
-                </TouchableOpacity>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.cancelBtn}
+                    onPress={() => setShowModal(false)}
+                  >
+                    <Text style={styles.cancelText}>Cancel</Text>
+                  </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={[styles.updateBtn, updating && styles.disabledBtn]}
-                  disabled={updating}
-                  onPress={handleUpdate}
-                >
-                  {updating ? (
-                    <View style={styles.loadingIndicator}>
-                      <ActivityIndicator size="small" color="#10B981" />
-                    </View>
-                  ) : (
-                    <Text style={styles.updateText}>Update</Text>
-                  )}
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.updateBtn, updating && styles.disabledBtn]}
+                    disabled={updating}
+                    onPress={handleUpdate}
+                  >
+                    {updating ? (
+                      <View style={styles.loadingIndicator}>
+                        <ActivityIndicator size="small" color="#10B981" />
+                      </View>
+                    ) : (
+                      <Text style={styles.updateText}>Update</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
-      )}
+          </Modal>
+        )}
 
-      <ToastManager showCloseIcon={false} />
-    </View>
+        <ToastManager showCloseIcon={false} />
+      </View>
+    </AccessControl>
   );
 };
 

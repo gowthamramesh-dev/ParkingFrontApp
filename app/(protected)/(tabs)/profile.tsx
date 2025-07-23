@@ -2,82 +2,90 @@ import React from "react";
 import { Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import userAuthStore from "../../../utils/store";
+import AccessControl from "@/components/AccessControl";
 
 const AccountSettings = () => {
   const router = useRouter();
-  const { user } = userAuthStore();
-  const parsedUser = typeof user === "string" ? JSON.parse(user) : user;
-
-  if (!parsedUser || parsedUser.role !== "admin") {
-    return (
-      <View style={styles.accessDeniedContainer}>
-        <Text style={styles.accessDeniedTitle}>Access Denied</Text>
-        <Text style={styles.accessDeniedSubtitle}>
-          You are not authorized to view this page.
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <View style={styles.headerBox}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="black" />
+    <AccessControl required="accountSettings">
+      <View style={styles.container}>
+        <View style={styles.headerBox}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Account Settings</Text>
+            <View style={styles.headerSpacer} />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.optionBox}
+            onPress={() => router.push("/dashboard")}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons name="stats-chart-outline" size={30} color="#2d6a4f" />
+              <Text style={styles.optionText}>Dashboard</Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={25}
+              color="#2d6a4f"
+            />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Account Settings</Text>
-          <View style={styles.headerSpacer} />
+
+          <TouchableOpacity
+            style={styles.optionBox}
+            onPress={() => router.push("/adminProfile")}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons
+                name="person-circle-outline"
+                size={30}
+                color="#2d6a4f"
+              />
+              <Text style={styles.optionText}>Account</Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={25}
+              color="#2d6a4f"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionBox}
+            onPress={() => router.push("/priceDetails")}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons name="pricetag-outline" size={30} color="#2d6a4f" />
+              <Text style={styles.optionText}>Price Details</Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={25}
+              color="#2d6a4f"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.optionBox}
+            onPress={() => router.push("/(protected)/(staff)/staffPage")}
+          >
+            <View style={styles.optionLeft}>
+              <Ionicons name="people-outline" size={30} color="#2d6a4f" />
+              <Text style={styles.optionText}>Staff Settings</Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={25}
+              color="#2d6a4f"
+            />
+          </TouchableOpacity>
         </View>
       </View>
-
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.optionBox}
-          onPress={() => router.push("/dashboard")}
-        >
-          <View style={styles.optionLeft}>
-            <Ionicons name="stats-chart-outline" size={30} color="#2d6a4f" />
-            <Text style={styles.optionText}>Dashboard</Text>
-          </View>
-          <Ionicons name="chevron-forward-outline" size={25} color="#2d6a4f" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.optionBox}
-          onPress={() => router.push("/adminProfile")}
-        >
-          <View style={styles.optionLeft}>
-            <Ionicons name="person-circle-outline" size={30} color="#2d6a4f" />
-            <Text style={styles.optionText}>Account</Text>
-          </View>
-          <Ionicons name="chevron-forward-outline" size={25} color="#2d6a4f" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.optionBox}
-          onPress={() => router.push("/priceDetails")}
-        >
-          <View style={styles.optionLeft}>
-            <Ionicons name="pricetag-outline" size={30} color="#2d6a4f" />
-            <Text style={styles.optionText}>Price Details</Text>
-          </View>
-          <Ionicons name="chevron-forward-outline" size={25} color="#2d6a4f" />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.optionBox}
-          onPress={() => router.push("/(protected)/(staff)/staffPage")}
-        >
-          <View style={styles.optionLeft}>
-            <Ionicons name="people-outline" size={30} color="#2d6a4f" />
-            <Text style={styles.optionText}>Staff List</Text>
-          </View>
-          <Ionicons name="chevron-forward-outline" size={25} color="#2d6a4f" />
-        </TouchableOpacity>
-      </View>
-    </View>
+    </AccessControl>
   );
 };
 

@@ -20,6 +20,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { format } from "date-fns";
 
 import userAuthStore from "@/utils/store";
+import AccessControl from "@/components/AccessControl";
 
 const VALID_IONICONS = new Set([
   "list-outline",
@@ -184,131 +185,133 @@ const VehicleScreen = () => {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={{ zIndex: 9999 }} />
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#10B981" />
-          <Text style={{ marginTop: 8, color: "#6B7280" }}>
-            Loading Vehicles...
-          </Text>
-        </View>
-      ) : (
-        <>
-          <View style={{ padding: 16, zIndex: 1000 }}>
-            <View style={styles.searchBar}>
-              <Ionicons name="search-outline" size={24} />
-              <TextInput
-                placeholder="Search vehicle"
-                value={search}
-                onChangeText={setSearch}
-                style={styles.searchInput}
-              />
-            </View>
-
-            <View style={styles.vehicleFilterContainer}>
-              <Text style={styles.vehicleHeading}>Vehicles</Text>
-              <FlatList
-                data={Vehicles}
-                horizontal
-                keyExtractor={(item) => item.value}
-                renderItem={({ item }) => {
-                  const isSelected = selected === item.value;
-                  return (
-                    <TouchableOpacity
-                      style={[
-                        styles.vehicleButton,
-                        isSelected
-                          ? styles.selectedVehicle
-                          : styles.unselectedVehicle,
-                      ]}
-                      onPress={() => {
-                        setSelected(item.value);
-                        handleList(item.value);
-                      }}
-                    >
-                      <SafeIonicon
-                        name={item.icon}
-                        size={22}
-                        color={isSelected ? "#fff" : "#000"}
-                      />
-                      <Text
-                        style={
-                          isSelected
-                            ? styles.selectedText
-                            : styles.unselectedText
-                        }
-                      >
-                        {item.name}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                }}
-                showsHorizontalScrollIndicator={false}
-              />
-            </View>
-
-            <View style={[styles.filterRow, { zIndex: 1000 }]}>
-              <View style={{ flex: 1, zIndex: 1000 }}>
-                <DropDownPicker
-                  textStyle={{ color: "#000" }}
-                  labelStyle={{ color: "#000" }}
-                  open={openDropDown}
-                  value={checkType}
-                  items={dropDownItems}
-                  setOpen={setOpenDropDown}
-                  setValue={setCheckType}
-                  setItems={setDropDownItems}
-                  containerStyle={{ height: 44 }}
-                  style={{ borderRadius: 6, borderColor: "white" }}
-                  dropDownContainerStyle={{
-                    borderRadius: 6,
-                    borderColor: "white",
-                  }}
+    <AccessControl required="staffVehicles">
+      <SafeAreaView style={styles.container}>
+        <View style={{ zIndex: 9999 }} />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#10B981" />
+            <Text style={{ marginTop: 8, color: "#6B7280" }}>
+              Loading Vehicles...
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={{ padding: 16, zIndex: 1000 }}>
+              <View style={styles.searchBar}>
+                <Ionicons name="search-outline" size={24} />
+                <TextInput
+                  placeholder="Search vehicle"
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
                 />
               </View>
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                style={styles.dateButton}
-              >
-                <Text style={styles.dateButtonText}>
-                  {filterDate
-                    ? format(filterDate, "MMM dd, yyyy")
-                    : "Pick Date"}
-                </Text>
-              </TouchableOpacity>
+
+              <View style={styles.vehicleFilterContainer}>
+                <Text style={styles.vehicleHeading}>Vehicles</Text>
+                <FlatList
+                  data={Vehicles}
+                  horizontal
+                  keyExtractor={(item) => item.value}
+                  renderItem={({ item }) => {
+                    const isSelected = selected === item.value;
+                    return (
+                      <TouchableOpacity
+                        style={[
+                          styles.vehicleButton,
+                          isSelected
+                            ? styles.selectedVehicle
+                            : styles.unselectedVehicle,
+                        ]}
+                        onPress={() => {
+                          setSelected(item.value);
+                          handleList(item.value);
+                        }}
+                      >
+                        <SafeIonicon
+                          name={item.icon}
+                          size={22}
+                          color={isSelected ? "#fff" : "#000"}
+                        />
+                        <Text
+                          style={
+                            isSelected
+                              ? styles.selectedText
+                              : styles.unselectedText
+                          }
+                        >
+                          {item.name}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  }}
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+
+              <View style={[styles.filterRow, { zIndex: 1000 }]}>
+                <View style={{ flex: 1, zIndex: 1000 }}>
+                  <DropDownPicker
+                    textStyle={{ color: "#000" }}
+                    labelStyle={{ color: "#000" }}
+                    open={openDropDown}
+                    value={checkType}
+                    items={dropDownItems}
+                    setOpen={setOpenDropDown}
+                    setValue={setCheckType}
+                    setItems={setDropDownItems}
+                    containerStyle={{ height: 44 }}
+                    style={{ borderRadius: 6, borderColor: "white" }}
+                    dropDownContainerStyle={{
+                      borderRadius: 6,
+                      borderColor: "white",
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => setShowDatePicker(true)}
+                  style={styles.dateButton}
+                >
+                  <Text style={styles.dateButtonText}>
+                    {filterDate
+                      ? format(filterDate, "MMM dd, yyyy")
+                      : "Pick Date"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={filterDate || new Date()}
+                  mode="date"
+                  display={Platform.OS === "ios" ? "inline" : "default"}
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (event.type === "set" && selectedDate) {
+                      setFilterDate(selectedDate);
+                    }
+                  }}
+                />
+              )}
             </View>
 
-            {showDatePicker && (
-              <DateTimePicker
-                value={filterDate || new Date()}
-                mode="date"
-                display={Platform.OS === "ios" ? "inline" : "default"}
-                onChange={(event, selectedDate) => {
-                  setShowDatePicker(false);
-                  if (event.type === "set" && selectedDate) {
-                    setFilterDate(selectedDate);
-                  }
-                }}
-              />
-            )}
-          </View>
-
-          <FlatList
-            data={filteredData}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => <CheckinCard item={item} />}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 30 }}
-            ListEmptyComponent={
-              <View style={styles.emptyTextContainer}>
-                <Text style={styles.emptyText}>No vehicle data found</Text>
-              </View>
-            }
-          />
-        </>
-      )}
-    </SafeAreaView>
+            <FlatList
+              data={filteredData}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => <CheckinCard item={item} />}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 30 }}
+              ListEmptyComponent={
+                <View style={styles.emptyTextContainer}>
+                  <Text style={styles.emptyText}>No vehicle data found</Text>
+                </View>
+              }
+            />
+          </>
+        )}
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

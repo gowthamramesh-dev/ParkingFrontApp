@@ -116,6 +116,8 @@ interface UserAuthState extends Partial<VehicleData> {
   isLoading: boolean;
   isLogged: boolean;
   staffs: Staff[];
+  staffPermission: string[];
+  role: string;
   permissions: string[];
   report: Report | null;
   monthlyPassActive: MonthlyPass[] | null;
@@ -174,7 +176,10 @@ interface UserAuthState extends Partial<VehicleData> {
     days: string,
     amount: number
   ) => Promise<{ success: boolean; error?: any }>;
-  checkOut: (tokenId: string) => Promise<{ success: boolean; error?: any }>;
+  checkOut: (
+    tokenId: string,
+    isExpired: boolean
+  ) => Promise<{ success: boolean; error?: any }>;
   getAllStaffs: () => Promise<{
     success: boolean;
     staffs?: Staff[];
@@ -209,6 +214,15 @@ interface UserAuthState extends Partial<VehicleData> {
     months: number
   ) => Promise<{ success: boolean; error?: string; data?: any }>;
   restoreSession: () => Promise<void>;
+  setStaffPermission: (
+    staffId: string,
+    permissions: string[]
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+    data?: any;
+  }>;
+  getStaffPermission: (staffId: string) => Promise<void>;
 }
 
 const userAuthStore = create<UserAuthState>((set, get) => ({
@@ -237,6 +251,8 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
   selectedStaffRevenue: [],
   totalRevenue: 0,
   totalVehicles: 0,
+  staffPermission: [],
+  role: "",
 
   restoreSession: async () => {
     try {
@@ -315,14 +331,24 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       await AsyncStorage.setItem("token", data.token);
 
       await get().fetchPrices(correctedUser._id, data.token);
-      await get().getDashboardData();
+
+      if (data.user.role === "staff") {
+        await get().getStaffPermission(data.user._id);
+        set({ staffPermission: get().permissions, role: data.user.role });
+        await AsyncStorage.setItem(
+          "staffPermission",
+          JSON.stringify(get().staffPermission)
+        );
+      } else {
+        set({ staffPermission: [] });
+        await get().getDashboardData();
+      }
 
       set({
         user: correctedUser,
         token: data.token,
         isLoading: false,
         isLogged: true,
-        permissions: data.permissions || [],
       });
 
       return { success: true };
@@ -352,6 +378,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       PaymentMethod: {},
       staffData: [],
       transactionLogs: [],
+      staffPermission: [],
     });
   },
 
@@ -568,25 +595,39 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     }
   },
 
-  checkOut: async (tokenId) => {
+  checkOut: async (tokenId, isExpired) => {
     try {
       set({ isLoading: true });
 
       const token = await AsyncStorage.getItem("token");
-
-      const res = await fetch(`${URL}api/checkout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tokenId }),
-      });
+      let res;
+      if (isExpired) {
+        res = await fetch(`${URL}api/checkout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ tokenId, previewOnly: isExpired }),
+        });
+      } else {
+        res = await fetch(`${URL}api/checkout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ tokenId }),
+        });
+      }
 
       const data = await res.json();
 
-      if (!res.ok || !data.receipt) {
+      if (!res.ok) {
         throw new Error(data.message || "Checkout failed");
+      }
+      if (isExpired) {
+        return { success: true, data: data.data };
       }
 
       return {
@@ -952,6 +993,60 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     } catch (err: any) {
       set({ isLoading: false });
       return { success: false, error: err.message };
+    }
+  },
+  setStaffPermission: async (staffId, permissions) => {
+    set({ isLoading: true });
+    try {
+      const token = get().token || (await AsyncStorage.getItem("token"));
+      if (!token) throw new Error("No token found");
+
+      const res = await fetch(`${URL}api/setPermissions/${staffId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          staffId,
+          permissions,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to set Permission");
+      }
+
+      return { success: true, data: data.staff.permissions };
+    } catch (error: any) {
+      set({ isLoading: false });
+      return { success: false, error: error.message };
+    }
+  },
+  getStaffPermission: async (staffId) => {
+    try {
+      const token = get().token || (await AsyncStorage.getItem("token"));
+      if (!token) throw new Error("No token found");
+      const res = await fetch(`${URL}api/staff/getPermissions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          staffId,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to set Permission");
+      }
+      set({ permissions: data.permissions });
+    } catch (error: any) {
+      console.log(error.message);
     }
   },
 }));

@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import AccessControl from "@/components/AccessControl";
 
 type Vehicle = {
   name: string;
@@ -138,138 +139,140 @@ const VehicleList = () => {
   }, [checkType]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBox}>
-        <Ionicons name="search-outline" size={24} />
-        <TextInput
-          placeholder="Search vehicle"
-          placeholderTextColor="#888"
-          value={search}
-          onChangeText={setSearch}
-          style={styles.searchInput}
-        />
-      </View>
-
-      <View style={styles.vehicleFilterBox}>
-        <View style={styles.centeredTextBox}>
-          <Text style={styles.vehicleTitle}>Vehicles</Text>
-        </View>
-
-        <FlatList
-          data={Vehicles}
-          horizontal
-          keyExtractor={(item) => item.value}
-          renderItem={({ item }) => {
-            const isSelected = selected === item.value;
-            return (
-              <TouchableOpacity
-                style={[
-                  styles.vehicleType,
-                  { backgroundColor: isSelected ? "#059669" : "#4ade80" },
-                ]}
-                onPress={() => {
-                  setSelected(item.value);
-                  handleList(item.value);
-                }}
-              >
-                <Ionicons
-                  name={item.icon}
-                  size={22}
-                  color={isSelected ? "#fff" : "#000"}
-                />
-                <Text style={{ color: isSelected ? "#fff" : "#000" }}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-          showsHorizontalScrollIndicator={false}
-        />
-      </View>
-
-      <View style={{ zIndex: 1000 }}>
-        <View style={styles.rowFilter}>
-          <View style={styles.pickerWrapper}>
-            <DropDownPicker
-              textStyle={{ color: "#000" }}
-              labelStyle={{ color: "#000" }}
-              open={open}
-              value={checkType}
-              items={items}
-              setOpen={setOpen}
-              setValue={setCheckType}
-              setItems={setItems}
-              style={{
-                backgroundColor: "white",
-                borderColor: "#ccc",
-                height: 48,
-              }}
-              dropDownContainerStyle={{
-                backgroundColor: "#f0f0f0",
-                borderColor: "#ccc",
-              }}
-              placeholder="Select Type"
-              zIndex={1000}
-              zIndexInverse={3000}
-            />
-          </View>
-          <TouchableOpacity
-            onPress={() => setShowDatePicker(true)}
-            style={styles.dateBtn}
-          >
-            <Text style={styles.dateBtnText}>
-              {filterDate ? format(filterDate, "MMM dd, yyyy") : "Pick Date"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={filterDate || new Date()}
-          mode="date"
-          display={Platform.OS === "ios" ? "inline" : "default"}
-          onChange={(event, selectedDate) => {
-            setShowDatePicker(false);
-            if (event.type === "set" && selectedDate) {
-              setFilterDate(selectedDate);
-            }
-          }}
-        />
-      )}
-
-      <View style={styles.resultContainer}>
-        {loading ? (
-          <View style={styles.centeredContent}>
-            <ActivityIndicator size="large" color="#10B981" />
-            <Text style={styles.grayText}>Loading Vehicles...</Text>
-          </View>
-        ) : VehicleListData && VehicleListData.length > 0 ? (
-          <FlatList
-            data={Array.from(VehicleListData).filter((item) => {
-              const matchesSearch =
-                item.vehicleNo.toLowerCase().includes(search.toLowerCase()) ||
-                item.name.toLowerCase().includes(search.toLowerCase());
-
-              const matchesDate = filterDate
-                ? format(new Date(item.entryDateTime), "yyyy-MM-dd") ===
-                  format(filterDate, "yyyy-MM-dd")
-                : true;
-
-              return matchesSearch && matchesDate;
-            })}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => <CheckinCard item={item} />}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 12 }}
+    <AccessControl required="vehicles">
+      <View style={styles.container}>
+        <View style={styles.searchBox}>
+          <Ionicons name="search-outline" size={24} />
+          <TextInput
+            placeholder="Search vehicle"
+            placeholderTextColor="#888"
+            value={search}
+            onChangeText={setSearch}
+            style={styles.searchInput}
           />
-        ) : (
-          <View style={styles.centeredContent}>
-            <Text style={styles.grayText}>No vehicle data found</Text>
+        </View>
+
+        <View style={styles.vehicleFilterBox}>
+          <View style={styles.centeredTextBox}>
+            <Text style={styles.vehicleTitle}>Vehicles</Text>
           </View>
+
+          <FlatList
+            data={Vehicles}
+            horizontal
+            keyExtractor={(item) => item.value}
+            renderItem={({ item }) => {
+              const isSelected = selected === item.value;
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.vehicleType,
+                    { backgroundColor: isSelected ? "#059669" : "#4ade80" },
+                  ]}
+                  onPress={() => {
+                    setSelected(item.value);
+                    handleList(item.value);
+                  }}
+                >
+                  <Ionicons
+                    name={item.icon}
+                    size={22}
+                    color={isSelected ? "#fff" : "#000"}
+                  />
+                  <Text style={{ color: isSelected ? "#fff" : "#000" }}>
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+
+        <View style={{ zIndex: 1000 }}>
+          <View style={styles.rowFilter}>
+            <View style={styles.pickerWrapper}>
+              <DropDownPicker
+                textStyle={{ color: "#000" }}
+                labelStyle={{ color: "#000" }}
+                open={open}
+                value={checkType}
+                items={items}
+                setOpen={setOpen}
+                setValue={setCheckType}
+                setItems={setItems}
+                style={{
+                  backgroundColor: "white",
+                  borderColor: "#ccc",
+                  height: 48,
+                }}
+                dropDownContainerStyle={{
+                  backgroundColor: "#f0f0f0",
+                  borderColor: "#ccc",
+                }}
+                placeholder="Select Type"
+                zIndex={1000}
+                zIndexInverse={3000}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              style={styles.dateBtn}
+            >
+              <Text style={styles.dateBtnText}>
+                {filterDate ? format(filterDate, "MMM dd, yyyy") : "Pick Date"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {showDatePicker && (
+          <DateTimePicker
+            value={filterDate || new Date()}
+            mode="date"
+            display={Platform.OS === "ios" ? "inline" : "default"}
+            onChange={(event, selectedDate) => {
+              setShowDatePicker(false);
+              if (event.type === "set" && selectedDate) {
+                setFilterDate(selectedDate);
+              }
+            }}
+          />
         )}
+
+        <View style={styles.resultContainer}>
+          {loading ? (
+            <View style={styles.centeredContent}>
+              <ActivityIndicator size="large" color="#10B981" />
+              <Text style={styles.grayText}>Loading Vehicles...</Text>
+            </View>
+          ) : VehicleListData && VehicleListData.length > 0 ? (
+            <FlatList
+              data={Array.from(VehicleListData).filter((item) => {
+                const matchesSearch =
+                  item.vehicleNo.toLowerCase().includes(search.toLowerCase()) ||
+                  item.name.toLowerCase().includes(search.toLowerCase());
+
+                const matchesDate = filterDate
+                  ? format(new Date(item.entryDateTime), "yyyy-MM-dd") ===
+                    format(filterDate, "yyyy-MM-dd")
+                  : true;
+
+                return matchesSearch && matchesDate;
+              })}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => <CheckinCard item={item} />}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingVertical: 12 }}
+            />
+          ) : (
+            <View style={styles.centeredContent}>
+              <Text style={styles.grayText}>No vehicle data found</Text>
+            </View>
+          )}
+        </View>
       </View>
-    </View>
+    </AccessControl>
   );
 };
 

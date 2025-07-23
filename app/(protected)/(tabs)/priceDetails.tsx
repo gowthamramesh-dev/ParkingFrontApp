@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import userAuthStore from "@/utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
+import AccessControl from "@/components/AccessControl";
 
 const vehicleTypes = ["cycle", "bike", "car", "van", "lorry", "bus"];
 
@@ -129,100 +130,106 @@ const PriceDetails = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <View style={styles.innerContainer}>
-        <View style={styles.headerBox}>
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Manage Price List</Text>
-          <Ionicons name="arrow-back" size={24} color="transparent" />
-        </View>
-
-        <ScrollView style={{ marginBottom: 60 }}>
-          <View style={styles.tabRow}>
-            <TouchableOpacity
-              style={[
-                styles.tabButton,
-                activeTab === "daily" ? styles.activeTab : styles.inactiveTab,
-              ]}
-              onPress={() => setActiveTab("daily")}
-            >
-              <Text
-                style={
-                  activeTab === "daily"
-                    ? styles.activeTabText
-                    : styles.inactiveTabText
-                }
-              >
-                Daily Prices
-              </Text>
+    <AccessControl required="priceDetails">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
+      >
+        <View style={styles.innerContainer}>
+          <View style={styles.headerBox}>
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.tabButton,
-                activeTab === "monthly" ? styles.activeTab : styles.inactiveTab,
-              ]}
-              onPress={() => setActiveTab("monthly")}
-            >
-              <Text
-                style={
-                  activeTab === "monthly"
-                    ? styles.activeTabText
-                    : styles.inactiveTabText
-                }
-              >
-                Monthly Prices
-              </Text>
-            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Manage Price List</Text>
+            <Ionicons name="arrow-back" size={24} color="transparent" />
           </View>
 
-          <View style={styles.formBox}>
-            {vehicleTypes.map((type) => (
-              <View key={type} style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{type}</Text>
-                <TextInput
-                  value={
-                    activeTab === "daily" ? dailyForm[type] : monthlyForm[type]
+          <ScrollView style={{ marginBottom: 60 }}>
+            <View style={styles.tabRow}>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  activeTab === "daily" ? styles.activeTab : styles.inactiveTab,
+                ]}
+                onPress={() => setActiveTab("daily")}
+              >
+                <Text
+                  style={
+                    activeTab === "daily"
+                      ? styles.activeTabText
+                      : styles.inactiveTabText
                   }
-                  onChangeText={(val) => handleChange(type, val, activeTab)}
-                  placeholder={`Enter ${type} ${activeTab} price`}
-                  keyboardType="numeric"
-                  style={styles.inputField}
-                />
-              </View>
-            ))}
-          </View>
+                >
+                  Daily Prices
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.tabButton,
+                  activeTab === "monthly"
+                    ? styles.activeTab
+                    : styles.inactiveTab,
+                ]}
+                onPress={() => setActiveTab("monthly")}
+              >
+                <Text
+                  style={
+                    activeTab === "monthly"
+                      ? styles.activeTabText
+                      : styles.inactiveTabText
+                  }
+                >
+                  Monthly Prices
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                !isFormValid(activeTab) && styles.disabledButton,
-              ]}
-              onPress={handleAdd}
-              disabled={!isFormValid(activeTab)}
-            >
-              <Text style={styles.buttonText}>Add Price</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                !isFormValid(activeTab) && styles.disabledButton,
-              ]}
-              onPress={handleUpdate}
-              disabled={!isFormValid(activeTab)}
-            >
-              <Text style={styles.buttonText}>Update Price</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
-      <ToastManager showCloseIcon={false} />
-    </KeyboardAvoidingView>
+            <View style={styles.formBox}>
+              {vehicleTypes.map((type) => (
+                <View key={type} style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>{type}</Text>
+                  <TextInput
+                    value={
+                      activeTab === "daily"
+                        ? dailyForm[type]
+                        : monthlyForm[type]
+                    }
+                    onChangeText={(val) => handleChange(type, val, activeTab)}
+                    placeholder={`Enter ${type} ${activeTab} price`}
+                    keyboardType="numeric"
+                    style={styles.inputField}
+                  />
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  !isFormValid(activeTab) && styles.disabledButton,
+                ]}
+                onPress={handleAdd}
+                disabled={!isFormValid(activeTab)}
+              >
+                <Text style={styles.buttonText}>Add Price</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.actionButton,
+                  !isFormValid(activeTab) && styles.disabledButton,
+                ]}
+                onPress={handleUpdate}
+                disabled={!isFormValid(activeTab)}
+              >
+                <Text style={styles.buttonText}>Update Price</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+        <ToastManager showCloseIcon={false} />
+      </KeyboardAvoidingView>
+    </AccessControl>
   );
 };
 

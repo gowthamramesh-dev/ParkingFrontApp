@@ -14,6 +14,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { PieChart } from "react-native-chart-kit";
 import { Ionicons } from "@expo/vector-icons";
 import userAuthStore from "@/utils/store";
+import AccessControl from "@/components/AccessControl";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -104,96 +105,100 @@ const StaffRevenue = () => {
   }
 
   return (
-    <View style={styles.container}>
-      {/* Search and Date Filter */}
-      <View style={styles.dateFilterRow}>
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={styles.dateButton}
-        >
-          <Ionicons name="calendar" size={18} color="#ffffff" />
-          <Text style={styles.dateButtonText}>
-            {filterDate ? format(filterDate, "dd/MM/yyyy") : "Pick Date"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Date Picker */}
-      {showDatePicker && (
-        <View style={styles.datePickerBox}>
-          <Text style={styles.datePickerTitle}>Select a Date</Text>
-          <DateTimePicker
-            value={filterDate}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDatePicker(false);
-              if (selectedDate) {
-                setFilterDate(selectedDate);
-              }
-            }}
-          />
+    <AccessControl required="staffRevenue">
+      <View style={styles.container}>
+        {/* Search and Date Filter */}
+        <View style={styles.dateFilterRow}>
+          <TouchableOpacity
+            onPress={() => setShowDatePicker(true)}
+            style={styles.dateButton}
+          >
+            <Ionicons name="calendar" size={18} color="#ffffff" />
+            <Text style={styles.dateButtonText}>
+              {filterDate ? format(filterDate, "dd/MM/yyyy") : "Pick Date"}
+            </Text>
+          </TouchableOpacity>
         </View>
-      )}
 
-      {/* Summary and Chart */}
-      {!isLoading && filteredData.length > 0 && (
-        <View style={styles.summarySection}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Revenue Summary</Text>
-            <View style={styles.summaryRow}>
-              <View style={styles.summaryItem}>
-                <Text style={styles.revenueText}>₹{totalRevenue}</Text>
-                <Text style={styles.summaryLabel}>Total Revenue</Text>
-              </View>
-              <View style={styles.summaryItem}>
-                <Text style={styles.transactionText}>{totalTransactions}</Text>
-                <Text style={styles.summaryLabel}>Transactions</Text>
-              </View>
-            </View>
+        {/* Date Picker */}
+        {showDatePicker && (
+          <View style={styles.datePickerBox}>
+            <Text style={styles.datePickerTitle}>Select a Date</Text>
+            <DateTimePicker
+              value={filterDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) {
+                  setFilterDate(selectedDate);
+                }
+              }}
+            />
           </View>
+        )}
 
-          {chartData.length > 0 && (
-            <View style={styles.chartBox}>
-              <Text style={styles.chartTitle}>Revenue by Payment Method</Text>
-              <PieChart
-                data={chartData}
-                width={screenWidth - 40}
-                height={240}
-                chartConfig={{
-                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  labelColor: () => `#000000`,
-                }}
-                accessor="amount"
-                backgroundColor="transparent"
-                paddingLeft="15"
-                absolute
-              />
+        {/* Summary and Chart */}
+        {!isLoading && filteredData.length > 0 && (
+          <View style={styles.summarySection}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryTitle}>Revenue Summary</Text>
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryItem}>
+                  <Text style={styles.revenueText}>₹{totalRevenue}</Text>
+                  <Text style={styles.summaryLabel}>Total Revenue</Text>
+                </View>
+                <View style={styles.summaryItem}>
+                  <Text style={styles.transactionText}>
+                    {totalTransactions}
+                  </Text>
+                  <Text style={styles.summaryLabel}>Transactions</Text>
+                </View>
+              </View>
             </View>
-          )}
-        </View>
-      )}
 
-      {/* Revenue List */}
-      {isLoading ? (
-        <View style={styles.centeredView}>
-          <ActivityIndicator size="large" color="#2563EB" />
-        </View>
-      ) : filteredData?.length === 0 ? (
-        <View style={styles.centeredView}>
-          <Text style={styles.noDataText}>
-            No data found for {format(filterDate, "MMM dd, yyyy")}.
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredData}
-          keyExtractor={(item, index) => `${item._id || index}`}
-          renderItem={renderItem}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
-        />
-      )}
-    </View>
+            {chartData.length > 0 && (
+              <View style={styles.chartBox}>
+                <Text style={styles.chartTitle}>Revenue by Payment Method</Text>
+                <PieChart
+                  data={chartData}
+                  width={screenWidth - 40}
+                  height={240}
+                  chartConfig={{
+                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    labelColor: () => `#000000`,
+                  }}
+                  accessor="amount"
+                  backgroundColor="transparent"
+                  paddingLeft="15"
+                  absolute
+                />
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Revenue List */}
+        {isLoading ? (
+          <View style={styles.centeredView}>
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>
+        ) : filteredData?.length === 0 ? (
+          <View style={styles.centeredView}>
+            <Text style={styles.noDataText}>
+              No data found for {format(filterDate, "MMM dd, yyyy")}.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredData}
+            keyExtractor={(item, index) => `${item._id || index}`}
+            renderItem={renderItem}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 20 }}
+          />
+        )}
+      </View>
+    </AccessControl>
   );
 };
 

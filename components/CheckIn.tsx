@@ -161,7 +161,7 @@ const CheckIn = () => {
             />
 
             <DropDownPicker
-              textStyle={{ color: "#000" }}
+              textStyle={{ color: "#000", fontSize: RFValue(14) }}
               labelStyle={{ color: "#000" }}
               open={vehicleTypeOpen}
               value={vehicleType}
@@ -173,7 +173,6 @@ const CheckIn = () => {
               setValue={setVehicleType}
               style={styles.dropdown}
               dropDownContainerStyle={styles.dropdownList}
-              textStyle={{ fontSize: RFValue(14) }}
               placeholder="Select Vehicle Type"
               zIndex={3000}
               zIndexInverse={1000}
@@ -190,7 +189,7 @@ const CheckIn = () => {
             />
 
             <DropDownPicker
-              textStyle={{ color: "#000" }}
+              textStyle={{ color: "#000", fontSize: RFValue(14) }}
               labelStyle={{ color: "#000" }}
               open={daysOpen}
               value={days}
@@ -202,14 +201,13 @@ const CheckIn = () => {
               setValue={setDays}
               style={styles.dropdown}
               dropDownContainerStyle={styles.dropdownList}
-              textStyle={{ fontSize: RFValue(14) }}
               placeholder="Select Days"
               zIndex={2000}
               zIndexInverse={900}
             />
 
             <DropDownPicker
-              textStyle={{ color: "#000" }}
+              textStyle={{ color: "#000", fontSize: RFValue(14) }}
               labelStyle={{ color: "#000" }}
               open={paymentOpen}
               value={paymentMethod}
@@ -223,7 +221,6 @@ const CheckIn = () => {
               setValue={setPaymentMethod}
               style={styles.dropdown}
               dropDownContainerStyle={styles.dropdownList}
-              textStyle={{ fontSize: RFValue(14) }}
               placeholder="Select Payment Method"
               zIndex={1000}
               zIndexInverse={800}

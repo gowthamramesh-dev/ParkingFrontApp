@@ -29,7 +29,6 @@ const Login = () => {
   const { login } = userAuthStore();
 
   const screenWidth = Dimensions.get("window").width;
-
   const handleLogin = async () => {
     setIsLoading(true);
     const result = await login(userName, password);
@@ -40,7 +39,7 @@ const Login = () => {
         text1: "Login Failed",
         text2: result.error || "Invalid credentials",
         position: "top",
-        visibilityTime: 2000,
+        visibilityTime: 1000,
         autoHide: true,
       });
     } else {
@@ -48,7 +47,7 @@ const Login = () => {
         type: "success",
         text1: "Login Successful",
         position: "top",
-        visibilityTime: 2000,
+        visibilityTime: 1000,
         autoHide: true,
       });
     }

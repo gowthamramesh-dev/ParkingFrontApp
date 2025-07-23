@@ -65,6 +65,17 @@ export default function TabLayout() {
               position: "absolute",
               bottom: 0,
             },
+            tabBarItemStyle: {
+              width: "auto", // Allow flexible width
+              minWidth: 70,
+              alignItems: "center",
+            },
+            tabBarLabelStyle: {
+              fontSize: 12,
+              flexWrap: "nowrap", // No line break
+              maxWidth: 100, // Prevent overflow
+              textAlign: "center",
+            },
           }}
         >
           <Tabs.Screen

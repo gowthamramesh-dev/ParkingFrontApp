@@ -13,11 +13,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PermissionPage from "./(protected)/(staff)/permissionPage";
+import { useLocalSearchParams } from "expo-router";
+import AccessControl from "@/components/AccessControl";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("vehiclelist");
   const [user, setUser] = useState({});
   const navigation = useNavigation();
+  const { staffId } = useLocalSearchParams();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,64 +39,79 @@ const Index = () => {
         return <StaffVehicleList />;
       case "revenue":
         return <StaffRevenue />;
+      case "permission":
+        return <PermissionPage id={staffId} />;
       default:
         return <StaffVehicleList />;
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <StatusBar
-          backgroundColor="transparent"
-          translucent
-          barStyle="dark-content"
-        />
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backButton}
-            >
-              <Ionicons name="arrow-back" size={28} color="#1F2937" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Staff Report</Text>
-          </View>
-          <View></View>
-          {/* Tabs */}
-          <View style={styles.tabWrapper}>
-            <View style={styles.tabRow}>
+    <AccessControl required="InStaff">
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <StatusBar
+            backgroundColor="transparent"
+            translucent
+            barStyle="dark-content"
+          />
+          <View style={styles.container}>
+            <View style={styles.header}>
               <TouchableOpacity
-                style={[
-                  styles.tabButton,
-                  activeTab === "vehiclelist"
-                    ? styles.vehicleTabActive
-                    : styles.tabInactive,
-                ]}
-                onPress={() => setActiveTab("vehiclelist")}
+                onPress={() => navigation.goBack()}
+                style={styles.backButton}
               >
-                <Text style={styles.tabText}>Vehicle List</Text>
+                <Ionicons name="arrow-back" size={28} color="#1F2937" />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.tabButton,
-                  activeTab === "revenue"
-                    ? styles.revenueTabActive
-                    : styles.tabInactive,
-                ]}
-                onPress={() => setActiveTab("revenue")}
-              >
-                <Text style={styles.tabText}>Revenue</Text>
-              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Staff Report</Text>
+            </View>
+            <View></View>
+
+            <View style={styles.tabWrapper}>
+              <View style={styles.tabRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.tabButton,
+                    activeTab === "vehiclelist"
+                      ? styles.vehicleTabActive
+                      : styles.tabInactive,
+                  ]}
+                  onPress={() => setActiveTab("vehiclelist")}
+                >
+                  <Text style={styles.tabText}>Vehicle List</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.tabButton,
+                    activeTab === "revenue"
+                      ? styles.revenueTabActive
+                      : styles.tabInactive,
+                  ]}
+                  onPress={() => setActiveTab("revenue")}
+                >
+                  <Text style={styles.tabText}>Revenue</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.tabButton,
+                    activeTab === "permission"
+                      ? styles.revenueTabActive
+                      : styles.tabInactive,
+                  ]}
+                  onPress={() => setActiveTab("permission")}
+                >
+                  <Text style={styles.tabText}>Permissions</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            {/* Content */}
+            <View style={styles.contentContainer}>
+              <ScrollView>{renderTabContent()}</ScrollView>
             </View>
           </View>
-          {/* Content */}
-          <View style={styles.contentContainer}>
-            <ScrollView>{renderTabContent()}</ScrollView>
-          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

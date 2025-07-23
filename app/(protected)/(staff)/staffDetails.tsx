@@ -1,39 +1,42 @@
 import React from "react";
 import { Text, TouchableOpacity, SafeAreaView, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import AccessControl from "@/components/AccessControl";
 
 const StaffDetails = () => {
   const { staffId, username } = useLocalSearchParams();
   const router = useRouter();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.staffName}>👤 {username}</Text>
+    <AccessControl required="staffDetails">
+      <SafeAreaView style={styles.safeArea}>
+        <Text style={styles.staffName}>👤 {username}</Text>
 
-      <TouchableOpacity
-        style={styles.buttonVehicle}
-        onPress={() =>
-          router.push({
-            pathname: "/(protected)/(tabs)/vehicleList",
-            params: { staffId, username },
-          })
-        }
-      >
-        <Text style={styles.buttonText}>🚗 Vehicle List</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonVehicle}
+          onPress={() =>
+            router.push({
+              pathname: "/(protected)/(tabs)/vehicleList",
+              params: { staffId, username },
+            })
+          }
+        >
+          <Text style={styles.buttonText}>🚗 Vehicle List</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.buttonReport}
-        onPress={() =>
-          router.push({
-            pathname: "/(protected)/(tabs)/todayReport",
-            params: { staffId, username },
-          })
-        }
-      >
-        <Text style={styles.buttonText}>📊 Today Report</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <TouchableOpacity
+          style={styles.buttonReport}
+          onPress={() =>
+            router.push({
+              pathname: "/(protected)/(tabs)/todayReport",
+              params: { staffId, username },
+            })
+          }
+        >
+          <Text style={styles.buttonText}>📊 Today Report</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

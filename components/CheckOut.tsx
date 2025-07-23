@@ -28,14 +28,14 @@ const CheckOut = () => {
         text1: "Error",
         text2: "Enter the Token ID",
         position: "top",
-        visibilityTime: 2000,
+        visibilityTime: 1000,
         autoHide: true,
       });
       setIsLoading(false);
       return;
     }
 
-    const result = await checkOut(tokenId);
+    const result = await checkOut(tokenId, true);
     setIsLoading(false);
 
     if (!result.success) {
@@ -44,26 +44,65 @@ const CheckOut = () => {
         text1: "Error",
         text2: result.error || "Check-out failed",
         position: "top",
-        visibilityTime: 2000,
+        visibilityTime: 1000,
         autoHide: true,
       });
       return;
     }
 
-    if (result.receipt?.table?.extraDays > 0) {
-      setReceiptData(result.receipt);
+    if (result.data?.table?.extraDays > 0) {
+      setReceiptData(result.data);
       setShowModal(true);
     } else {
       Toast.show({
         type: "success",
-        text1: "Vehicle Checked Out",
-        text2: "No extra charges.",
+        text1: "Success",
+        text2: "Already Checked out",
         position: "top",
-        visibilityTime: 2000,
+        visibilityTime: 1000,
         autoHide: true,
       });
-      settokenId("");
     }
+  };
+
+  const handleFinalSubmit = async () => {
+    setIsLoading(true);
+    if (!tokenId) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Enter the Token ID",
+        position: "top",
+        visibilityTime: 1000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const result = await checkOut(tokenId, false);
+    setIsLoading(false);
+
+    if (!result.success) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: result.error || "Check-out failed",
+        position: "top",
+        visibilityTime: 1000,
+        autoHide: true,
+      });
+      return;
+    }
+    Toast.show({
+      type: "success",
+      text1: "Vehicle Checked Out",
+      text2: "Extra payment confirmed.",
+      position: "top",
+      visibilityTime: 1000,
+      autoHide: true,
+    });
+    settokenId("");
   };
 
   return (
@@ -115,12 +154,7 @@ const CheckOut = () => {
         onProceed={() => {
           setShowModal(false);
           settokenId("");
-          Toast.show({
-            type: "success",
-            text1: "Vehicle Checked Out",
-            text2: "Extra payment confirmed.",
-            position: "top",
-          });
+          handleFinalSubmit();
         }}
       />
 

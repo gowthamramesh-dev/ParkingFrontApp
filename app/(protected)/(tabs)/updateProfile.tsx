@@ -17,6 +17,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useRef, useState } from "react";
 import userAuthStore from "../../../utils/store";
+import AccessControl from "@/components/AccessControl";
 
 const UpdateProfile = () => {
   const { user, updateProfile } = userAuthStore();
@@ -167,94 +168,96 @@ const UpdateProfile = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={80}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+    <AccessControl required="adminUpdate">
+      <SafeAreaView style={styles.safeContainer}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={80}
         >
-          <View style={styles.avatarContainer}>
-            <Image source={getAvatarImage()} style={styles.avatarImage} />
-          </View>
-
-          <View style={styles.formContainer}>
-            <Text style={styles.title}>Update Profile</Text>
-
-            <Text style={styles.label}>Username</Text>
-            <TextInput
-              placeholder="Enter new username"
-              value={username}
-              onChangeText={setUsername}
-              style={styles.input}
-            />
-
-            <Text style={styles.label}>Old Password</Text>
-            <View style={styles.passwordInput}>
-              <TextInput
-                placeholder="Enter current password"
-                secureTextEntry={!showOldPassword}
-                value={oldPassword}
-                onChangeText={setOldPassword}
-                style={styles.flexInput}
-              />
-              <TouchableOpacity
-                onPress={() => setShowOldPassword(!showOldPassword)}
-                style={styles.iconBtn}
-              >
-                <Ionicons
-                  name={showOldPassword ? "eye-off-outline" : "eye-outline"}
-                  size={24}
-                  color="#6B7280"
-                />
-              </TouchableOpacity>
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.avatarContainer}>
+              <Image source={getAvatarImage()} style={styles.avatarImage} />
             </View>
 
-            <Text style={styles.label}>New Password</Text>
-            <View style={styles.passwordInput}>
+            <View style={styles.formContainer}>
+              <Text style={styles.title}>Update Profile</Text>
+
+              <Text style={styles.label}>Username</Text>
               <TextInput
-                placeholder="Enter new password"
-                secureTextEntry={!showNewPassword}
-                value={newPassword}
-                onChangeText={setNewPassword}
-                style={styles.flexInput}
+                placeholder="Enter new username"
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
               />
-              <TouchableOpacity
-                onPress={() => setShowNewPassword(!showNewPassword)}
-                style={styles.iconBtn}
-              >
-                <Ionicons
-                  name={showNewPassword ? "eye-off-outline" : "eye-outline"}
-                  size={24}
-                  color="#6B7280"
+
+              <Text style={styles.label}>Old Password</Text>
+              <View style={styles.passwordInput}>
+                <TextInput
+                  placeholder="Enter current password"
+                  secureTextEntry={!showOldPassword}
+                  value={oldPassword}
+                  onChangeText={setOldPassword}
+                  style={styles.flexInput}
                 />
+                <TouchableOpacity
+                  onPress={() => setShowOldPassword(!showOldPassword)}
+                  style={styles.iconBtn}
+                >
+                  <Ionicons
+                    name={showOldPassword ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.label}>New Password</Text>
+              <View style={styles.passwordInput}>
+                <TextInput
+                  placeholder="Enter new password"
+                  secureTextEntry={!showNewPassword}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  style={styles.flexInput}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowNewPassword(!showNewPassword)}
+                  style={styles.iconBtn}
+                >
+                  <Ionicons
+                    name={showNewPassword ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#6B7280"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.updateBtn,
+                  updating ? { opacity: 0.6 } : undefined,
+                ]}
+                onPress={handleUpdate}
+                disabled={updating}
+              >
+                {updating ? (
+                  <ActivityIndicator size="small" color="#000" />
+                ) : (
+                  <Text style={styles.updateBtnText}>Update</Text>
+                )}
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity
-              style={[
-                styles.updateBtn,
-                updating ? { opacity: 0.6 } : undefined,
-              ]}
-              onPress={handleUpdate}
-              disabled={updating}
-            >
-              {updating ? (
-                <ActivityIndicator size="small" color="#000" />
-              ) : (
-                <Text style={styles.updateBtnText}>Update</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-      <Toast />
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+        <Toast />
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 

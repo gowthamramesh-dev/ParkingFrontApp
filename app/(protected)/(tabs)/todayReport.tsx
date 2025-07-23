@@ -13,6 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AccessControl from "@/components/AccessControl";
 
 const screenWidth = Dimensions.get("window").width;
 const chartWidth = screenWidth * 0.95;
@@ -135,97 +136,104 @@ const TodayReport = () => {
   }, [checkins, checkouts, allData, VehicleTotalMoney, PaymentMethod]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient colors={["#f3f4f6", "#e5e7eb"]} style={styles.container}>
-        <Animated.View
-          entering={FadeInDown.duration(300)}
-          style={styles.header}
+    <AccessControl required="todayReport">
+      <SafeAreaView style={{ flex: 1 }}>
+        <LinearGradient
+          colors={["#f3f4f6", "#e5e7eb"]}
+          style={styles.container}
         >
-          <Text style={styles.headerText}>Today&apos;s Report</Text>
-        </Animated.View>
-        <ScrollView style={{ flex: 1, marginBottom: 20 }}>
-          <View style={styles.sliderContainer}>
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 8 }}
-            >
-              <ChartSection title="All Vehicles" data={allData} />
-              <ChartSection title="Check In" data={checkins} />
-              <ChartSection title="Check Out" data={checkouts} />
-            </ScrollView>
-          </View>
           <Animated.View
-            entering={FadeInDown.duration(500).delay(200)}
-            style={styles.tableContainer}
+            entering={FadeInDown.duration(300)}
+            style={styles.header}
           >
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Vehicles</Text>
-            </View>
-            <View style={styles.tableWrapper}>
-              {Array.isArray(vehicleList) && vehicleList.length > 0 ? (
-                <FlatList
-                  data={vehicleList}
-                  keyExtractor={(item) => item.vehicle}
-                  ListHeaderComponent={() => (
-                    <View style={styles.tableHeaderRow}>
-                      <Text style={styles.tableHeaderCell}>Vehicle</Text>
-                      <Text style={styles.tableHeaderCell}>IN</Text>
-                      <Text style={styles.tableHeaderCell}>Out</Text>
-                      <Text style={styles.tableHeaderCell}>All</Text>
-                      <Text style={styles.tableHeaderCell}>Money</Text>
-                    </View>
-                  )}
-                  renderItem={({ item, index }) => (
-                    <Animated.View
-                      entering={FadeInDown.duration(400).delay(index * 100)}
-                      style={styles.tableRow}
-                    >
-                      <Text style={styles.tableCell}>{item.vehicle}</Text>
-                      <Text style={styles.tableCell}>{item.checkin}</Text>
-                      <Text style={styles.tableCell}>{item.checkout}</Text>
-                      <Text style={styles.tableCell}>{item.total}</Text>
-                      <Text style={styles.moneyCell}>₹{item.money}</Text>
-                    </Animated.View>
-                  )}
-                />
-              ) : (
-                <Text style={styles.emptyText}>No vehicle data available</Text>
-              )}
-            </View>
-            <View>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Payment Methods</Text>
-              </View>
-              {Array.isArray(paymentMethod) && paymentMethod.length > 0 ? (
-                <FlatList
-                  data={paymentMethod}
-                  keyExtractor={(item) => item.method}
-                  ListHeaderComponent={() => (
-                    <View style={styles.paymentHeaderRow}>
-                      <Text style={styles.paymentHeaderCell}>Payment</Text>
-                      <Text style={styles.paymentHeaderCell}>Money</Text>
-                    </View>
-                  )}
-                  renderItem={({ item, index }) => (
-                    <Animated.View
-                      entering={FadeInDown.duration(400).delay(index * 100)}
-                      style={styles.paymentRow}
-                    >
-                      <Text style={styles.paymentCell}>{item.method}</Text>
-                      <Text style={styles.moneyCell}>₹{item.amount}</Text>
-                    </Animated.View>
-                  )}
-                />
-              ) : (
-                <Text style={styles.emptyText}>No payment data</Text>
-              )}
-            </View>
+            <Text style={styles.headerText}>Today&apos;s Report</Text>
           </Animated.View>
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+          <ScrollView style={{ flex: 1, marginBottom: 20 }}>
+            <View style={styles.sliderContainer}>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 8 }}
+              >
+                <ChartSection title="All Vehicles" data={allData} />
+                <ChartSection title="Check In" data={checkins} />
+                <ChartSection title="Check Out" data={checkouts} />
+              </ScrollView>
+            </View>
+            <Animated.View
+              entering={FadeInDown.duration(500).delay(200)}
+              style={styles.tableContainer}
+            >
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Vehicles</Text>
+              </View>
+              <View style={styles.tableWrapper}>
+                {Array.isArray(vehicleList) && vehicleList.length > 0 ? (
+                  <FlatList
+                    data={vehicleList}
+                    keyExtractor={(item) => item.vehicle}
+                    ListHeaderComponent={() => (
+                      <View style={styles.tableHeaderRow}>
+                        <Text style={styles.tableHeaderCell}>Vehicle</Text>
+                        <Text style={styles.tableHeaderCell}>IN</Text>
+                        <Text style={styles.tableHeaderCell}>Out</Text>
+                        <Text style={styles.tableHeaderCell}>All</Text>
+                        <Text style={styles.tableHeaderCell}>Money</Text>
+                      </View>
+                    )}
+                    renderItem={({ item, index }) => (
+                      <Animated.View
+                        entering={FadeInDown.duration(400).delay(index * 100)}
+                        style={styles.tableRow}
+                      >
+                        <Text style={styles.tableCell}>{item.vehicle}</Text>
+                        <Text style={styles.tableCell}>{item.checkin}</Text>
+                        <Text style={styles.tableCell}>{item.checkout}</Text>
+                        <Text style={styles.tableCell}>{item.total}</Text>
+                        <Text style={styles.moneyCell}>₹{item.money}</Text>
+                      </Animated.View>
+                    )}
+                  />
+                ) : (
+                  <Text style={styles.emptyText}>
+                    No vehicle data available
+                  </Text>
+                )}
+              </View>
+              <View>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Payment Methods</Text>
+                </View>
+                {Array.isArray(paymentMethod) && paymentMethod.length > 0 ? (
+                  <FlatList
+                    data={paymentMethod}
+                    keyExtractor={(item) => item.method}
+                    ListHeaderComponent={() => (
+                      <View style={styles.paymentHeaderRow}>
+                        <Text style={styles.paymentHeaderCell}>Payment</Text>
+                        <Text style={styles.paymentHeaderCell}>Money</Text>
+                      </View>
+                    )}
+                    renderItem={({ item, index }) => (
+                      <Animated.View
+                        entering={FadeInDown.duration(400).delay(index * 100)}
+                        style={styles.paymentRow}
+                      >
+                        <Text style={styles.paymentCell}>{item.method}</Text>
+                        <Text style={styles.moneyCell}>₹{item.amount}</Text>
+                      </Animated.View>
+                    )}
+                  />
+                ) : (
+                  <Text style={styles.emptyText}>No payment data</Text>
+                )}
+              </View>
+            </Animated.View>
+          </ScrollView>
+        </LinearGradient>
+      </SafeAreaView>
+    </AccessControl>
   );
 };
 
