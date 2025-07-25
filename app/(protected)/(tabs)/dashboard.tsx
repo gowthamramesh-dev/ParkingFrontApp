@@ -137,17 +137,31 @@ const styles = StyleSheet.create({
 });
 
 const prepareChartData = (dataObject: any) => {
-  const types = Object.keys(dataObject || {});
-  const counts = Object.values(dataObject || {}) as number[];
+  if (!dataObject || Object.keys(dataObject).length === 0) {
+    return {
+      labels: ["No data"],
+      data: [0],
+    };
+  }
 
-  const labels = types.map((type, i) => `${counts[i] || 0} ${type}`);
+  const types = Object.keys(dataObject);
+  const rawCounts = Object.values(dataObject);
 
+  const counts = rawCounts.map((val) => {
+    const num = Number(val);
+    return Number.isFinite(num) && num >= 0 ? num : 0;
+  });
+
+  const labels = types.map((type, i) => `${counts[i]} ${type}`);
   const max = Math.max(...counts, 1);
   const normalizedData = counts.map((count) => count / max);
 
+  // fallback if normalizedData has NaN
+  const safeData = normalizedData.map((n) => (Number.isFinite(n) ? n : 0));
+
   return {
-    labels,
-    data: normalizedData,
+    labels: labels.length > 0 ? labels : ["No data"],
+    data: safeData.length > 0 ? safeData : [0],
   };
 };
 
@@ -322,7 +336,9 @@ const TodayReport = () => {
         >
           <View style={styles.headerRow}>
             {/* Back Button */}
-            <TouchableOpacity onPress={() => router.back()}>
+            <TouchableOpacity
+              onPress={() => router.push("/(protected)/(tabs)/profile")}
+            >
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
             {/* Title */}

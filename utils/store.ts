@@ -123,6 +123,7 @@ interface UserAuthState extends Partial<VehicleData> {
   monthlyPassActive: MonthlyPass[] | null;
   monthlyPassExpired: MonthlyPass[] | null;
   hydrated: boolean;
+  isHydrated: boolean;
   revenueData: Report | null;
 
   fetchRevenueReport: (staffId?: string) => Promise<void>;
@@ -223,6 +224,7 @@ interface UserAuthState extends Partial<VehicleData> {
     data?: any;
   }>;
   getStaffPermission: (staffId: string) => Promise<void>;
+  hydrate: () => Promise<void>;
 }
 
 const userAuthStore = create<UserAuthState>((set, get) => ({
@@ -253,22 +255,54 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
   totalVehicles: 0,
   staffPermission: [],
   role: "",
+  isHydrated: false,
+
+  hydrate: async () => {
+    try {
+      const role = await AsyncStorage.getItem("role");
+      const staffPermission = await AsyncStorage.getItem("staffPermission");
+
+      set({
+        role: role || "",
+        staffPermission: staffPermission ? JSON.parse(staffPermission) : [],
+        isHydrated: true,
+      });
+    } catch (err) {
+      console.error("❌ Error hydrating store:", err);
+      set({ isHydrated: true });
+    }
+  },
 
   restoreSession: async () => {
     try {
       const token = await AsyncStorage.getItem("token");
       const user = await AsyncStorage.getItem("user");
+      const role = await AsyncStorage.getItem("role");
+      const staffPermission = await AsyncStorage.getItem("staffPermission");
+      const storedPrices = await AsyncStorage.getItem("prices");
 
       if (token && user) {
         const decoded = jwtDecode(token);
         const exp = decoded?.exp;
 
         if (exp && exp * 1000 > Date.now()) {
+          const parsedUser = JSON.parse(user);
           set({
             token,
-            user: JSON.parse(user),
+            user: parsedUser,
+            role: role || "",
+            staffPermission: staffPermission ? JSON.parse(staffPermission) : [],
+            prices: storedPrices ? JSON.parse(storedPrices) : {}, // Load prices from AsyncStorage
             isLogged: true,
           });
+
+          // Fetch fresh permissions for staff users
+          if (parsedUser.role === "staff") {
+            await get().getStaffPermission(parsedUser.id);
+          }
+
+          // Fetch price data from server
+          await get().fetchPrices(parsedUser.id, token);
         } else {
           await get().logOut();
         }
@@ -276,7 +310,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     } catch (err) {
       console.error("❌ Error restoring session:", err);
     } finally {
-      set({ hydrated: true });
+      set({ hydrated: true, isHydrated: true });
     }
   },
 
@@ -321,31 +355,42 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      const correctedUser = {
-        ...data.user,
-        _id: data.user._id || data.user.id,
-        role: data.user.role || "user",
-      };
-
-      await AsyncStorage.setItem("user", JSON.stringify(correctedUser));
+      await AsyncStorage.setItem("user", JSON.stringify(data.user));
       await AsyncStorage.setItem("token", data.token);
 
-      await get().fetchPrices(correctedUser._id, data.token);
+      await get().fetchPrices(data.user.id, data.token);
 
       if (data.user.role === "staff") {
-        await get().getStaffPermission(data.user._id);
-        set({ staffPermission: get().permissions, role: data.user.role });
-        await AsyncStorage.setItem(
-          "staffPermission",
-          JSON.stringify(get().staffPermission)
-        );
+        await get().getStaffPermission(data.user.id);
+        const permissions = get().permissions;
+        set({ staffPermission: permissions, role: data.user.role });
+
+        try {
+          await AsyncStorage.setItem(
+            "staffPermission",
+            JSON.stringify(permissions)
+          );
+          await AsyncStorage.setItem("role", data.user.role);
+          await AsyncStorage.getItem("staffPermission");
+        } catch (err) {
+          console.error(
+            "Error saving permissions or role to AsyncStorage:",
+            err
+          );
+        }
       } else {
-        set({ staffPermission: [] });
+        set({ staffPermission: [], role: data.user.role });
+        try {
+          await AsyncStorage.setItem("role", data.user.role);
+          await AsyncStorage.setItem("staffPermission", JSON.stringify([]));
+        } catch (err) {
+          console.error("Error saving role or permissions for non-staff:", err);
+        }
         await get().getDashboardData();
       }
 
       set({
-        user: correctedUser,
+        user: data.user,
         token: data.token,
         isLoading: false,
         isLogged: true,

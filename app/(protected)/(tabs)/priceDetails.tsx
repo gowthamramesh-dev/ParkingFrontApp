@@ -137,11 +137,15 @@ const PriceDetails = () => {
       >
         <View style={styles.innerContainer}>
           <View style={styles.headerBox}>
-            <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Manage Price List</Text>
-            <Ionicons name="arrow-back" size={24} color="transparent" />
+            <View style={styles.headerRow}>
+              <TouchableOpacity
+                onPress={() => router.push("/(protected)/(tabs)/profile")}
+              >
+                <Ionicons name="arrow-back" size={24} color="black" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Manage Price List</Text>
+              <View style={styles.headerSpacer} />
+            </View>
           </View>
 
           <ScrollView style={{ marginBottom: 60 }}>
@@ -237,14 +241,23 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F3F4F6" },
   innerContainer: { padding: 16, flex: 1 },
   headerBox: {
-    backgroundColor: "white",
+    marginVertical: 16,
+    backgroundColor: "#ffffff",
     padding: 16,
-    borderRadius: 4,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    elevation: 2,
+    borderRadius: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+  },
+  headerSpacer: { width: 48 },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",

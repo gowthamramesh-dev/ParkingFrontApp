@@ -9,7 +9,15 @@ const AccessControl = ({
   required: string;
   children: React.ReactNode;
 }) => {
-  const { staffPermission, role } = useAuthStore();
+  const { staffPermission, role, isHydrated } = useAuthStore();
+
+  if (!isHydrated) {
+    return (
+      <View>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   const isStaff = role === "staff";
   const isAllowed = staffPermission.includes(required);

@@ -68,14 +68,14 @@ const AllStaffs = () => {
     <AccessControl required="ViewStaff">
       <SafeAreaView style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={28} color="#1F2937" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Staff Lists</Text>
+        <View style={styles.headerBox}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={28} color="#1F2937" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Staff Lists</Text>
+            <View style={styles.headerSpacer} />
+          </View>
         </View>
 
         {/* Loader / List */}
@@ -104,21 +104,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
   },
-  header: {
-    backgroundColor: "white",
-    borderRadius: 4,
-    height: 48,
-    justifyContent: "center",
+  headerBox: {
+    marginVertical: 16,
+    backgroundColor: "#ffffff",
+    padding: 16,
+    borderRadius: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
+  },
+  headerRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 24,
-    position: "relative",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
   },
-  backButton: {
-    position: "absolute",
-    left: 0,
-    top: "50%",
-    marginTop: -14, // To vertically center 28px icon
-  },
+  headerSpacer: { width: 48 },
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",

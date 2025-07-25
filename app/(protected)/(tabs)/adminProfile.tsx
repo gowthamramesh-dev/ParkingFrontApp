@@ -185,7 +185,9 @@ const Profile = () => {
         <View style={styles.innerContainer}>
           <View style={styles.headerCard}>
             <View style={styles.headerRow}>
-              <TouchableOpacity onPress={() => router.back()}>
+              <TouchableOpacity
+                onPress={() => router.push("/(protected)/(tabs)/profile")}
+              >
                 <Ionicons name="arrow-back" size={24} color="black" />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>Profile Settings</Text>
