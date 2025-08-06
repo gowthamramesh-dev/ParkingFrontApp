@@ -68,12 +68,14 @@ const styles = StyleSheet.create({
   message: {
     marginTop: 20,
     textAlign: "center",
-    color: "#fff",
+    color: "#000",
     fontSize: 16,
   },
   buttonText: {
-    color: "#22C55E",
+    color: "#000",
     fontSize: 18,
+    fontWeight: "bold",
+    textDecorationLine: "underline",
     textAlign: "center",
     marginTop: 10,
   },

@@ -18,6 +18,7 @@ import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import AccessControl from "@/components/AccessControl";
+import { useLocalSearchParams } from "expo-router";
 
 type Vehicle = {
   name: string;
@@ -92,6 +93,7 @@ const CheckinCard = ({ item }: any) => {
 };
 
 const VehicleList = () => {
+  const { staffId } = useLocalSearchParams();
   const navigation = useNavigation<any>();
 
   const Vehicles: Vehicle[] = [
@@ -120,7 +122,7 @@ const VehicleList = () => {
 
   const handleList = async (vehicle: string, type = checkType) => {
     setLoading(true);
-    const result = await vehicleList(vehicle, type);
+    const result = await vehicleList(vehicle, type, staffId);
     if (!result.success) Toast.error("Error in API");
     setLoading(false);
   };
@@ -316,6 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     paddingHorizontal: 16,
+    paddingVertical: 16,
     gap: 12,
   },
   cardWrapper: {

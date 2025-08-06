@@ -1,3 +1,4 @@
+// Same imports...
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -117,10 +118,8 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
     if (missing) {
       Toast.show({
         type: "error",
-        text1: "Error",
-        text2: "Please fill all required fields",
+        text1: "Please fill all required fields",
         position: "top",
-        visibilityTime: 2000,
       });
       setIsLoading(false);
       return;
@@ -130,10 +129,8 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
     if (!amount) {
       Toast.show({
         type: "error",
-        text1: "Error",
-        text2: "Could not determine amount. Please check prices.",
+        text1: "Could not determine amount",
         position: "top",
-        visibilityTime: 2000,
       });
       setIsLoading(false);
       return;
@@ -145,20 +142,16 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
     if (!result.success) {
       Toast.show({
         type: "error",
-        text1: "Error",
-        text2: result.error || "Error in API",
+        text1: result.error || "Error in API",
         position: "top",
-        visibilityTime: 2000,
       });
       return;
     }
 
     Toast.show({
       type: "success",
-      text1: "Success",
-      text2: "Pass Created Successfully",
+      text1: "Pass Created Successfully",
       position: "top",
-      visibilityTime: 2000,
     });
 
     setFormData({
@@ -175,265 +168,257 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
     setTimeout(() => {
       setModalVisible(false);
       onPassCreated(result.pass);
-    }, 2000);
+    }, 1500);
   };
 
   return (
     <Modal visible={isModalVisible} animationType="fade" transparent>
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Create New Pass</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Customer Name"
-            placeholderTextColor="#888"
-            value={formData.name}
-            onChangeText={(text) => setFormData({ ...formData, name: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Mobile Number"
-            placeholderTextColor="#888"
-            maxLength={10}
-            keyboardType="phone-pad"
-            value={formData.mobile}
-            onChangeText={(text) => setFormData({ ...formData, mobile: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Vehicle Number"
-            placeholderTextColor="#888"
-            value={formData.vehicleNo}
-            keyboardType="default"
-            onChangeText={(text) =>
-              setFormData({ ...formData, vehicleNo: text })
-            }
-            onBlur={() =>
-              setFormData({
-                ...formData,
-                vehicleNo: formData.vehicleNo.toUpperCase(),
-              })
-            }
-            autoCapitalize="characters"
-          />
-
-          <DropDownPicker
-            textStyle={{ color: "#000" }}
-            labelStyle={{ color: "#000" }}
-            open={openVehicleType}
-            value={formData.vehicleType}
-            items={vehicleTypeItems}
-            setOpen={setOpenVehicleType}
-            setValue={(cb) =>
-              setFormData((prev) => ({
-                ...prev,
-                vehicleType: cb(prev.vehicleType),
-              }))
-            }
-            setItems={() => {}}
-            placeholder="Select Vehicle Type"
-            style={styles.picker}
-            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
-            zIndex={3000}
-            zIndexInverse={1000}
-          />
-
-          <DropDownPicker
-            textStyle={{ color: "#000" }}
-            labelStyle={{ color: "#000" }}
-            open={openDuration}
-            value={formData.duration}
-            items={durationItems}
-            setOpen={setOpenDuration}
-            setValue={(cb) =>
-              setFormData((prev) => ({ ...prev, duration: cb(prev.duration) }))
-            }
-            setItems={() => {}}
-            placeholder="Select Duration"
-            style={styles.picker}
-            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
-            zIndex={2000}
-            zIndexInverse={2000}
-          />
-
+      <View style={styles.overlay}>
+        <View style={{ position: "relative", alignItems: "center" }}>
           <TouchableOpacity
-            style={styles.datePickerButton}
-            onPress={() => setDatePickerVisible(true)}
+            onPress={() => setModalVisible(false)}
+            style={styles.closeButton}
           >
-            <Text style={styles.datePickerText}>
-              {formData.startDate || "Select Start Date"}
-            </Text>
+            <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
 
-          {isDatePickerVisible && (
-            <DatePicker
-              value={
-                formData.startDate ? new Date(formData.startDate) : new Date()
-              }
-              mode="date"
-              display="default"
-              onChange={(event, date) => {
-                setDatePickerVisible(false);
-                if (date) {
-                  setFormData({
-                    ...formData,
-                    startDate: date.toISOString().split("T")[0],
-                  });
-                }
-              }}
+          <View style={styles.card}>
+            <Text style={styles.title}>Create New Pass</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Customer Name"
+              placeholderTextColor="#999"
+              value={formData.name}
+              onChangeText={(text) => setFormData({ ...formData, name: text })}
             />
-          )}
+            <TextInput
+              style={styles.input}
+              placeholder="Mobile Number"
+              placeholderTextColor="#999"
+              maxLength={10}
+              keyboardType="phone-pad"
+              value={formData.mobile}
+              onChangeText={(text) =>
+                setFormData({ ...formData, mobile: text })
+              }
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Vehicle Number"
+              placeholderTextColor="#999"
+              value={formData.vehicleNo}
+              onChangeText={(text) =>
+                setFormData({ ...formData, vehicleNo: text.toUpperCase() })
+              }
+              autoCapitalize="characters"
+            />
 
-          <DropDownPicker
-            textStyle={{ color: "#000" }}
-            labelStyle={{ color: "#000" }}
-            open={openPayment}
-            value={formData.paymentMethod}
-            items={paymentMethodItems}
-            setOpen={setOpenPayment}
-            setValue={(cb) =>
-              setFormData((prev) => ({
-                ...prev,
-                paymentMethod: cb(prev.paymentMethod),
-              }))
-            }
-            setItems={() => {}}
-            placeholder="Select Payment Method"
-            style={styles.picker}
-            dropDownContainerStyle={{ backgroundColor: "#DBEAFE" }}
-            zIndex={1000}
-            zIndexInverse={3000}
-          />
+            <DropDownPicker
+              placeholder="Select Vehicle Type"
+              items={vehicleTypeItems}
+              open={openVehicleType}
+              value={formData.vehicleType}
+              setOpen={setOpenVehicleType}
+              setValue={(cb) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  vehicleType: cb(prev.vehicleType),
+                }))
+              }
+              setItems={() => {}}
+              style={styles.input}
+              dropDownContainerStyle={styles.dropdown}
+              zIndex={3000}
+              zIndexInverse={1000}
+            />
 
-          <TextInput
-            style={styles.input}
-            placeholder="End Date (YYYY-MM-DD)"
-            placeholderTextColor="#888"
-            value={formData.endDate}
-            editable={false}
-          />
+            <DropDownPicker
+              placeholder="Select Duration"
+              items={durationItems}
+              open={openDuration}
+              value={formData.duration}
+              setOpen={setOpenDuration}
+              setValue={(cb) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  duration: cb(prev.duration),
+                }))
+              }
+              setItems={() => {}}
+              style={styles.input}
+              dropDownContainerStyle={styles.dropdown}
+              zIndex={2000}
+              zIndexInverse={2000}
+            />
 
-          {formData.vehicleType && formData.duration && (
-            <View style={styles.amountContainer}>
-              <Text style={styles.amountText}>
-                Payment Method: {formData.paymentMethod || "Not selected"}
+            <TouchableOpacity
+              style={styles.input}
+              onPress={() => setDatePickerVisible(true)}
+            >
+              <Text style={{ color: formData.startDate ? "#000" : "#999" }}>
+                {formData.startDate || "Select Start Date"}
               </Text>
-              <Text style={styles.amountText}>
-                Amount: ₹{calculateAmount()}
+            </TouchableOpacity>
+
+            {isDatePickerVisible && (
+              <DatePicker
+                value={
+                  formData.startDate ? new Date(formData.startDate) : new Date()
+                }
+                mode="date"
+                display="default"
+                onChange={(event, date) => {
+                  setDatePickerVisible(false);
+                  if (date) {
+                    setFormData({
+                      ...formData,
+                      startDate: date.toISOString().split("T")[0],
+                    });
+                  }
+                }}
+              />
+            )}
+
+            <DropDownPicker
+              placeholder="Cash"
+              items={paymentMethodItems}
+              open={openPayment}
+              value={formData.paymentMethod}
+              setOpen={setOpenPayment}
+              setValue={(cb) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  paymentMethod: cb(prev.paymentMethod),
+                }))
+              }
+              setItems={() => {}}
+              style={styles.input}
+              dropDownContainerStyle={styles.dropdown}
+              zIndex={1000}
+              zIndexInverse={3000}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="End Date(yyy-mm-dd)"
+              placeholderTextColor="#999"
+              value={formData.endDate}
+              editable={false}
+            />
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                paddingHorizontal: 12,
+                paddingVertical: 5,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
+                {formData.paymentMethod.toUpperCase() || "Not selected"} :
+              </Text>
+              <Text style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
+                {" "}
+                ₹{calculateAmount()}
               </Text>
             </View>
-          )}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={styles.createButton}
               onPress={handleCreatePass}
+              disabled={isLoading}
             >
               {isLoading ? (
                 <View style={styles.loader}>
-                  <ActivityIndicator size="small" color="#10B981" />
+                  <ActivityIndicator size="small" color="#ffcd01" />
                 </View>
               ) : (
-                <Text style={styles.buttonText}>Create</Text>
+                <Text style={styles.createText}>Create</Text>
               )}
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      <ToastManager showCloseIcon={false} />
+      <ToastManager />
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalBackground: {
+  overlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    paddingHorizontal: 16,
   },
-  modalContainer: {
-    backgroundColor: "#ffffff",
+  card: {
+    backgroundColor: "#f6f6f6",
+    width: 300,
     padding: 20,
-    borderRadius: 8,
-    width: "80%",
-    zIndex: 4000,
+    borderRadius: 20,
+    elevation: 5,
+    zIndex: 0,
   },
-  modalTitle: {
+  closeButton: {
+    position: "absolute",
+    top: -60,
+    alignSelf: "center",
+    backgroundColor: "#f6f6f6",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 8,
+    zIndex: 9999,
+  },
+  closeButtonText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  title: {
     fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
+    fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 16,
   },
   input: {
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#DBEAFE",
-    borderRadius: 2,
+    backgroundColor: "white",
+    borderWidth: 0,
+    borderRadius: 12,
     padding: 12,
-    fontSize: 16,
     marginBottom: 12,
+    height: 48,
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
   },
-  picker: {
-    backgroundColor: "#DBEAFE",
-    marginBottom: 12,
-    borderColor: "#e5e7eb",
-  },
-  datePickerButton: {
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#DBEAFE",
-    borderRadius: 4,
-    padding: 10,
-    marginBottom: 12,
-  },
-  datePickerText: {
-    fontSize: 16,
-  },
-  amountContainer: {
-    marginTop: 8,
-  },
-  amountText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
-  },
-  cancelButton: {
-    backgroundColor: "#EF4444",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    flex: 1,
-    marginRight: 8,
+  dropdown: {
+    backgroundColor: "#fff",
+    borderWidth: 0,
+    borderRadius: 12,
+    elevation: 4,
   },
   createButton: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#FFD500",
+    borderRadius: 20,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-    flex: 1,
-    marginLeft: 8,
     alignItems: "center",
+    marginTop: 12,
   },
-  buttonText: {
-    color: "#ffffff",
-    textAlign: "center",
+  createText: {
+    color: "#000",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   loader: {
     backgroundColor: "#fff",
-    padding: 8,
+    padding: 2,
     borderRadius: 50,
   },
 });

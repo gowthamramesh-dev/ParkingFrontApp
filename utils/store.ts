@@ -3,8 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-// const URL = "https://parking-servers-1.onrender.com/";
-const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
+const URL = "https://parking-servers-1.onrender.com/";
+// const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
 
 interface StaffPerformance {
   username: string;
@@ -145,16 +145,6 @@ interface UserAuthState extends Partial<VehicleData> {
   ) => Promise<{ success: boolean; error?: any }>;
   logOut: () => Promise<void>;
   fetchPrices: (adminId: string, token: string) => Promise<void>;
-  addDailyPrices: (
-    adminId: string,
-    dailyPrices: any,
-    token: string
-  ) => Promise<string>;
-  addMonthlyPrices: (
-    adminId: string,
-    monthlyPrices: any,
-    token: string
-  ) => Promise<string>;
   updateDailyPrices: (
     adminId: string,
     dailyPrices: any,
@@ -351,7 +341,6 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
@@ -441,55 +430,9 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     }
   },
 
-  addDailyPrices: async (adminId, dailyPrices, token) => {
-    try {
-      const res = await axios.post(
-        `${URL}api/addPrice/daily`,
-        { adminId, dailyPrices },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      set((state) => ({
-        priceData: {
-          ...state.priceData,
-          dailyPrices: res.data.data.dailyPrices,
-        },
-      }));
-      return res.data.message;
-    } catch (err: any) {
-      throw err.response?.data?.message || "Failed to add daily prices";
-    }
-  },
-
-  addMonthlyPrices: async (adminId, monthlyPrices, token) => {
-    try {
-      const res = await axios.post(
-        `${URL}api/addPrice/monthly`,
-        { adminId, monthlyPrices },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      set((state) => ({
-        priceData: {
-          ...state.priceData,
-          monthlyPrices: res.data.data.monthlyPrices,
-        },
-      }));
-      return res.data.message;
-    } catch (err: any) {
-      throw err.response?.data?.message || "Failed to add monthly prices";
-    }
-  },
-
   updateDailyPrices: async (adminId, dailyPrices, token) => {
     try {
-      const res = await axios.put(
+      const res = await axios.post(
         `${URL}api/updatePrice/daily`,
         { adminId, dailyPrices },
         {
@@ -512,7 +455,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
 
   updateMonthlyPrices: async (adminId, monthlyPrices, token) => {
     try {
-      const res = await axios.put(
+      const res = await axios.post(
         `${URL}api/updatePrice/monthly`,
         { adminId, monthlyPrices },
         {
@@ -571,7 +514,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     }
   },
 
-  vehicleList: async (vehicle: string, checkType: string, staffId = "") => {
+  vehicleList: async (vehicle: string, checkType: string, staffId) => {
     set({ isLoading: true });
     try {
       const token = await AsyncStorage.getItem("token");
@@ -806,8 +749,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       const updateBody: any = { username, oldPassword };
       if (newPassword) updateBody.password = newPassword;
       if (avatar) updateBody.profileImage = avatar;
-
-      const res = await fetch(`${URL}api/updateAdmin/${id}`, {
+      const res = await fetch(`${URL}api/updateAdmin/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -831,7 +773,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       const token = get().token || (await AsyncStorage.getItem("token"));
       const admin =
         get().user || JSON.parse((await AsyncStorage.getItem("user")) || "{}");
-      const adminId = admin?._id;
+      const adminId = admin?.id;
       if (!adminId) throw new Error("Admin ID not found");
 
       const res = await fetch(`${URL}api/create/${adminId}`, {

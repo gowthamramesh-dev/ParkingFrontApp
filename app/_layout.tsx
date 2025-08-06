@@ -41,7 +41,7 @@ export default function RootLayout() {
   if (!hydrated) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="lightgreen" />
+        <ActivityIndicator size="large" color="#ffcd01" />
       </View>
     );
   }
@@ -51,16 +51,6 @@ export default function RootLayout() {
         <Stack.Screen
           name="(protected)/(tabs)"
           options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="(protected)/(staff)"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="listPage"
-          options={{
-            headerShown: false,
-          }}
         />
       </Stack.Protected>
       <Stack.Protected guard={!isLogged}>

@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -19,14 +20,9 @@ import AccessControl from "@/components/AccessControl";
 const vehicleTypes = ["cycle", "bike", "car", "van", "lorry", "bus"];
 
 const PriceDetails = () => {
-  const {
-    fetchPrices,
-    addDailyPrices,
-    addMonthlyPrices,
-    updateDailyPrices,
-    updateMonthlyPrices,
-    priceData,
-  } = userAuthStore();
+  const { fetchPrices, updateDailyPrices, updateMonthlyPrices, priceData } =
+    userAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [dailyForm, setDailyForm] = useState({
     cycle: "",
@@ -73,42 +69,17 @@ const PriceDetails = () => {
     return vehicleTypes.every((type) => form[type].trim() !== "");
   };
 
-  const handleAdd = async () => {
-    const token = await AsyncStorage.getItem("token");
-    const user = JSON.parse(await AsyncStorage.getItem("user"));
-    if (!token || !user) return;
-    try {
-      activeTab === "daily"
-        ? await addDailyPrices(user._id, dailyForm, token)
-        : await addMonthlyPrices(user._id, monthlyForm, token);
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: `${activeTab} prices added successfully.`,
-        position: "top",
-        visibilityTime: 2000,
-        autoHide: true,
-      });
-    } catch (err) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: String(err),
-        position: "top",
-        visibilityTime: 2000,
-        autoHide: true,
-      });
-    }
-  };
-
   const handleUpdate = async () => {
+    setIsLoading(true);
     const token = await AsyncStorage.getItem("token");
     const user = JSON.parse(await AsyncStorage.getItem("user"));
     if (!token || !user) return;
     try {
+      // eslint-disable-next-line no-unused-expressions
       activeTab === "daily"
-        ? await updateDailyPrices(user._id, dailyForm, token)
-        : await updateMonthlyPrices(user._id, monthlyForm, token);
+        ? await updateDailyPrices(user.id, dailyForm, token)
+        : await updateMonthlyPrices(user.id, monthlyForm, token);
+      setIsLoading(false);
       Toast.show({
         type: "success",
         text1: "Success",
@@ -126,6 +97,7 @@ const PriceDetails = () => {
         visibilityTime: 2000,
         autoHide: true,
       });
+      setIsLoading(false);
     }
   };
 
@@ -143,45 +115,53 @@ const PriceDetails = () => {
               >
                 <Ionicons name="arrow-back" size={24} color="black" />
               </TouchableOpacity>
-              <Text style={styles.headerTitle}>Manage Price List</Text>
-              <View style={styles.headerSpacer} />
+              <Text style={styles.headerTitle}>Manage Prices</Text>
+              <View style={{ width: 24 }} />
             </View>
           </View>
 
-          <ScrollView style={{ marginBottom: 60 }}>
-            <View style={styles.tabRow}>
+          <ScrollView
+            contentContainerStyle={{ paddingBottom: 140, marginHorizontal: 10 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* TOGGLE SECTION */}
+            <View style={styles.toggleContainer}>
               <TouchableOpacity
                 style={[
-                  styles.tabButton,
-                  activeTab === "daily" ? styles.activeTab : styles.inactiveTab,
+                  styles.toggleButton,
+                  activeTab === "daily"
+                    ? styles.activeToggle
+                    : styles.inactiveToggle,
                 ]}
                 onPress={() => setActiveTab("daily")}
               >
                 <Text
-                  style={
+                  style={[
+                    styles.toggleText,
                     activeTab === "daily"
-                      ? styles.activeTabText
-                      : styles.inactiveTabText
-                  }
+                      ? styles.activeText
+                      : styles.inactiveText,
+                  ]}
                 >
                   Daily Prices
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
-                  styles.tabButton,
+                  styles.toggleButton,
                   activeTab === "monthly"
-                    ? styles.activeTab
-                    : styles.inactiveTab,
+                    ? styles.activeToggle
+                    : styles.inactiveToggle,
                 ]}
                 onPress={() => setActiveTab("monthly")}
               >
                 <Text
-                  style={
+                  style={[
+                    styles.toggleText,
                     activeTab === "monthly"
-                      ? styles.activeTabText
-                      : styles.inactiveTabText
-                  }
+                      ? styles.activeText
+                      : styles.inactiveText,
+                  ]}
                 >
                   Monthly Prices
                 </Text>
@@ -205,29 +185,24 @@ const PriceDetails = () => {
                   />
                 </View>
               ))}
-            </View>
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  !isFormValid(activeTab) && styles.disabledButton,
-                ]}
-                onPress={handleAdd}
-                disabled={!isFormValid(activeTab)}
-              >
-                <Text style={styles.buttonText}>Add Price</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  !isFormValid(activeTab) && styles.disabledButton,
-                ]}
-                onPress={handleUpdate}
-                disabled={!isFormValid(activeTab)}
-              >
-                <Text style={styles.buttonText}>Update Price</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.actionButton,
+                    !isFormValid(activeTab) && styles.disabledButton,
+                  ]}
+                  onPress={handleUpdate}
+                  disabled={!isFormValid(activeTab)}
+                >
+                  {isLoading ? (
+                    <View style={styles.loader}>
+                      <ActivityIndicator size="small" color="#ffcd01" />
+                    </View>
+                  ) : (
+                    <Text style={styles.buttonText}>Update Price</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -238,18 +213,18 @@ const PriceDetails = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
-  innerContainer: { padding: 16, flex: 1 },
+  container: { backgroundColor: "#fff" },
+  innerContainer: { paddingHorizontal: 16, paddingBottom: 16 },
   headerBox: {
-    marginVertical: 16,
-    backgroundColor: "#ffffff",
+    marginBottom: 16,
+    backgroundColor: "#f6f6f6",
     padding: 16,
-    borderRadius: 2,
+    borderRadius: 20,
+    elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
-    elevation: 1,
   },
   headerRow: {
     flexDirection: "row",
@@ -257,60 +232,116 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 8,
   },
-  headerSpacer: { width: 48 },
   headerTitle: {
+    width: 24,
     fontSize: 20,
     fontWeight: "600",
-    flex: 1,
     textAlign: "center",
+    flex: 1,
+    color: "#1f2937",
   },
-  tabRow: {
+  toggleContainer: {
     flexDirection: "row",
-    marginTop: 20,
+    justifyContent: "space-between",
+    backgroundColor: "#ffffff",
+    borderRadius: 999,
+    padding: 4,
+    marginTop: 10,
     marginBottom: 16,
-    borderRadius: 4,
-    overflow: "hidden",
   },
-  tabButton: { flex: 1, paddingVertical: 12, alignItems: "center" },
-  activeTab: { backgroundColor: "#16a34a" },
-  inactiveTab: { backgroundColor: "white" },
-  activeTabText: { color: "white", fontWeight: "700", fontSize: 16 },
-  inactiveTabText: { color: "#065f46", fontWeight: "700", fontSize: 16 },
-  formBox: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    padding: 16,
-    elevation: 1,
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    marginHorizontal: 6,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  inputGroup: { marginBottom: 16 },
-  inputLabel: {
-    fontSize: 16,
+  activeToggle: {
+    backgroundColor: "#FFD700",
+    borderColor: "#FFD700",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  inactiveToggle: {
+    backgroundColor: "#ffffff",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  toggleText: {
+    fontSize: 14,
     fontWeight: "600",
+  },
+  activeText: {
+    color: "#505050",
+  },
+  inactiveText: {
+    color: "#6B7280",
+  },
+
+  formBox: {
+    backgroundColor: "#f6f6f6",
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  inputGroup: { marginBottom: 10 },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
     marginBottom: 4,
     textTransform: "capitalize",
   },
   inputField: {
-    backgroundColor: "#DBEAFE",
-    borderRadius: 4,
-    padding: 10,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    color: "#111",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: "#ffec8b",
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
-    marginVertical: 24,
+    marginVertical: 14,
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#16a34a",
+    backgroundColor: "#ffcd01",
     paddingVertical: 14,
-    borderRadius: 6,
+    borderRadius: 50,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  disabledButton: { opacity: 0.5 },
-  buttonText: { color: "white", fontSize: 16, fontWeight: "600" },
+  disabledButton: {
+    backgroundColor: "#ffe87b",
+  },
+  buttonText: { color: "#000", fontSize: 16, fontWeight: "700" },
+  loader: {
+    backgroundColor: "#fff",
+    padding: 2,
+    borderRadius: 50,
+  },
 });
 
 export default PriceDetails;

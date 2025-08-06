@@ -9,6 +9,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -16,6 +18,8 @@ import useAuthStore from "../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
+const screenHeight = Dimensions.get("window").height;
+const screenWidth = Dimensions.get("window").width;
 const vehicleTypes = ["cycle", "bike", "car", "van", "lorry", "bus"];
 
 const CheckIn = () => {
@@ -141,8 +145,45 @@ const CheckIn = () => {
         nestedScrollEnabled
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Check In</Text>
+          <Image
+            source={require("../assets/checkInDot.png")}
+            style={{
+              position: "absolute",
+              top: screenHeight * 0.08,
+              width: screenWidth * 0.96,
+              height: 290,
+              opacity: 0.3,
+              transform: [
+                { translateX: -12 },
+                { translateY: -80 },
+                { rotate: "10deg" },
+              ],
+              zIndex: -1,
+              resizeMode: "contain",
+            }}
+          />
+          <Image
+            source={require("../assets/checkInBike.png")}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              width: screenWidth * 0.2,
+              height: screenHeight * 0.2,
+              opacity: 0.3,
+              zIndex: -1,
+              resizeMode: "contain",
+            }}
+          />
           <View style={styles.formContainer}>
+            <View
+              style={{
+                alignItems: "flex-start",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={styles.title}>Check In</Text>
+            </View>
             <TextInput
               placeholder="Name"
               value={name}
@@ -226,20 +267,26 @@ const CheckIn = () => {
               zIndexInverse={800}
             />
 
-            <View style={styles.amountContainer}>
-              <Text style={styles.amountText}>Amount: ₹{amount}</Text>
-            </View>
-
             <TouchableOpacity
               style={styles.submitButton}
               onPress={handleSubmit}
             >
               {isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="small" color="#10B981" />
+                  <ActivityIndicator size="small" color="#ffcd01" />
                 </View>
               ) : (
-                <Text style={styles.submitButtonText}>Enter</Text>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.submitButtonText}>Enter</Text>
+                  <Text style={styles.submitButtonText}>₹{amount}</Text>
+                </View>
               )}
             </TouchableOpacity>
           </View>
@@ -256,65 +303,88 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 16,
+    paddingBottom: 50,
     gap: 20,
     zIndex: 4000,
     flex: 1,
   },
   title: {
+    marginBottom: 10,
     fontSize: RFValue(18),
     fontWeight: "bold",
+    textAlign: "center",
   },
   formContainer: {
-    backgroundColor: "#ffffff",
-    borderRadius: 8,
+    backgroundColor: "#f6f6f6",
+    borderRadius: 20,
+    marginHorizontal: 20,
+    padding: 16,
+    gap: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  input: {
+    height: 48,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 0,
+    backgroundColor: "white",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-    padding: 16,
-    gap: 12,
-    zIndex: 4000,
-  },
-  input: {
-    height: 48,
-    width: "100%",
-    paddingHorizontal: 12,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    backgroundColor: "#ebf8ff",
+    elevation: 2,
     fontSize: RFValue(14),
+    color: "#111",
   },
   dropdown: {
     height: 48,
-    backgroundColor: "#ebf8ff",
-    borderColor: "#e5e7eb",
+    borderRadius: 12,
+    borderColor: "transparent",
+    backgroundColor: "white",
+    elevation: 2,
   },
   dropdownList: {
-    backgroundColor: "#ebf8ff",
-    borderColor: "#e5e7eb",
+    borderRadius: 12,
+    backgroundColor: "white",
+    borderColor: "#E5E7EB",
   },
   amountContainer: {
     alignItems: "center",
+    marginTop: 4,
   },
   amountText: {
-    fontSize: RFValue(16),
+    fontSize: RFValue(14),
     fontWeight: "600",
+    color: "#111",
   },
   submitButton: {
-    backgroundColor: "#4ade80",
-    padding: 12,
-    borderRadius: 8,
+    flexDirection: "row",
+    backgroundColor: "#FFD700",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 20,
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   submitButtonText: {
-    textAlign: "center",
     fontSize: RFValue(16),
-    color: "#ffffff",
-    fontWeight: "600",
+    fontWeight: "bold",
+    color: "#000",
   },
   loadingContainer: {
-    backgroundColor: "#ffffff",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 4,
     borderRadius: 50,
   },

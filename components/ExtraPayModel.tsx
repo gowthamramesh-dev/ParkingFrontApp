@@ -64,59 +64,28 @@ const ExtraPayModal: React.FC<Props> = ({
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <Text style={styles.header}>Checkout Receipt</Text>
+        <View style={styles.card}>
+          <Text style={styles.title}>Checkout Receipt</Text>
 
           <ScrollView style={{ maxHeight: 350 }}>
-            <View style={styles.section}>
-              <Text style={styles.label}>Name:</Text>
-              <Text style={styles.value}>{name}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Mobile:</Text>
-              <Text style={styles.value}>{mobileNumber}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Vehicle:</Text>
-              <Text style={styles.value}>
-                {vehicleType.toUpperCase()} - {numberPlate}
-              </Text>
-            </View>
+            <InfoRow label="Name" value={name} />
+            <InfoRow label="Mobile" value={mobileNumber} />
+            <InfoRow
+              label="Vehicle"
+              value={`${vehicleType.toUpperCase()} - ${numberPlate}`}
+            />
 
             <View style={styles.divider} />
 
-            <View style={styles.section}>
-              <Text style={styles.label}>Entry Date:</Text>
-              <Text style={styles.value}>{entryDate}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Exit Date:</Text>
-              <Text style={styles.value}>{exitDate}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Time Used:</Text>
-              <Text style={styles.value}>{timeUsed}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Rate / Day:</Text>
-              <Text style={styles.value}>{perDayRate}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Paid Days:</Text>
-              <Text style={styles.value}>{paidDays}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Paid Amount:</Text>
-              <Text style={styles.value}>{paidAmount}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Extra Days:</Text>
-              <Text style={styles.value}>{extraDays}</Text>
-            </View>
-            <View style={styles.section}>
-              <Text style={styles.label}>Extra Charges:</Text>
-              <Text style={styles.value}>{extraAmount}</Text>
-            </View>
+            <InfoRow label="Entry Date" value={entryDate} />
+            <InfoRow label="Exit Date" value={exitDate} />
+            <InfoRow label="Time Used" value={timeUsed} />
+            <InfoRow label="Rate / Day" value={perDayRate} />
+            <InfoRow label="Paid Days" value={paidDays.toString()} />
+            <InfoRow label="Paid Amount" value={paidAmount} />
+            <InfoRow label="Extra Days" value={extraDays.toString()} />
+            <InfoRow label="Extra Charges" value={extraAmount} />
+
             <View style={styles.totalContainer}>
               <Text style={styles.totalText}>Total Amount to Pay:</Text>
               <Text style={styles.totalAmount}>{totalAmount}</Text>
@@ -128,7 +97,7 @@ const ExtraPayModal: React.FC<Props> = ({
               <Text style={styles.btnText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={onProceed} style={styles.proceedBtn}>
-              <Text style={styles.btnText}>Proceed</Text>
+              <Text style={styles.btnTextBlack}>Proceed</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -137,27 +106,42 @@ const ExtraPayModal: React.FC<Props> = ({
   );
 };
 
+const InfoRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element => (
+  <View style={styles.section}>
+    <Text style={styles.label}>{label}:</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
 export default ExtraPayModal;
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 16,
   },
-  modal: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 16,
+  card: {
+    backgroundColor: "#f6f6f6",
+    borderRadius: 20,
+    padding: 20,
     width: "100%",
+    elevation: 5,
   },
-  header: {
+  title: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
     textAlign: "center",
+    color: "#000",
   },
   section: {
     flexDirection: "row",
@@ -166,14 +150,14 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "500",
-    color: "#374151",
+    color: "#555",
   },
   value: {
     fontWeight: "600",
-    color: "#111827",
+    color: "#111",
   },
   divider: {
-    borderBottomColor: "#e5e7eb",
+    borderBottomColor: "#ddd",
     borderBottomWidth: 1,
     marginVertical: 12,
   },
@@ -181,7 +165,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderColor: "#d1d5db",
+    borderColor: "#ccc",
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -202,22 +186,27 @@ const styles = StyleSheet.create({
   },
   cancelBtn: {
     flex: 1,
-    backgroundColor: "#ef4444",
+    backgroundColor: "#ddd",
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 20,
     marginRight: 8,
     alignItems: "center",
   },
   proceedBtn: {
     flex: 1,
-    backgroundColor: "#10B981",
+    backgroundColor: "#FFD500",
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 20,
     marginLeft: 8,
     alignItems: "center",
   },
   btnText: {
     color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  btnTextBlack: {
+    color: "#000",
     fontWeight: "600",
     fontSize: 16,
   },

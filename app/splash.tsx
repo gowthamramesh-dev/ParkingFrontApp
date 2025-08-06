@@ -7,10 +7,12 @@ import {
   Pressable,
   Dimensions,
   StyleSheet,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { RFValue } from "react-native-responsive-fontsize";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ParkingSplashScreen = () => {
   const router = useRouter();
@@ -67,145 +69,169 @@ const ParkingSplashScreen = () => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={styles.container}>
+      <Image
+        source={require("../assets/loIcon.png")}
+        style={{
+          position: "absolute",
+          right: -50,
+          top: 100,
+          width: 100,
+          height: 160,
+          opacity: 0.3,
+          zIndex: -1,
+        }}
+      />
+      <Image
+        source={require("../assets/toloIcon.png")}
+        style={{
+          position: "absolute",
+          bottom: 40,
+          width: 400,
+          transform: [
+            { translateX: 0 },
+            { translateY: -80 },
+            { rotate: "-30deg" },
+          ],
+          height: 80,
+          opacity: 0.3,
+          zIndex: -1,
+        }}
+      />
+
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       <View style={styles.innerContainer}>
-        {/* Top Content */}
-        <View style={styles.topContent}>
-          <Animated.View
-            style={[
-              styles.textContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
-          >
-            <Text style={styles.title}>Welcome to ParkEase</Text>
-            <Text style={styles.subtitle}>Your Smart Parking Assistant</Text>
-          </Animated.View>
+        <Animated.View
+          style={[
+            styles.textContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.title}>Welcome to Parking App</Text>
+          <Text style={styles.subtitle}>Your Smart Parking Assistant</Text>
+        </Animated.View>
 
-          <Animated.Image
-            source={images[currentImage]}
-            resizeMode="contain"
-            style={[
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-                width: screenWidth * 0.75,
-                height: screenWidth * 0.75,
-              },
-            ]}
-          />
+        <Animated.Image
+          source={images[currentImage]}
+          resizeMode="contain"
+          style={[
+            styles.image,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        />
 
-          <Animated.View
-            style={[
-              styles.descriptionContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
-          >
-            <Text style={styles.contentTitle}>
-              {imageContents[currentImage].title}
-            </Text>
-            <Text style={styles.contentDescription}>
-              {imageContents[currentImage].description}
-            </Text>
-          </Animated.View>
-        </View>
+        <Animated.View
+          style={[
+            styles.descriptionContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={styles.contentTitle}>
+            {imageContents[currentImage].title}
+          </Text>
+          <Text style={styles.contentDescription}>
+            {imageContents[currentImage].description}
+          </Text>
+        </Animated.View>
 
-        {/* Sign up Link */}
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonWrapper}>
           <Pressable
             onPress={() => router.push("/login")}
             style={styles.button}
           >
             <Ionicons
               name="person-add"
-              size={22}
-              color="#fff"
+              size={20}
+              color="#000"
               style={{ marginRight: 8 }}
             />
             <Text style={styles.buttonText}>Let&apos;s Start</Text>
           </Pressable>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#58EB82",
+    backgroundColor: "#fff",
   },
   innerContainer: {
     flex: 1,
+    justifyContent: "space-around",
+    alignItems: "center",
+    paddingVertical: 40,
     paddingHorizontal: 24,
-    paddingTop: 64,
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  topContent: {
-    alignItems: "center",
   },
   textContainer: {
-    marginTop: 24,
-    paddingHorizontal: 8,
     alignItems: "center",
   },
   title: {
-    fontSize: RFValue(22),
+    fontSize: RFValue(20),
     fontWeight: "bold",
     color: "#000",
-    marginBottom: 8,
     textAlign: "center",
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: RFValue(14),
-    color: "#fff",
-    opacity: 0.9,
-    marginBottom: 32,
+    fontSize: RFValue(12),
+    color: "#666",
     textAlign: "center",
   },
+  image: {
+    width: "100%",
+    height: Dimensions.get("window").width * 0.75,
+  },
   descriptionContainer: {
-    marginTop: 24,
-    paddingHorizontal: 16,
     alignItems: "center",
+    paddingHorizontal: 16,
   },
   contentTitle: {
-    fontSize: RFValue(16),
+    fontSize: RFValue(14),
     fontWeight: "bold",
     color: "#000",
-    marginBottom: 8,
     textAlign: "center",
   },
   contentDescription: {
     fontSize: RFValue(12),
-    color: "#fff",
-    opacity: 0.9,
-    marginTop: 16,
+    color: "#333",
     textAlign: "center",
+    marginTop: 10,
   },
-  buttonContainer: {
+  buttonWrapper: {
     width: "100%",
-    marginBottom: 60,
-    borderWidth: 1,
-    borderColor: "#fff",
-    borderRadius: 999,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    alignItems: "center",
+    marginTop: 16,
   },
   button: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
+    width: "85%",
+    backgroundColor: "#ffcd01",
+    borderRadius: 40,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
-    color: "#fff",
     fontSize: RFValue(14),
+    color: "#000",
     fontWeight: "bold",
   },
 });

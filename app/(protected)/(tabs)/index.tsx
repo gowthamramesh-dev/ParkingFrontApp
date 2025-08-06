@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../../global.css";
 import {
   StatusBar,
@@ -11,88 +11,93 @@ import {
 } from "react-native";
 import CheckIn from "@/components/CheckIn";
 import CheckOut from "@/components/CheckOut";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RFValue } from "react-native-responsive-fontsize";
 import AccessControl from "@/components/AccessControl";
 
 LogBox.ignoreAllLogs(false);
 
 ErrorUtils.setGlobalHandler((error, isFatal) => {
-  console.log(" Global Error:", error.message);
+  console.log("Global Error:", error.message);
 });
 
 const Index = () => {
   const [isCheck, setIsCheck] = useState(true);
-  const [user, setUser] = useState({});
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    };
-    fetchUser();
-  }, []);
-
   return (
-    <>
-      <AccessControl required="home">
-        <StatusBar
-          backgroundColor="transparent"
-          translucent
-          barStyle="dark-content"
-        />
-        <View style={styles.container}>
+    <AccessControl required="home">
+      <StatusBar
+        backgroundColor="transparent"
+        translucent
+        barStyle="dark-content"
+      />
+      <View style={styles.container}>
+        <View>
           <View>
-            <View style={styles.headerBox}>
-              <Text style={styles.greetingText}>Hey {user?.username},</Text>
-
-              <View style={styles.toggleContainer}>
-                <TouchableOpacity
-                  style={styles.checkInButton}
-                  onPress={() => setIsCheck(true)}
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  isCheck ? styles.activeToggle : styles.inactiveToggle,
+                ]}
+                onPress={() => setIsCheck(true)}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    isCheck ? styles.activeText : styles.inactiveText,
+                  ]}
                 >
-                  <Text style={styles.toggleText}>Check In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.checkOutButton}
-                  onPress={() => setIsCheck(false)}
+                  Check In
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  !isCheck ? styles.activeToggle : styles.inactiveToggle,
+                ]}
+                onPress={() => setIsCheck(false)}
+              >
+                <Text
+                  style={[
+                    styles.toggleText,
+                    !isCheck ? styles.activeText : styles.inactiveText,
+                  ]}
                 >
-                  <Text style={styles.toggleText}>Check Out</Text>
-                </TouchableOpacity>
-              </View>
+                  Check Out
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <View style={styles.contentWrapper}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {isCheck ? <CheckIn /> : <CheckOut />}
-            </ScrollView>
-          </View>
         </View>
-      </AccessControl>
-    </>
+
+        <View style={styles.contentWrapper}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {isCheck ? <CheckIn /> : <CheckOut />}
+          </ScrollView>
+        </View>
+      </View>
+    </AccessControl>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F3F4F6",
-    paddingVertical: 16,
+    backgroundColor: "white",
     paddingHorizontal: 16,
     flex: 1,
   },
   headerBox: {
-    borderWidth: 1,
-    borderColor: "white",
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowRadius: 4,
     elevation: 3,
-    borderRadius: 4,
-    backgroundColor: "white",
-    padding: 8,
   },
   greetingText: {
     fontSize: RFValue(18),
@@ -101,27 +106,51 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    backgroundColor: "white",
+    borderRadius: 999,
+    padding: 4,
   },
-  checkInButton: {
-    backgroundColor: "#4ade80",
+  toggleButton: {
+    flex: 1,
+    paddingVertical: 12,
+    marginHorizontal: 6,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-    borderRadius: 4,
   },
-  checkOutButton: {
-    backgroundColor: "#EF4444",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-    borderRadius: 4,
+  activeToggle: {
+    backgroundColor: "#FFD700",
+    borderColor: "#FFD700",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
   },
+
+  inactiveToggle: {
+    backgroundColor: "#ffffff",
+    borderColor: "#D1D5DB",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+
   toggleText: {
-    fontSize: RFValue(16),
-    color: "#ffffff",
+    fontSize: RFValue(14),
+    color: "#505050",
+    fontWeight: "600",
+  },
+  activeText: {
+    color: "#505050",
+  },
+  inactiveText: {
+    color: "#6B7280",
   },
   contentWrapper: {
     paddingTop: 20,

@@ -6,12 +6,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Image,
+  Dimensions,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Scan from "./Scan";
 import userAuthStore from "@/utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
 import CheckoutModal from "./ExtraPayModel";
+
+const screenHeight = Dimensions.get("window").height;
+const screenWidth = Dimensions.get("window").width;
+
 const CheckOut = () => {
   const [Toscan, setToscan] = useState(false);
   const [tokenId, settokenId] = useState("");
@@ -107,8 +113,45 @@ const CheckOut = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Check Out</Text>
+      <Image
+        source={require("../assets/checkInDot.png")}
+        style={{
+          position: "absolute",
+          top: screenHeight * 0.065,
+          width: screenWidth * 0.96,
+          height: 290,
+          opacity: 0.3,
+          transform: [
+            { translateX: -12 },
+            { translateY: -80 },
+            { rotate: "10deg" },
+          ],
+          zIndex: -1,
+          resizeMode: "contain",
+        }}
+      />
+      <Image
+        source={require("../assets/checkOutPark.png")}
+        style={{
+          position: "absolute",
+          bottom: 10,
+          right: 0,
+          width: screenWidth * 0.8,
+          height: screenHeight * 0.25,
+          opacity: 0.2,
+          zIndex: -1,
+          resizeMode: "contain",
+        }}
+      />
       <View style={styles.formContainer}>
+        <View
+          style={{
+            alignItems: "flex-start",
+            justifyContent: "center",
+          }}
+        >
+          <Text style={styles.title}>Check Out</Text>
+        </View>
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Enter Token ID"
@@ -139,7 +182,7 @@ const CheckOut = () => {
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color="#10B981" />
+              <ActivityIndicator size="small" color="#ffcd01" />
             </View>
           ) : (
             <Text style={styles.submitButtonText}>Enter</Text>
@@ -165,15 +208,15 @@ const CheckOut = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 16,
-    gap: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
   },
   formContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f6f6f6",
     borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -187,12 +230,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    borderRadius: 4,
+    borderRadius: 12,
     height: 48,
-    backgroundColor: "#ebf8ff",
+    backgroundColor: "white",
     flex: 1,
     paddingHorizontal: 12,
     fontSize: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
   },
   scanButton: {
     marginLeft: 8,
@@ -201,7 +249,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   submitButton: {
-    backgroundColor: "#4ade80",
+    backgroundColor: "#ffcd01",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
@@ -209,7 +257,7 @@ const styles = StyleSheet.create({
   submitButtonText: {
     textAlign: "center",
     fontSize: 20,
-    color: "#ffffff",
+    color: "black",
     fontWeight: "600",
   },
   loadingContainer: {

@@ -17,10 +17,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import userAuthStore from "@/utils/store";
-import { useNavigation } from "@react-navigation/native";
 import ToastManager, { Toast } from "toastify-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AccessControl from "@/components/AccessControl";
+import { router } from "expo-router";
 
 const AllStaffs = () => {
   const { getAllStaffs, staffs, isLoading, deleteStaff, updateStaff } =
@@ -34,8 +33,6 @@ const AllStaffs = () => {
   const [buildingName, setBuildingName] = useState("");
   const [buildingLocation, setBuildingLocation] = useState("");
   const [selectedStaff, setSelectedStaff] = useState(null);
-
-  const navigation = useNavigation();
 
   useEffect(() => {
     fetchStaffs();
@@ -133,10 +130,10 @@ const AllStaffs = () => {
         <Text style={styles.username}>{item.username}</Text>
         <View style={styles.actionIcons}>
           <TouchableOpacity onPress={() => setSelectedStaff(item)}>
-            <Ionicons name="eye-outline" size={22} color="#065F46" />
+            <Ionicons name="eye-outline" size={22} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleEditPress(item)}>
-            <Ionicons name="create-outline" size={22} color="#2563EB" />
+            <Ionicons name="create-outline" size={22} color="#000" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleDelete(item._id)}>
             <Ionicons name="trash-outline" size={22} color="#DC2626" />
@@ -158,19 +155,21 @@ const AllStaffs = () => {
 
   return (
     <AccessControl required="edit/DeleteStaff">
-      <SafeAreaView style={styles.container}>
-        <View style={styles.headers}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={28} color="#1F2937" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Staff details</Text>
+      <View style={styles.container}>
+        <View style={styles.headerBox}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity
+              onPress={() => router.push("/(protected)/(tabs)/staffPage")}
+            >
+              <Ionicons name="arrow-back" size={24} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Staff Details</Text>
+            <View style={{ width: 24 }} />
+          </View>
         </View>
 
         {isLoading ? (
-          <ActivityIndicator size="large" color="lightgreen" />
+          <ActivityIndicator size="large" color="#ffcd01" />
         ) : staffs.length === 0 ? (
           <Text style={styles.noStaffText}>No staff found</Text>
         ) : (
@@ -182,25 +181,25 @@ const AllStaffs = () => {
         )}
 
         {/* Edit Modal */}
-        <Modal visible={isModalVisible} animationType="slide" transparent>
+        <Modal visible={isModalVisible} animationType="fade" transparent>
           {renderBlurWrapper(
             <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}> Edit Staff Details</Text>
-
+              <Text style={styles.modalTitle}>Edit Staff Details</Text>
               <TextInput
                 value={editUsername}
                 onChangeText={setEditUsername}
                 placeholder="Username"
-                style={styles.inputField}
+                placeholderTextColor="#888"
+                style={styles.input}
               />
-
-              <View style={styles.passwordContainer}>
+              <View style={styles.passwordWrapper}>
                 <TextInput
                   value={editPassword}
                   onChangeText={setEditPassword}
+                  placeholderTextColor="#888"
                   placeholder="New Password (optional)"
                   secureTextEntry={!passwordVisible}
-                  style={styles.inputField}
+                  style={styles.input}
                 />
                 <TouchableOpacity
                   onPress={() => setPasswordVisible(!passwordVisible)}
@@ -213,36 +212,35 @@ const AllStaffs = () => {
                   />
                 </TouchableOpacity>
               </View>
-
               <TextInput
                 value={buildingName}
                 onChangeText={setBuildingName}
                 placeholder="Building Name"
-                style={styles.inputField}
+                placeholderTextColor="#888"
+                style={styles.input}
               />
-
               <TextInput
                 value={buildingLocation}
                 onChangeText={setBuildingLocation}
                 placeholder="Building Location"
-                style={[styles.inputField, { marginBottom: 16 }]}
+                placeholderTextColor="#888"
+                style={styles.input}
               />
 
-              <View style={styles.modalActions}>
+              <View style={styles.modalButtons}>
                 <Pressable
                   onPress={() => setModalVisible(false)}
-                  style={styles.cancelButton}
+                  style={styles.cancelBtn}
                 >
                   <Text style={styles.cancelText}>Cancel</Text>
                 </Pressable>
-                <Pressable onPress={handleSaveUpdate} style={styles.saveButton}>
+                <Pressable onPress={handleSaveUpdate} style={styles.saveBtn}>
                   <Text style={styles.saveText}>Save</Text>
                 </Pressable>
               </View>
             </View>
           )}
         </Modal>
-
         {/* View Staff Modal */}
         <Modal
           visible={!!selectedStaff}
@@ -251,11 +249,25 @@ const AllStaffs = () => {
           onRequestClose={() => setSelectedStaff(null)}
         >
           {renderBlurWrapper(
-            <View style={styles.viewBox}>
-              <Text style={styles.viewTitle}> Staff Credentials</Text>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>Staff Credentials</Text>
 
-              <View style={styles.viewSection}>
-                <View style={styles.viewRow}>
+              <View style={{ gap: 14 }}>
+                <View
+                  style={[
+                    styles.viewRow,
+                    {
+                      shadowColor: "#000",
+                      paddingHorizontal: 10,
+                      borderWidth: 1,
+                      borderColor: "#ffcd01",
+                      shadowOffset: { width: 0, height: 6 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 4,
+                      elevation: 6,
+                    },
+                  ]}
+                >
                   <Ionicons
                     name="person-circle-outline"
                     size={22}
@@ -264,12 +276,26 @@ const AllStaffs = () => {
                   <View>
                     <Text style={styles.viewLabel}>Username</Text>
                     <Text style={styles.viewValue}>
-                      {selectedStaff?.username}
+                      {selectedStaff?.username || "-"}
                     </Text>
                   </View>
                 </View>
 
-                <View style={styles.viewRowBetween}>
+                <View
+                  style={[
+                    styles.viewRowBetween,
+                    {
+                      shadowColor: "#000",
+                      paddingHorizontal: 10,
+                      borderWidth: 1,
+                      borderColor: "#ffcd01",
+                      shadowOffset: { width: 0, height: 6 },
+                      shadowOpacity: 0.06,
+                      shadowRadius: 4,
+                      elevation: 6,
+                    },
+                  ]}
+                >
                   <View style={styles.viewRow}>
                     <Ionicons name="key-outline" size={20} color="#4B5563" />
                     <View>
@@ -279,6 +305,7 @@ const AllStaffs = () => {
                       </Text>
                     </View>
                   </View>
+
                   <View style={styles.iconActions}>
                     <TouchableOpacity
                       onPress={() => setPasswordVisible(!passwordVisible)}
@@ -292,6 +319,7 @@ const AllStaffs = () => {
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
+                      style={{ paddingRight: 10 }}
                       onPress={() => {
                         Clipboard.setString(selectedStaff?.password || "");
                         Platform.OS === "android"
@@ -313,16 +341,16 @@ const AllStaffs = () => {
 
               <Pressable
                 onPress={() => setSelectedStaff(null)}
-                style={styles.closeButton}
+                style={styles.saveBtn}
               >
-                <Text style={styles.closeButtonText}>Close</Text>
+                <Text style={styles.saveText}>Close</Text>
               </Pressable>
             </View>
           )}
         </Modal>
 
-        <ToastManager showCloseIcon={false} />
-      </SafeAreaView>
+        <ToastManager />
+      </View>
     </AccessControl>
   );
 };
@@ -330,172 +358,25 @@ const AllStaffs = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB", // gray-50
+    backgroundColor: "#ffffff",
     paddingHorizontal: 16,
-    paddingTop: 24,
   },
-
-  headers: {
-    backgroundColor: "#ffffff", // green-600
-    borderRadius: 10,
-    height: 54,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-    position: "relative",
-  },
-  backButton: {
-    position: "absolute",
-    left: 16,
-    top: "50%",
-    marginTop: -14,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#000000",
-  },
-  cardRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  card: {
-    backgroundColor: "#ECFDF5", // green-50
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    marginBottom: 14,
+  headerBox: {
+    backgroundColor: "#f6f6f6",
+    borderRadius: 16,
+    padding: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  username: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: "#065F46", // green-700
-  },
-  actionIcons: {
-    flexDirection: "row",
-    gap: 16,
-    alignItems: "center",
-  },
-  noStaffText: {
-    textAlign: "center",
-    fontSize: 16,
-    color: "#6B7280",
-    marginTop: 40,
-  },
-
-  // ✅ Modal Box (edit or view)
-  modalBox: {
-    backgroundColor: "#FFFFFF",
-    width: "92%",
-    borderRadius: 16,
-    padding: 24,
-    elevation: 10,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#16A34A",
-    textAlign: "center",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 3,
     marginBottom: 16,
-  },
-
-  // ✅ Input Field
-  inputField: {
-    backgroundColor: "#F0FDF4", // green-50
-    borderWidth: 1,
-    borderColor: "#BBF7D0", // green-200
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    borderRadius: 10,
-    marginBottom: 12,
-  },
-  passwordContainer: {
-    position: "relative",
-  },
-  eyeIcon: {
-    position: "absolute",
-    right: 14,
-    top: 14,
-  },
-
-  // ✅ Modal Buttons
-  modalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-    marginTop: 10,
-  },
-  cancelButton: {
-    backgroundColor: "#E5E7EB", // gray-200
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  cancelText: {
-    color: "#1F2937",
-    fontWeight: "500",
-  },
-  saveButton: {
-    backgroundColor: "#16A34A", // green-600
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  saveText: {
-    color: "white",
-    fontWeight: "600",
-  },
-
-  // ✅ BlurView Modal
-  androidBlur: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    backgroundColor: "rgba(0,0,0,0.3)",
-  },
-  blurView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-
-  // ✅ View Staff Modal
-  viewBox: {
-    backgroundColor: "#FFFFFF",
-    width: "92%",
-    borderRadius: 16,
-    padding: 24,
-    elevation: 10,
-  },
-  viewTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#16A34A",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  viewSection: {
-    gap: 16,
   },
   viewRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#F0FDF4",
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 12,
   },
@@ -503,9 +384,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F0FDF4",
+    backgroundColor: "white",
     borderRadius: 10,
-    paddingHorizontal: 16,
   },
   viewLabel: {
     fontSize: 12,
@@ -514,23 +394,127 @@ const styles = StyleSheet.create({
   viewValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1F2937",
+    color: "#000",
   },
   iconActions: {
     flexDirection: "row",
     gap: 16,
   },
-  closeButton: {
-    marginTop: 24,
-    backgroundColor: "#16A34A",
-    paddingVertical: 12,
+
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#000",
+  },
+  card: {
+    backgroundColor: "#FFF8C4",
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  username: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+  },
+  actionIcons: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  noStaffText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#6B7280",
+    marginTop: 40,
+  },
+  modalBox: {
+    backgroundColor: "#f6f6f6",
+    borderRadius: 16,
+    padding: 20,
+    width: "92%",
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  input: {
+    backgroundColor: "white",
+    color: "#000",
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+    borderColor: "#FFCD01",
+    borderWidth: 1,
+  },
+  passwordWrapper: {
+    position: "relative",
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 14,
+    top: 14,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
+    gap: 10,
+  },
+  cancelBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
+    backgroundColor: "#E5E7EB",
     borderRadius: 8,
   },
-  closeButtonText: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
+  cancelText: {
+    color: "#000",
     fontWeight: "600",
+  },
+  saveBtn: {
+    paddingVertical: 10,
+    marginTop: 10,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    backgroundColor: "#FFCD01",
+    borderRadius: 8,
+  },
+  saveText: {
+    color: "#000",
+    fontWeight: "700",
+  },
+  androidBlur: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+    paddingHorizontal: 16,
+  },
+  blurView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
   },
 });
 

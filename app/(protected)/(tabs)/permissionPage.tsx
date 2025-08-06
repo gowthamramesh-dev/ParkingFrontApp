@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import Checkbox from "expo-checkbox";
 import userAuthStore from "../../../utils/store";
 import { Toast } from "toastify-react-native";
@@ -29,6 +35,7 @@ const permissionList = [
 const PermissionPage = (id: any) => {
   const [selected, setSelected] = useState<string[]>([]);
   const { setStaffPermission, permissions } = userAuthStore();
+
   useEffect(() => {
     if (permissions && Array.isArray(permissions)) {
       setSelected(permissions);
@@ -57,11 +64,10 @@ const PermissionPage = (id: any) => {
       return;
     }
 
-    console.log(selected);
     Toast.show({
       type: "success",
-      text1: "Permission Saved",
-      text2: `${selected}`,
+      text1: "Permissions Saved",
+      text2: "Permissions updated successfully",
       position: "top",
       visibilityTime: 1000,
       autoHide: true,
@@ -71,25 +77,27 @@ const PermissionPage = (id: any) => {
   return (
     <AccessControl required="staffPermissionPage">
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Assign Permissions</Text>
+        <Text style={styles.title}>Staff Permissions</Text>
 
-        {permissionList.map((permission) => (
-          <TouchableOpacity
-            key={permission}
-            onPress={() => togglePermission(permission)}
-            style={[
-              styles.permissionItem,
-              selected.includes(permission) && styles.permissionItemActive,
-            ]}
-          >
-            <Checkbox
-              value={selected.includes(permission)}
-              onValueChange={() => togglePermission(permission)}
-              color={selected.includes(permission) ? "#10B981" : undefined}
-            />
-            <Text style={styles.permissionText}>{permission}</Text>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.listWrapper}>
+          {permissionList.map((permission) => (
+            <TouchableOpacity
+              key={permission}
+              onPress={() => togglePermission(permission)}
+              style={[
+                styles.permissionItem,
+                selected.includes(permission) && styles.permissionItemActive,
+              ]}
+            >
+              <Checkbox
+                value={selected.includes(permission)}
+                onValueChange={() => togglePermission(permission)}
+                color={selected.includes(permission) ? "#ffcd01" : undefined}
+              />
+              <Text style={styles.permissionText}>{permission}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Save Permissions</Text>
@@ -101,19 +109,22 @@ const PermissionPage = (id: any) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#fff",
     padding: 16,
-    gap: 12,
-    backgroundColor: "#F9FAFB",
-    flexGrow: 1,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#047857",
-    marginBottom: 12,
+    color: "#000",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  listWrapper: {
+    gap: 12,
   },
   permissionItem: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f6f6f6",
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -128,24 +139,29 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   permissionItemActive: {
-    borderColor: "#10B981",
-    backgroundColor: "#d1fae5",
+    borderColor: "#ffcd01",
+    backgroundColor: "#fff7cc",
   },
   permissionText: {
-    fontSize: 18,
-    color: "#064e3b",
+    fontSize: 16,
+    color: "#111",
+    fontWeight: "500",
   },
   submitButton: {
     marginTop: 24,
-    backgroundColor: "#10B981",
-    padding: 16,
-    borderRadius: 10,
+    backgroundColor: "#ffcd01",
+    paddingVertical: 14,
+    borderRadius: 999,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#000",
   },
 });
 

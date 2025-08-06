@@ -2,10 +2,9 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AccessControl from "@/components/AccessControl";
 
-const AccountSettings = () => {
+const StaffSettings = () => {
   const router = useRouter();
 
   const menuItems = [
@@ -28,98 +27,105 @@ const AccountSettings = () => {
 
   return (
     <AccessControl required="staffSettings">
-      <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
         <View style={styles.headerBox}>
           <View style={styles.headerRow}>
             <TouchableOpacity
               onPress={() => router.push("/(protected)/(tabs)/profile")}
             >
-              <Ionicons name="arrow-back" size={28} color="#1F2937" />
+              <Ionicons name="arrow-back" size={24} color="#000" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Staff Settings</Text>
             <View style={styles.headerSpacer} />
           </View>
         </View>
-        <View>
+
+        <View style={styles.section}>
           {menuItems.map(({ label, icon, route }, idx) => (
             <TouchableOpacity
               key={idx}
+              style={styles.optionBox}
               onPress={() => router.push(route)}
-              style={styles.menuItem}
             >
-              <View style={styles.menuLeft}>
-                <Ionicons name={icon} size={28} color="#2d6a4f" />
-                <Text style={styles.menuLabel}>{label}</Text>
+              <View style={styles.optionLeft}>
+                <Ionicons name={icon} size={28} color="#000" />
+                <Text style={styles.optionText}>{label}</Text>
               </View>
               <Ionicons
                 name="chevron-forward-outline"
-                size={22}
-                color="#2d6a4f"
+                size={24}
+                color="#FFCD01"
               />
             </TouchableOpacity>
           ))}
         </View>
-      </SafeAreaView>
+      </View>
     </AccessControl>
   );
 };
 
 const styles = StyleSheet.create({
-  headerBox: {
-    marginVertical: 16,
+  container: {
+    flex: 1,
     backgroundColor: "#ffffff",
+  },
+  headerBox: {
+    marginBottom: 16,
+    marginHorizontal: 16,
+    backgroundColor: "#f6f6f6",
     padding: 16,
-    borderRadius: 2,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 8,
   },
-  headerSpacer: { width: 48 },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#1F2937", // Tailwind gray-800
+    fontWeight: "700",
+    textAlign: "center",
+    color: "#000",
+    flex: 1,
+  },
+  headerSpacer: {
+    width: 24,
   },
 
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#f3f4f6",
+  section: {
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    paddingTop: 8,
   },
-  menuItem: {
+  optionBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#ecfdf5",
+    backgroundColor: "#FFF8C4",
     paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
     elevation: 2,
     marginBottom: 16,
   },
-  menuLeft: {
+  optionLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
-  menuLabel: {
+  optionText: {
     marginLeft: 12,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#065f46",
+    color: "#000",
   },
 });
 
-export default AccountSettings;
+export default StaffSettings;

@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   StyleSheet,
   Modal,
+  Image,
+  Dimensions,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import MonthlyPassModal from "../../../components/monthlyPassModal";
@@ -15,11 +17,13 @@ import { Toast } from "toastify-react-native";
 import { useNavigation } from "@react-navigation/native";
 import AccessControl from "@/components/AccessControl";
 
+const screenHeight = Dimensions.get("window").height;
+const screenWidth = Dimensions.get("window").width;
 const TABS = ["create", "active", "expired"] as const;
 
 const MonthlyPass = () => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("active");
+  const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("create");
   const [editPassId, setEditPassId] = useState<string | null>(null);
   const [showDurationModal, setShowDurationModal] = useState(false);
   const [selectedMonths, setSelectedMonths] = useState<number>(3);
@@ -33,6 +37,7 @@ const MonthlyPass = () => {
     extendMonthlyPass,
   } = userAuthStore();
   const navigation = useNavigation<any>();
+
   useEffect(() => {
     const unsubscribe = navigation.addListener("tabPress", async () => {
       if (activeTab !== "create") {
@@ -67,7 +72,6 @@ const MonthlyPass = () => {
     if (!editPassId) return;
 
     const result = await extendMonthlyPass(editPassId, selectedMonths);
-
     if (!result.success) {
       Toast.show({
         type: "error",
@@ -84,71 +88,93 @@ const MonthlyPass = () => {
   };
 
   const renderPassItem = ({ item }: any) => {
-    const cardStyles = [
-      styles.passCard,
-      { backgroundColor: item.isExpired ? "#D1D5DB" : "#22C55E" },
-    ];
-    const textColor = item.isExpired ? "#000" : "#fff";
+    // Common styles for both active and expired passes
+    const isActiveTab = activeTab === "active";
 
     return (
-      <View style={cardStyles}>
-        <View style={styles.cardCircle} />
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: textColor }]}>
-            {item.name}
-          </Text>
-          <MaterialIcons name="directions-car" size={24} color={textColor} />
-        </View>
-        <View style={styles.cardInfoGroup}>
-          <Text style={[styles.cardInfoText, { color: textColor }]}>
-            Vehicle No: <Text style={styles.bold}>{item.vehicleNo}</Text>
-          </Text>
-          <Text style={[styles.cardInfoText, { color: textColor }]}>
-            Mobile: {item.mobile}
-          </Text>
-        </View>
-        <View style={styles.cardFooter}>
-          <View>
-            <Text style={[styles.cardLabel, { color: textColor }]}>
-              Duration
+      <View style={styles.activeCard}>
+        <View style={styles.cardCutout} />
+        <View style={styles.cardHeaderRow}>
+          <Text style={styles.cardName}>{item.name}</Text>
+          <View
+            style={[
+              styles.activePill,
+              { backgroundColor: isActiveTab ? "#fff" : "#f0f0f0" },
+            ]}
+          >
+            <Text style={styles.activePillText}>
+              {isActiveTab ? "Active" : "Expired"}
             </Text>
-            <View style={styles.rowCenter}>
-              <Text style={[styles.cardValue, { color: textColor }]}>
-                {item.duration} months
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setEditPassId(item._id);
-                  setShowDurationModal(true);
-                }}
-              >
-                <MaterialIcons name="edit" size={18} color={textColor} />
-              </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.iconCircle}>
+          <MaterialIcons name="directions-car" size={30} color="#000" />
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 8,
+          }}
+        >
+          <Text style={styles.label}>Vehicle No:</Text>
+          <View style={styles.vehicleRow}>
+            <Text style={styles.vehicleText}>{item.vehicleNo}</Text>
+            <MaterialIcons name="content-copy" size={16} color="#000" />
+          </View>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 8,
+            marginBottom: 8,
+            alignItems: "center",
+          }}
+        >
+          <Text style={styles.label}>Mobile:</Text>
+          <Text style={styles.value}>{item.mobile}</Text>
+        </View>
+
+        <View style={styles.infoRow}>
+          <View>
+            <Text style={styles.label}>Duration</Text>
+            <View style={styles.editRow}>
+              <Text style={styles.value}>{item.duration} Months</Text>
+              {isActiveTab && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setEditPassId(item._id);
+                    setShowDurationModal(true);
+                  }}
+                >
+                  <MaterialIcons name="edit" size={16} color="#000" />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
+
           <View>
-            <Text style={[styles.cardLabel, { color: textColor }]}>
-              Valid Till
-            </Text>
-            <Text style={[styles.cardValue, { color: textColor }]}>
-              {" "}
+            <Text style={styles.label}>Valid Till</Text>
+            <Text style={styles.value}>
               {new Date(item.endDate).toLocaleDateString()}
             </Text>
           </View>
-          <View>
-            <Text style={[styles.cardLabel, { color: textColor }]}>
-              Payment
-            </Text>
-            <Text style={[styles.cardValue, { color: textColor }]}>
-              {item.paymentMode}
-            </Text>
+
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <Text style={styles.label}>Payment</Text>
+            <Text style={styles.value}>{item.paymentMode}</Text>
           </View>
         </View>
-        <View style={styles.passIdSection}>
-          <Text style={[styles.cardLabel, { color: textColor }]}>Pass ID</Text>
-          <Text style={[styles.cardIdValue, { color: textColor }]}>
-            #{item._id.slice(-6).toUpperCase()}
-          </Text>
+
+        <View style={styles.bottomStrip}>
+          <Text style={styles.label}>Pass ID</Text>
+          <Text style={styles.value}>#{item._id.slice(-6).toUpperCase()}</Text>
+          <View style={styles.priceTag}>
+            <Text style={styles.priceText}>₹{item.amount}</Text>
+          </View>
         </View>
       </View>
     );
@@ -164,63 +190,118 @@ const MonthlyPass = () => {
   return (
     <AccessControl required="monthlyPass">
       <View style={styles.container}>
-        <View style={styles.headerBox}>
-          <Text style={styles.headerTitle}>Monthly Pass</Text>
-        </View>
-
-        <View style={styles.tabsRow}>
-          {TABS.map((tab) => (
-            <TouchableOpacity
-              key={tab}
-              style={[
-                styles.tabButton,
-                activeTab === tab ? styles.activeTab : styles.inactiveTab,
-              ]}
-              disabled={isTabLoading}
-              onPress={() => setActiveTab(tab)}
-            >
-              <Text
-                style={
-                  activeTab === tab
-                    ? styles.activeTabText
-                    : styles.inactiveTabText
-                }
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View
+          style={{
+            backgroundColor: "#f6f6f6",
+            marginHorizontal: 10,
+            marginBottom: 20,
+            borderRadius: 12,
+          }}
+        >
+          <View style={styles.headerBox}>
+            <Text style={styles.headerTitle}>Monthly Pass</Text>
+          </View>
+          <View style={styles.tabsContainer}>
+            {TABS.map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  style={[
+                    styles.tabPill,
+                    isActive ? styles.tabPillActive : styles.tabPillInactive,
+                  ]}
+                  onPress={() => setActiveTab(tab)}
+                >
+                  <Text
+                    style={
+                      isActive ? styles.tabTextActive : styles.tabTextInactive
+                    }
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
         {activeTab === "create" ? (
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => setModalVisible(true)}
-            disabled={isLoading}
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "transparent",
+              zIndex: 2,
+              elevation: 2,
+            }}
           >
-            <Text style={styles.createButtonText}>Create New Pass</Text>
-          </TouchableOpacity>
+            <Image
+              source={require("../../../assets/checkOutPark.png")}
+              style={{
+                position: "absolute",
+                bottom: 10,
+                right: 0,
+                width: screenWidth * 0.8,
+                height: screenHeight * 0.25,
+                opacity: 0.2,
+                zIndex: -1,
+                resizeMode: "contain",
+              }}
+            />
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => setModalVisible(true)}
+              disabled={isLoading}
+            >
+              <Text style={styles.createButtonText}>Create New Pass</Text>
+            </TouchableOpacity>
+          </View>
         ) : isTabLoading ? (
           <ActivityIndicator
             size="large"
-            color="#22c55e"
+            color="#ffcd01"
             style={styles.loader}
           />
         ) : (
-          <FlatList
-            data={data}
-            renderItem={renderPassItem}
-            keyExtractor={(item) => item._id}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No {activeTab} passes</Text>
-            }
-          />
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "transparent",
+              zIndex: 2,
+              elevation: 2,
+            }}
+          >
+            <Image
+              source={require("../../../assets/checkOutPark.png")}
+              style={{
+                position: "absolute",
+                bottom: 10,
+                right: 0,
+                width: screenWidth * 0.8,
+                height: screenHeight * 0.25,
+                opacity: 0.2,
+                zIndex: -1,
+                resizeMode: "contain",
+              }}
+            />
+            <FlatList
+              data={data}
+              renderItem={renderPassItem}
+              keyExtractor={(item) => item._id}
+              ListEmptyComponent={
+                <Text style={styles.emptyText}>No {activeTab} passes</Text>
+              }
+              contentContainerStyle={{ paddingBottom: 100 }}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
         )}
 
         <Modal visible={showDurationModal} transparent animationType="fade">
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Extend Duration</Text>
+
               <View style={styles.durationOptions}>
                 {[3, 6, 9, 12].map((m) => (
                   <TouchableOpacity
@@ -245,12 +326,13 @@ const MonthlyPass = () => {
                   </TouchableOpacity>
                 ))}
               </View>
+
               <View style={styles.modalActions}>
                 <TouchableOpacity
                   style={styles.cancelButton}
                   onPress={() => setShowDurationModal(false)}
                 >
-                  <Text>Cancel</Text>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.extendButton}
@@ -274,42 +356,192 @@ const MonthlyPass = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
+  container: { flex: 1, backgroundColor: "white" },
+
   headerBox: {
     margin: 16,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 12,
-    borderRadius: 4,
-    elevation: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#9CA3AF",
   },
-  headerTitle: { fontSize: 20, fontWeight: "600" },
-  tabsRow: {
+  headerTitle: { fontSize: 18, fontWeight: "600" },
+  activeCard: {
+    marginHorizontal: 20,
+    marginVertical: 12,
+    backgroundColor: "#ffe57c",
+    borderRadius: 16,
+    padding: 10,
+    position: "relative",
+    overflow: "hidden",
+    elevation: 5,
+  },
+
+  cardCutout: {
+    position: "absolute",
+    top: -30,
+    alignSelf: "center",
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    backgroundColor: "#fff",
+    zIndex: 1,
+  },
+
+  iconCircle: {
+    position: "absolute",
+    top: -25,
+    right: -25,
+    backgroundColor: "#fff",
+    width: 100,
+    height: 100,
+    opacity: 0.5,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  },
+
+  cardHeaderRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    alignItems: "center",
+    marginTop: 10,
+    gap: 10,
+    marginBottom: 5,
+  },
+
+  cardName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  activePill: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "flex-end",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+
+  activePillText: {
+    fontSize: 8,
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  vehicleRow: {
+    flexDirection: "row",
+    backgroundColor: "#ffff",
+    padding: 4,
+    borderRadius: 8,
+    alignItems: "center",
+    gap: 6,
+  },
+
+  vehicleText: {
+    fontSize: 14,
+    color: "#000",
+  },
+
+  label: {
+    fontSize: 16,
+    color: "#333",
+  },
+
+  value: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#000",
+  },
+
+  editRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+
+  bottomStrip: {
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+    marginTop: 16,
+    paddingTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  priceTag: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+
+  priceText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  tabsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 6,
+    borderRadius: 12,
     marginHorizontal: 16,
     marginBottom: 16,
   },
-  tabButton: {
+  tabPill: {
     flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 4,
+    paddingVertical: 10,
     marginHorizontal: 4,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
   },
-  activeTab: { backgroundColor: "#16a34a" },
-  inactiveTab: { backgroundColor: "white" },
-  activeTabText: { color: "white", fontSize: 16, fontWeight: "500" },
-  inactiveTabText: { color: "black", fontSize: 16, fontWeight: "500" },
+  tabPillActive: {
+    backgroundColor: "#ffcd01",
+    borderColor: "#ffcd01",
+  },
+  tabPillInactive: {
+    backgroundColor: "#fff",
+    borderColor: "#9CA3AF",
+  },
+  tabTextActive: {
+    color: "#000",
+    fontWeight: "600",
+  },
+  tabTextInactive: {
+    color: "#000",
+    fontWeight: "500",
+  },
+
   createButton: {
-    backgroundColor: "#16a34a",
+    zIndex: 2,
+    elevation: 5,
+    backgroundColor: "#ffcd01",
     marginHorizontal: 16,
     paddingVertical: 16,
-    borderRadius: 4,
+    borderRadius: 12,
     alignItems: "center",
+    marginBottom: 12,
   },
-  createButtonText: { color: "white", fontSize: 16, fontWeight: "500" },
+  createButtonText: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   loader: { marginTop: 40 },
   emptyText: {
     textAlign: "center",
@@ -317,6 +549,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "gray",
   },
+
   passCard: {
     marginHorizontal: 16,
     marginVertical: 12,
@@ -365,57 +598,84 @@ const styles = StyleSheet.create({
   rowCenter: { flexDirection: "row", alignItems: "center", gap: 8 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 16,
   },
   modalBox: {
-    backgroundColor: "white",
-    padding: 24,
-    borderRadius: 12,
-    width: 288,
-    elevation: 5,
+    backgroundColor: "#f6f6f6",
+    borderRadius: 20,
+    padding: 20,
+    width: 300,
+    alignItems: "center",
+    elevation: 6,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 12,
-    textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#000",
   },
   durationOptions: {
     flexDirection: "row",
+    justifyContent: "space-between",
     flexWrap: "wrap",
-    justifyContent: "center",
+    gap: 12,
+    marginBottom: 20,
   },
   durationButton: {
-    margin: 4,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 24,
-    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    elevation: 2,
   },
-  selectedDuration: { backgroundColor: "#16a34a", borderColor: "#16a34a" },
-  unselectedDuration: { backgroundColor: "#E5E7EB", borderColor: "#D1D5DB" },
-  selectedDurationText: { color: "white", fontWeight: "500" },
-  unselectedDurationText: { color: "black", fontWeight: "500" },
+  selectedDuration: {
+    backgroundColor: "#FFD500",
+  },
+  unselectedDuration: {
+    backgroundColor: "#fff",
+  },
+  selectedDurationText: {
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  unselectedDurationText: {
+    color: "#555",
+    fontSize: 16,
+  },
   modalActions: {
-    marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
+    width: "100%",
+    marginTop: 12,
   },
   cancelButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#D1D5DB",
-    borderRadius: 4,
+    flex: 1,
+    marginRight: 8,
+    backgroundColor: "#E5E7EB",
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#000",
+    fontWeight: "500",
   },
   extendButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "#16a34a",
-    borderRadius: 4,
+    flex: 1,
+    marginLeft: 8,
+    backgroundColor: "#FFD500",
+    paddingVertical: 12,
+    borderRadius: 16,
+    alignItems: "center",
   },
-  extendButtonText: { color: "white", fontWeight: "500" },
+  extendButtonText: {
+    color: "#000",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
 });
 
 export default MonthlyPass;

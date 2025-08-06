@@ -9,6 +9,7 @@ import {
   Modal,
   ActivityIndicator,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -61,7 +62,6 @@ const Profile = () => {
         text2: "Please allow access to your media library",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       return;
     }
@@ -84,24 +84,13 @@ const Profile = () => {
         base64Image,
         ""
       );
-      if (res.success) {
-        Toast.show({
-          type: "success",
-          text1: "Profile image updated",
-          position: "top",
-          visibilityTime: 2000,
-          autoHide: true,
-        });
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Image update failed",
-          text2: res.error || "Try again later",
-          position: "top",
-          visibilityTime: 2000,
-          autoHide: true,
-        });
-      }
+      Toast.show({
+        type: res.success ? "success" : "error",
+        text1: res.success ? "Profile image updated" : "Image update failed",
+        text2: res.success ? undefined : res.error || "Try again later",
+        position: "top",
+        visibilityTime: 2000,
+      });
     }
   };
 
@@ -115,7 +104,6 @@ const Profile = () => {
         text1: "All fields are required",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       setUpdating(false);
       return;
@@ -127,7 +115,6 @@ const Profile = () => {
         text1: "New password must be different",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       setUpdating(false);
       return;
@@ -137,10 +124,9 @@ const Profile = () => {
       Toast.show({
         type: "error",
         text1: "Password too short",
-        text2: "New password must be at least 6 characters",
+        text2: "Minimum 6 characters",
         position: "top",
         visibilityTime: 2000,
-        autoHide: true,
       });
       setUpdating(false);
       return;
@@ -154,25 +140,15 @@ const Profile = () => {
       oldPassword
     );
 
-    if (result?.success) {
-      Toast.show({
-        type: "success",
-        text1: "Profile updated successfully",
-        position: "top",
-        visibilityTime: 2000,
-        autoHide: true,
-      });
-      setShowModal(false);
-    } else {
-      Toast.show({
-        type: "error",
-        text1: "Update failed",
-        text2: result?.error || "Try again later",
-        position: "top",
-        visibilityTime: 2000,
-        autoHide: true,
-      });
-    }
+    Toast.show({
+      type: result?.success ? "success" : "error",
+      text1: result?.success ? "Profile updated successfully" : "Update failed",
+      text2: result?.success ? undefined : result?.error || "Try again later",
+      position: "top",
+      visibilityTime: 2000,
+    });
+
+    if (result?.success) setShowModal(false);
 
     setUpdating(false);
     setOldPassword("");
@@ -195,7 +171,13 @@ const Profile = () => {
             </View>
           </View>
 
-          <View>
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 150,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.avatarContainer}>
               <TouchableOpacity
                 onPress={pickImage}
@@ -213,7 +195,6 @@ const Profile = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.card}>
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Username</Text>
@@ -221,28 +202,24 @@ const Profile = () => {
                   <Text style={styles.inputText}>{parsedUser?.username}</Text>
                 </View>
               </View>
-
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Email</Text>
                 <View style={styles.inputBox}>
                   <Text style={styles.inputText}>{parsedUser?.email}</Text>
                 </View>
               </View>
-
               <TouchableOpacity
                 onPress={() => setShowModal(true)}
                 style={styles.editBtn}
               >
                 <Text style={styles.editBtnText}>Edit Profile</Text>
               </TouchableOpacity>
-
               <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
                 <Text style={styles.logoutBtnText}>Logout</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </View>
-
         {showModal && (
           <Modal visible={showModal} animationType="fade" transparent>
             <View style={styles.modalOverlay}>
@@ -288,7 +265,7 @@ const Profile = () => {
                   >
                     {updating ? (
                       <View style={styles.loadingIndicator}>
-                        <ActivityIndicator size="small" color="#10B981" />
+                        <ActivityIndicator size="small" color="#ffcd01" />
                       </View>
                     ) : (
                       <Text style={styles.updateText}>Update</Text>
@@ -307,15 +284,18 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F3F4F6" },
-  innerContainer: { margin: 16, gap: 12 },
+  container: { flex: 1, backgroundColor: "#fff" },
+  innerContainer: { marginHorizontal: 16, gap: 12 },
   headerCard: {
-    backgroundColor: "white",
-    paddingVertical: 16,
-    borderRadius: 4,
+    marginBottom: 16,
+    backgroundColor: "#f6f6f6",
+    padding: 16,
+    borderRadius: 20,
+    elevation: 3,
     shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowRadius: 1,
   },
   headerRow: {
     flexDirection: "row",
@@ -325,9 +305,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: "500",
     textAlign: "center",
     flex: 1,
+    color: "#000",
   },
   avatarContainer: {
     alignItems: "center",
@@ -339,8 +320,8 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 64,
-    borderWidth: 4,
-    borderColor: "white",
+    borderWidth: 2,
+    borderColor: "#ffcd01",
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -349,61 +330,52 @@ const styles = StyleSheet.create({
     width: 128,
     height: 128,
     borderRadius: 64,
-    backgroundColor: "#34D399",
+    backgroundColor: "#ffcd01",
     borderWidth: 4,
     borderColor: "white",
     alignItems: "center",
     justifyContent: "center",
   },
   avatarInitial: { fontSize: 32, fontWeight: "bold", color: "white" },
-  uploadText: { fontSize: 12, color: "#6B7280", marginTop: 4 },
+  uploadText: { fontSize: 12, color: "#444a4b", marginTop: 4 },
   card: {
-    backgroundColor: "white",
+    backgroundColor: "#f6f6f6",
     padding: 24,
-    borderRadius: 4,
+    borderRadius: 12,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
   },
   inputGroup: { marginBottom: 24 },
   label: { fontSize: 12, fontWeight: "500", color: "#374151", marginBottom: 4 },
   inputBox: {
-    backgroundColor: "#DBEAFE",
+    backgroundColor: "white",
     height: 56,
     justifyContent: "center",
     paddingHorizontal: 16,
-    borderRadius: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#facc15",
   },
   inputText: { fontSize: 16, color: "#111827" },
   editBtn: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#ffcd01",
     paddingVertical: 12,
-    borderRadius: 4,
+    borderRadius: 50,
     alignItems: "center",
     marginBottom: 16,
+    elevation: 3,
   },
-  editBtnText: { color: "black", fontSize: 16, fontWeight: "500" },
+  editBtnText: { color: "#000", fontSize: 16, fontWeight: "600" },
   logoutBtn: {
-    backgroundColor: "#EF4444",
-    paddingVertical: 12,
-    borderRadius: 4,
-    alignItems: "center",
-  },
-  logoutBtnText: { color: "black", fontSize: 16, fontWeight: "600" },
-  centeredViewWhite: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "white",
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 50,
+    alignItems: "center",
+    elevation: 3,
   },
-  accessDeniedText: { color: "#EF4444", fontSize: 20, fontWeight: "bold" },
-  subText: {
-    color: "#6B7280",
-    fontSize: 14,
-    marginTop: 8,
-    textAlign: "center",
-  },
+  logoutBtnText: { color: "#000", fontSize: 16, fontWeight: "600" },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -411,25 +383,27 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalBox: {
-    backgroundColor: "white",
-    padding: 20,
-    gap: 12,
-    borderRadius: 4,
-    width: "80%",
+    backgroundColor: "#f6f6f6",
+    padding: 24,
+    gap: 16,
+    borderRadius: 20,
+    width: "85%",
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "700",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 12,
+    color: "#000",
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#DBEAFE",
-    borderRadius: 4,
+    borderColor: "#facc15",
+    backgroundColor: "white",
+    borderRadius: 12,
     padding: 12,
     fontSize: 16,
+    color: "#000",
   },
   modalActions: {
     flexDirection: "row",
@@ -437,32 +411,42 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   cancelBtn: {
-    backgroundColor: "#EF4444",
+    backgroundColor: "white",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 4,
+    borderRadius: 30,
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cancelText: {
-    color: "white",
+    color: "#000",
     fontSize: 14,
     fontWeight: "500",
     textAlign: "center",
   },
   updateBtn: {
-    backgroundColor: "#059669",
+    backgroundColor: "#ffcd01",
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 4,
+    borderRadius: 30,
     flex: 1,
     marginLeft: 8,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
   },
   disabledBtn: { opacity: 0.6 },
   loadingIndicator: { backgroundColor: "white", padding: 8, borderRadius: 100 },
-  updateText: { color: "white", fontSize: 18, fontWeight: "600" },
+  updateText: { color: "#000", fontSize: 18, fontWeight: "700" },
 });
 
 export default Profile;

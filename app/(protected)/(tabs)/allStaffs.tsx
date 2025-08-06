@@ -37,7 +37,7 @@ const AllStaffs = () => {
     }
   };
 
-  const renderItem = ({ item }: any) => (
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => {
@@ -52,9 +52,9 @@ const AllStaffs = () => {
       }}
     >
       <View style={styles.cardContent}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Ionicons name="person-circle" size={28} color="#22C55E" />
-          <Text style={styles.staffName}> {item.username}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+          <Ionicons name="person-circle" size={28} color="#FFCD01" />
+          <Text style={styles.staffName}>{item.username}</Text>
         </View>
         <Text style={styles.buildingInfo}>
           {item.building?.name || "N/A"}{" "}
@@ -66,21 +66,23 @@ const AllStaffs = () => {
 
   return (
     <AccessControl required="ViewStaff">
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         {/* Header */}
         <View style={styles.headerBox}>
           <View style={styles.headerRow}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={28} color="#1F2937" />
+            <TouchableOpacity
+              onPress={() => router.push("/(protected)/(tabs)/staffPage")}
+            >
+              <Ionicons name="arrow-back" size={26} color="#000" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Staff Lists</Text>
-            <View style={styles.headerSpacer} />
+            <View style={{ width: 26 }} />
           </View>
         </View>
 
         {/* Loader / List */}
         {isLoading ? (
-          <ActivityIndicator size="large" color="lightgreen" />
+          <ActivityIndicator size="large" color="#ffcd01" />
         ) : staffs.length === 0 ? (
           <Text style={styles.emptyText}>No staff found</Text>
         ) : (
@@ -92,7 +94,7 @@ const AllStaffs = () => {
         )}
 
         <Toast />
-      </SafeAreaView>
+      </View>
     </AccessControl>
   );
 };
@@ -100,66 +102,62 @@ const AllStaffs = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6", // Tailwind gray-100
+    backgroundColor: "#FFFFFF",
     paddingHorizontal: 16,
-    paddingTop: 24,
   },
   headerBox: {
-    marginVertical: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f6f6f6",
+    borderRadius: 16,
     padding: 16,
-    borderRadius: 2,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 3,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 8,
   },
-  headerSpacer: { width: 48 },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#1F2937", // Tailwind gray-800
+    fontWeight: "700",
+    color: "#000",
   },
   card: {
-    backgroundColor: "#ECFDF5", // Tailwind green-50
-    borderColor: "#22C55E", // Tailwind green-500
-    borderWidth: 1,
-    padding: 16,
+    backgroundColor: "#FFF8C4",
     borderRadius: 16,
-    marginBottom: 12,
-    shadowColor: "#22C55E",
-    shadowOpacity: 0.15,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    marginBottom: 14,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 4,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   cardContent: {
-    flexDirection: "row",
     alignItems: "center",
+    flexDirection: "row",
     justifyContent: "space-between",
-    gap: 8,
+    gap: 6,
   },
   staffName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#065F46", // Tailwind green-900
+    color: "#000",
   },
   buildingInfo: {
     fontSize: 14,
-    color: "#10B981", // Tailwind green-500
+    color: "#6B7280",
   },
-
   emptyText: {
     textAlign: "center",
-    color: "#6B7280", // Tailwind gray-500
     fontSize: 16,
+    color: "#6B7280",
+    marginTop: 40,
   },
 });
 
