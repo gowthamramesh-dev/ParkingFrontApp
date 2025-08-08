@@ -54,8 +54,9 @@ const Signup = () => {
         autoHide: true,
       });
     }
-
-    return router.replace("/login");
+    setTimeout(() => {
+      return router.replace("/login");
+    }, 2000);
   };
 
   return (

@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const URL = "https://parking-servers-1.onrender.com/";
+const URL = "https://parkingservers.vercel.app/";
 // const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
 
 interface StaffPerformance {
@@ -215,6 +215,9 @@ interface UserAuthState extends Partial<VehicleData> {
   }>;
   getStaffPermission: (staffId: string) => Promise<void>;
   hydrate: () => Promise<void>;
+  selectedStaffRevenue: any[];
+  totalRevenue: number;
+  totalVehicles: number;
 }
 
 const userAuthStore = create<UserAuthState>((set, get) => ({
@@ -395,24 +398,36 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
 
   logOut: async () => {
     await AsyncStorage.multiRemove(["user", "token", "prices"]);
+    await AsyncStorage.clear();
     set({
-      token: null,
       user: null,
-      isLogged: false,
+      token: null,
       prices: {},
-      checkins: {},
-      checkouts: {},
-      allData: {},
+      priceData: {},
+      isLoading: false,
+      isLogged: false,
       VehicleListData: [],
       Reciept: {},
       staffs: [],
-      monthlyPassActive: null,
-      monthlyPassExpired: null,
+      permissions: [],
+      checkins: {},
+      checkouts: {},
+      allData: {},
       VehicleTotalMoney: {},
       PaymentMethod: {},
       staffData: [],
       transactionLogs: [],
+      report: null,
+      monthlyPassActive: null,
+      monthlyPassExpired: null,
+      hydrated: false,
+      revenueData: null,
+      selectedStaffRevenue: [],
+      totalRevenue: 0,
+      totalVehicles: 0,
       staffPermission: [],
+      role: "",
+      isHydrated: false,
     });
   },
 

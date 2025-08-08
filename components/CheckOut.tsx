@@ -60,14 +60,32 @@ const CheckOut = () => {
       setReceiptData(result.data);
       setShowModal(true);
     } else {
+      setIsLoading(true);
+      const results = await checkOut(tokenId, false);
+
+      setIsLoading(false);
+
+      if (!results.success) {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: results.error || "Check-out failed",
+          position: "top",
+          visibilityTime: 1000,
+          autoHide: true,
+        });
+        return;
+      }
+
       Toast.show({
         type: "success",
-        text1: "Success",
-        text2: "Already Checked out",
+        text1: "Vehicle Checked Out",
+        text2: "No extra payment required.",
         position: "top",
         visibilityTime: 1000,
         autoHide: true,
       });
+      settokenId("");
     }
   };
 

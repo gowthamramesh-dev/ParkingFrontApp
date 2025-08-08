@@ -66,11 +66,36 @@ const CheckIn = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
+
     if (!vehicleNo || !mobile) {
       Toast.show({
         type: "error",
         text1: "Error",
         text2: "Vehicle number and mobile are required",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+    if (!(mobile.length === 10)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Mobile must be 10 digits",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+    if (!/^[6-9]/.test(mobile)) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Enter a valid mobile number.",
         position: "top",
         visibilityTime: 2000,
         autoHide: true,
