@@ -8,6 +8,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from "react-native";
 import DatePicker from "@react-native-community/datetimepicker";
 import useAuthStore from "../utils/store";
@@ -52,6 +56,7 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
     endDate: "",
   });
 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { createMonthlyPass, priceData } = useAuthStore();
 
   const [openVehicleType, setOpenVehicleType] = useState(false);
@@ -170,175 +175,209 @@ const MonthlyPassModal: React.FC<MonthlyPassModalProps> = ({
       onPassCreated(result.pass);
     }, 1500);
   };
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () =>
+      setKeyboardVisible(true)
+    );
+    const hideSub = Keyboard.addListener("keyboardDidHide", () =>
+      setKeyboardVisible(false)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   return (
     <Modal visible={isModalVisible} animationType="fade" transparent>
       <View style={styles.overlay}>
-        <View style={{ position: "relative", alignItems: "center" }}>
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            style={styles.closeButton}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{
+            flex: 1,
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              marginTop: "20%",
+              justifyContent: keyboardVisible ? "flex-start" : "center",
+              alignItems: "center",
+              paddingBottom: 30,
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-
-          <View style={styles.card}>
-            <Text style={styles.title}>Create New Pass</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Customer Name"
-              placeholderTextColor="#999"
-              value={formData.name}
-              onChangeText={(text) => setFormData({ ...formData, name: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Mobile Number"
-              placeholderTextColor="#999"
-              maxLength={10}
-              keyboardType="phone-pad"
-              value={formData.mobile}
-              onChangeText={(text) =>
-                setFormData({ ...formData, mobile: text })
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Vehicle Number"
-              placeholderTextColor="#999"
-              value={formData.vehicleNo}
-              onChangeText={(text) =>
-                setFormData({ ...formData, vehicleNo: text.toUpperCase() })
-              }
-              autoCapitalize="characters"
-            />
-
-            <DropDownPicker
-              placeholder="Select Vehicle Type"
-              items={vehicleTypeItems}
-              open={openVehicleType}
-              value={formData.vehicleType}
-              setOpen={setOpenVehicleType}
-              setValue={(cb) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  vehicleType: cb(prev.vehicleType),
-                }))
-              }
-              setItems={() => {}}
-              style={styles.input}
-              dropDownContainerStyle={styles.dropdown}
-              zIndex={3000}
-              zIndexInverse={1000}
-            />
-
-            <DropDownPicker
-              placeholder="Select Duration"
-              items={durationItems}
-              open={openDuration}
-              value={formData.duration}
-              setOpen={setOpenDuration}
-              setValue={(cb) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  duration: cb(prev.duration),
-                }))
-              }
-              setItems={() => {}}
-              style={styles.input}
-              dropDownContainerStyle={styles.dropdown}
-              zIndex={2000}
-              zIndexInverse={2000}
-            />
-
-            <TouchableOpacity
-              style={styles.input}
-              onPress={() => setDatePickerVisible(true)}
-            >
-              <Text style={{ color: formData.startDate ? "#000" : "#999" }}>
-                {formData.startDate || "Select Start Date"}
-              </Text>
-            </TouchableOpacity>
-
-            {isDatePickerVisible && (
-              <DatePicker
-                value={
-                  formData.startDate ? new Date(formData.startDate) : new Date()
-                }
-                mode="date"
-                display="default"
-                onChange={(event, date) => {
-                  setDatePickerVisible(false);
-                  if (date) {
-                    setFormData({
-                      ...formData,
-                      startDate: date.toISOString().split("T")[0],
-                    });
+            <View style={{ position: "relative", alignItems: "center" }}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+              <View style={styles.card}>
+                <Text style={styles.title}>Create New Pass</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Customer Name"
+                  placeholderTextColor="#999"
+                  value={formData.name}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, name: text })
                   }
-                }}
-              />
-            )}
-
-            <DropDownPicker
-              placeholder="Cash"
-              items={paymentMethodItems}
-              open={openPayment}
-              value={formData.paymentMethod}
-              setOpen={setOpenPayment}
-              setValue={(cb) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  paymentMethod: cb(prev.paymentMethod),
-                }))
-              }
-              setItems={() => {}}
-              style={styles.input}
-              dropDownContainerStyle={styles.dropdown}
-              zIndex={1000}
-              zIndexInverse={3000}
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="End Date(yyy-mm-dd)"
-              placeholderTextColor="#999"
-              value={formData.endDate}
-              editable={false}
-            />
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "row",
-                paddingHorizontal: 12,
-                paddingVertical: 5,
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
-                {formData.paymentMethod.toUpperCase() || "Not selected"} :
-              </Text>
-              <Text style={{ fontSize: 16, fontWeight: "600", color: "#000" }}>
-                {" "}
-                ₹{calculateAmount()}
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={handleCreatePass}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <View style={styles.loader}>
-                  <ActivityIndicator size="small" color="#ffcd01" />
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Mobile Number"
+                  placeholderTextColor="#999"
+                  maxLength={10}
+                  keyboardType="phone-pad"
+                  value={formData.mobile}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, mobile: text })
+                  }
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Vehicle Number"
+                  placeholderTextColor="#999"
+                  maxLength={10}
+                  value={formData.vehicleNo}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, vehicleNo: text.toUpperCase() })
+                  }
+                  autoCapitalize="characters"
+                />
+                <DropDownPicker
+                  placeholder="Select Vehicle Type"
+                  items={vehicleTypeItems}
+                  open={openVehicleType}
+                  value={formData.vehicleType}
+                  setOpen={setOpenVehicleType}
+                  setValue={(cb) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      vehicleType: cb(prev.vehicleType),
+                    }))
+                  }
+                  setItems={() => {}}
+                  style={styles.input}
+                  dropDownContainerStyle={styles.dropdown}
+                  zIndex={3000}
+                  zIndexInverse={1000}
+                />
+                <DropDownPicker
+                  placeholder="Select Duration"
+                  items={durationItems}
+                  open={openDuration}
+                  value={formData.duration}
+                  setOpen={setOpenDuration}
+                  setValue={(cb) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      duration: cb(prev.duration),
+                    }))
+                  }
+                  setItems={() => {}}
+                  style={styles.input}
+                  dropDownContainerStyle={styles.dropdown}
+                  zIndex={2000}
+                  zIndexInverse={2000}
+                />
+                <TouchableOpacity
+                  style={styles.input}
+                  onPress={() => setDatePickerVisible(true)}
+                >
+                  <Text style={{ color: formData.startDate ? "#000" : "#999" }}>
+                    {formData.startDate || "Select Start Date"}
+                  </Text>
+                </TouchableOpacity>
+                {isDatePickerVisible && (
+                  <DatePicker
+                    value={
+                      formData.startDate
+                        ? new Date(formData.startDate)
+                        : new Date()
+                    }
+                    mode="date"
+                    display="default"
+                    onChange={(event, date) => {
+                      setDatePickerVisible(false);
+                      if (date) {
+                        setFormData({
+                          ...formData,
+                          startDate: date.toISOString().split("T")[0],
+                        });
+                      }
+                    }}
+                  />
+                )}
+                <DropDownPicker
+                  placeholder="Cash"
+                  items={paymentMethodItems}
+                  open={openPayment}
+                  value={formData.paymentMethod}
+                  setOpen={setOpenPayment}
+                  setValue={(cb) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      paymentMethod: cb(prev.paymentMethod),
+                    }))
+                  }
+                  setItems={() => {}}
+                  style={styles.input}
+                  dropDownContainerStyle={styles.dropdown}
+                  zIndex={1000}
+                  zIndexInverse={3000}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="End Date(yyy-mm-dd)"
+                  placeholderTextColor="#999"
+                  value={formData.endDate}
+                  editable={false}
+                />
+                <View
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "row",
+                    paddingHorizontal: 12,
+                    paddingVertical: 5,
+                  }}
+                >
+                  <Text
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                  >
+                    {formData.paymentMethod.toUpperCase() || "Not selected"} :
+                  </Text>
+                  <Text
+                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                  >
+                    {" "}
+                    ₹{calculateAmount()}
+                  </Text>
                 </View>
-              ) : (
-                <Text style={styles.createText}>Create</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+                <TouchableOpacity
+                  style={styles.createButton}
+                  onPress={handleCreatePass}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <View style={styles.loader}>
+                      <ActivityIndicator size="small" color="#ffcd01" />
+                    </View>
+                  ) : (
+                    <Text style={styles.createText}>Create</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
       <ToastManager />
     </Modal>

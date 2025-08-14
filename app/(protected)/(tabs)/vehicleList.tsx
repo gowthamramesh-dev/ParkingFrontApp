@@ -131,6 +131,7 @@ const VehicleList = () => {
   useEffect(() => {
     const unsubscribe = navigation.addListener("tabPress", () => {
       handleList("all");
+      setSearch("");
     });
 
     return unsubscribe;

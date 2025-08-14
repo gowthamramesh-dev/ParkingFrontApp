@@ -32,6 +32,17 @@ const Login = () => {
 
   const handleLogin = async () => {
     setIsLoading(true);
+    if (/\s/.test(userName) || /\s/.test(password)) {
+      Toast.show({
+        type: "error",
+        text1: "No spaces allowed",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
     const result = await login(userName, password);
     setIsLoading(false);
     if (!result.success) {

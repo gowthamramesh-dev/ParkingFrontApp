@@ -17,6 +17,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import useAuthStore from "../utils/store";
 import ToastManager, { Toast } from "toastify-react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import { useNavigation } from "expo-router";
 
 const screenHeight = Dimensions.get("window").height;
 const screenWidth = Dimensions.get("window").width;
@@ -37,15 +38,15 @@ const CheckIn = () => {
   const [paymentOpen, setPaymentOpen] = useState(false);
 
   const { checkIn, fetchPrices, priceData } = useAuthStore();
-
+  const navigation = useNavigation<any>();
+  const loadPrices = async () => {
+    const token = await AsyncStorage.getItem("token");
+    const user = JSON.parse((await AsyncStorage.getItem("user")) || "{}");
+    if (token && user?._id) {
+      await fetchPrices(user._id, token);
+    }
+  };
   useEffect(() => {
-    const loadPrices = async () => {
-      const token = await AsyncStorage.getItem("token");
-      const user = JSON.parse((await AsyncStorage.getItem("user")) || "{}");
-      if (token && user?._id) {
-        await fetchPrices(user._id, token);
-      }
-    };
     loadPrices();
   }, [fetchPrices]);
 
@@ -61,7 +62,10 @@ const CheckIn = () => {
     setMobile("");
     setPaymentMethod("cash");
     setDays("1");
-    setAmount(0);
+    setVehicleTypeOpen(false);
+    setDaysOpen(false);
+    setPaymentOpen(false);
+    setIsLoading(false);
   };
 
   const handleSubmit = async () => {
@@ -159,6 +163,14 @@ const CheckIn = () => {
     setPaymentOpen(dropdown === "payment" && open);
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("tabPress", () => {
+      clearForm();
+      loadPrices();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -219,6 +231,7 @@ const CheckIn = () => {
             <TextInput
               placeholder="Vehicle Number"
               value={vehicleNo}
+              maxLength={10}
               placeholderTextColor="#888"
               onChangeText={setVehicleNo}
               onBlur={() => setVehicleNo(vehicleNo.toUpperCase())}
@@ -388,12 +401,13 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     flexDirection: "row",
+    width: "100%",
     backgroundColor: "#FFD700",
     paddingVertical: 12,
     borderRadius: 12,
     marginTop: 20,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 20,
     elevation: 3,
     shadowColor: "#000",

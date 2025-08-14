@@ -33,6 +33,17 @@ const Signup = () => {
 
   const handleSignup = async () => {
     setIsLoading(true);
+    if (/\s/.test(userName) || /\s/.test(email) || /\s/.test(password)) {
+      Toast.show({
+        type: "error",
+        text1: "No spaces allowed",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
     const result = await signup(userName, email, password);
     setIsLoading(false);
 

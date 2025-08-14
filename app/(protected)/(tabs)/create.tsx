@@ -38,6 +38,32 @@ const CreateStaff = () => {
       setIsLoading(false);
       return;
     }
+    if (
+      /\s/.test(username) ||
+      /\s/.test(password) ||
+      /\s/.test(buildingName) ||
+      /\s/.test(buildingLocation)
+    ) {
+      Toast.show({
+        type: "error",
+        text1: "No spaces allowed",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setIsLoading(false);
+      return;
+    }
+    if (password.length < 6) {
+      Toast.show({
+        type: "error",
+        text1: "Weak Password",
+        text2: "Password must be at least 6 characters long.",
+        position: "top",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     const building = { name: buildingName, location: buildingLocation };
     const result = await createStaff(username, password, building);
@@ -46,7 +72,7 @@ const CreateStaff = () => {
       await getAllStaffs();
       Toast.show({
         type: "success",
-        text1: "Staff Created ✅",
+        text1: "Staff Created",
         text2: "The new staff has been added.",
         position: "top",
       });
@@ -182,6 +208,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: "white",
+    color: "#000",
     borderWidth: 1,
     borderColor: "#FFCD01",
     borderRadius: 12,

@@ -49,14 +49,14 @@ function TopBar() {
     <View style={styles.topBarWrapper}>
       <View style={styles.greetingContainer}>
         <View style={styles.greetingBox}>
-          <TouchableOpacity style={styles.backButton} onPress={handleLogout}>
-            <Ionicons name="arrow-back" size={18} color="white" />
-          </TouchableOpacity>
+          <Link href="/profile" style={styles.backButton}>
+            <Ionicons name="person-circle-outline" size={35} color="#f6f6f6" />
+          </Link>
           <Text style={styles.greetingText}>Hi.. {user.username}</Text>
         </View>
-        <Link href="/profile" style={styles.profileIcon}>
-          <Ionicons name="person-circle-outline" size={36} color="black" />
-        </Link>
+        <TouchableOpacity style={styles.profileIcon} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={33} color="black" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -197,8 +197,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     backgroundColor: "#ffcd01",
-    padding: 5,
+    padding: 1,
     borderRadius: 100,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   greetingText: {
     fontWeight: "bold",
@@ -208,6 +213,8 @@ const styles = StyleSheet.create({
   },
   profileIcon: {
     backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 100,
     padding: 5,
     elevation: 4,

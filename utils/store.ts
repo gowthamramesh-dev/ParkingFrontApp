@@ -180,7 +180,7 @@ interface UserAuthState extends Partial<VehicleData> {
   getStaffTodayRevenue: () => Promise<void>;
   updateProfile: (
     id: string,
-    username: string,
+    username?: string,
     newPassword?: string,
     avatar?: string,
     oldPassword?: string
@@ -400,34 +400,23 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     await AsyncStorage.multiRemove(["user", "token", "prices"]);
     await AsyncStorage.clear();
     set({
-      user: null,
       token: null,
-      prices: {},
-      priceData: {},
-      isLoading: false,
+      user: null,
       isLogged: false,
-      VehicleListData: [],
-      Reciept: {},
-      staffs: [],
-      permissions: [],
+      prices: {},
       checkins: {},
       checkouts: {},
       allData: {},
+      VehicleListData: [],
+      Reciept: {},
+      staffs: [],
+      monthlyPassActive: null,
+      monthlyPassExpired: null,
       VehicleTotalMoney: {},
       PaymentMethod: {},
       staffData: [],
       transactionLogs: [],
-      report: null,
-      monthlyPassActive: null,
-      monthlyPassExpired: null,
-      hydrated: false,
-      revenueData: null,
-      selectedStaffRevenue: [],
-      totalRevenue: 0,
-      totalVehicles: 0,
       staffPermission: [],
-      role: "",
-      isHydrated: false,
     });
   },
 
@@ -761,10 +750,12 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
   updateProfile: async (id, username, newPassword, avatar, oldPassword) => {
     try {
       const token = get().token || (await AsyncStorage.getItem("token"));
-      const updateBody: any = { username, oldPassword };
+      const updateBody: any = { id };
+      if (username) updateBody.username = username;
+      if (oldPassword) updateBody.oldPassword = oldPassword;
       if (newPassword) updateBody.password = newPassword;
       if (avatar) updateBody.profileImage = avatar;
-      const res = await fetch(`${URL}api/updateAdmin/`, {
+      const res = await fetch(`${URL}api/updateAdmin`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

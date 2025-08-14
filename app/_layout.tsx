@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import { Redirect, router, Stack } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import userAuthStore from "@/utils/store";
 import { ActivityIndicator, View, Text, TextInput } from "react-native";
@@ -15,7 +15,7 @@ export default function RootLayout() {
   const isLogged = userAuthStore((state) => state.isLogged);
   const hydrated = userAuthStore((state) => state.hydrated);
   const token = userAuthStore((state) => state.token);
-  const logOut = userAuthStore((state) => state.logOut);
+  const { logOut } = userAuthStore();
 
   // Restore session only once on mount
   useEffect(() => {
@@ -28,11 +28,13 @@ export default function RootLayout() {
       try {
         const decoded: { exp?: number } = jwtDecode(token);
         if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-          logOut(); // Auto logout if token expired
+          logOut();
+          router.replace("/login");
         }
       } catch (err) {
         console.warn("❌ Invalid token, logging out:", err);
-        logOut(); // Token is invalid or corrupted
+        logOut();
+        router.replace("/login");
       }
     }
   }, [hydrated, token]);

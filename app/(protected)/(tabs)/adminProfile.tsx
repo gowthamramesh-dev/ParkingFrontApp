@@ -28,6 +28,7 @@ const Profile = () => {
 
   const [avatar, setAvatar] = useState(parsedUser?.profileImage || null);
   const [showModal, setShowModal] = useState(false);
+  const [PassModal, setShowPassModal] = useState(false);
   const [username, setUsername] = useState(parsedUser?.username || "");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -97,18 +98,29 @@ const Profile = () => {
   const handleUpdate = async () => {
     if (updating) return;
     setUpdating(true);
-
-    if (!username.trim() || !oldPassword || !newPassword) {
+    if (/\s/.test(oldPassword) || /\s/.test(newPassword)) {
       Toast.show({
         type: "error",
-        text1: "All fields are required",
+        text1: "No spaces allowed",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      setUpdating(false);
+
+      return;
+    }
+    if (!oldPassword || !newPassword) {
+      Toast.show({
+        type: "error",
+        text1: "Old and new passwords are required",
         position: "top",
         visibilityTime: 2000,
       });
       setUpdating(false);
+
       return;
     }
-
     if (oldPassword === newPassword) {
       Toast.show({
         type: "error",
@@ -119,7 +131,6 @@ const Profile = () => {
       setUpdating(false);
       return;
     }
-
     if (newPassword.length < 6) {
       Toast.show({
         type: "error",
@@ -134,11 +145,49 @@ const Profile = () => {
 
     const result = await updateProfile(
       parsedUser._id,
-      username,
+      "",
       newPassword,
-      avatar,
+      "",
       oldPassword
     );
+
+    Toast.show({
+      type: result?.success ? "success" : "error",
+      text1: result?.success ? "Profile updated successfully" : "Update failed",
+      text2: result?.success ? undefined : result?.error || "Try again later",
+      position: "top",
+      visibilityTime: 2000,
+    });
+
+    if (result?.success) setShowPassModal(false);
+
+    setUpdating(false);
+    setOldPassword("");
+    setNewPassword("");
+  };
+
+  const handleUserNameUpdate = async () => {
+    if (updating) return;
+    if (/\s/.test(username)) {
+      Toast.show({
+        type: "error",
+        text1: "No spaces allowed",
+        position: "top",
+        visibilityTime: 2000,
+        autoHide: true,
+      });
+      return;
+    }
+    if (!username.trim()) {
+      Toast.show({
+        type: "error",
+        text1: "Username is required",
+        position: "top",
+        visibilityTime: 2000,
+      });
+    }
+
+    const result = await updateProfile(parsedUser._id, username, "", "", "");
 
     Toast.show({
       type: result?.success ? "success" : "error",
@@ -151,8 +200,6 @@ const Profile = () => {
     if (result?.success) setShowModal(false);
 
     setUpdating(false);
-    setOldPassword("");
-    setNewPassword("");
   };
 
   return (
@@ -214,6 +261,12 @@ const Profile = () => {
               >
                 <Text style={styles.editBtnText}>Edit Profile</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowPassModal(true)}
+                style={styles.editBtn}
+              >
+                <Text style={styles.editBtnText}>Change Password</Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
                 <Text style={styles.logoutBtnText}>Logout</Text>
               </TouchableOpacity>
@@ -233,6 +286,38 @@ const Profile = () => {
                   placeholderTextColor="#888"
                   placeholder="Enter new username"
                 />
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.cancelBtn}
+                    onPress={() => setShowModal(false)}
+                  >
+                    <Text style={styles.cancelText}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.updateBtn, updating && styles.disabledBtn]}
+                    disabled={updating}
+                    onPress={handleUserNameUpdate}
+                  >
+                    {updating ? (
+                      <View style={styles.loadingIndicator}>
+                        <ActivityIndicator size="small" color="#ffcd01" />
+                      </View>
+                    ) : (
+                      <Text style={styles.updateText}>Update</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        )}
+        {PassModal && (
+          <Modal visible={PassModal} animationType="fade" transparent>
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalBox}>
+                <Text style={styles.modalTitle}>Change Password</Text>
                 <TextInput
                   value={oldPassword}
                   onChangeText={setOldPassword}
@@ -249,11 +334,10 @@ const Profile = () => {
                   style={styles.modalInput}
                   placeholder="Enter new password"
                 />
-
                 <View style={styles.modalActions}>
                   <TouchableOpacity
                     style={styles.cancelBtn}
-                    onPress={() => setShowModal(false)}
+                    onPress={() => setShowPassModal(false)}
                   >
                     <Text style={styles.cancelText}>Cancel</Text>
                   </TouchableOpacity>
