@@ -6,10 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mobile",
+    "jsEngine": "hermes",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gowthamrameshdev.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +23,17 @@
         "CAMERA",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO",
-        "INTERNET"
+        "INTERNET",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_CONNECT",
+        "BLUETOOTH_SCAN",
+        "ACCESS_FINE_LOCATION",
+        "android.permission.BLUETOOTH_ADVERTISE",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_COARSE_LOCATION"
       ],
       "package": "com.gowthamrameshdev.mobile"
     },
@@ -41,8 +53,15 @@
           "backgroundColor": "#ffffff"
         }
       ],
+      ["expo-camera"],
       [
-        "expo-camera"
+        "react-native-ble-manager",
+        {
+          "isBleRequired": true,
+          "neverForLocation": true,
+          "companionDeviceEnabled": false,
+          "bluetoothAlwaysPermission": "Allow BLE DEMO APP to connect to bluetooth devices"
+        }
       ]
     ],
     "experiments": {

@@ -8,7 +8,7 @@ import {
   Platform,
   StyleSheet,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import * as Clipboard from "expo-clipboard";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -18,6 +18,7 @@ import userAuthStore from "@/utils/store";
 import { Toast } from "toastify-react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import AccessControl from "@/components/AccessControl";
+import { usePrintingStore } from "@/utils/printing";
 
 type Vehicle = {
   name: string;
@@ -26,10 +27,42 @@ type Vehicle = {
 };
 
 const CheckinCard = ({ item }: any) => {
+  const { user } = userAuthStore();
+  const { generateReceiptData } = usePrintingStore();
   const formattedDate = format(
     new Date(item.entryDateTime),
     "MMM d, yyyy - h:mm a"
   );
+  const handlePrint = async (data: any) => {
+    const printData = {
+      title: user.parkingName || "CorpWings Parking",
+      qrCodeData: data.tokenId,
+      items: [
+        { label: "vehicle", value: data.vehicleType },
+        { label: "amount", value: `Rs.${data.amount}` },
+        { label: "vehicleNo", value: data.vehicleNo },
+      ],
+    };
+    const result = await generateReceiptData(printData);
+    if (result.length === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to send print command.",
+        visibilityTime: 1000,
+        position: "top",
+      });
+    }
+    if (!(result.length === 0)) {
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "Print command sent to printer.",
+        visibilityTime: 1000,
+        position: "top",
+      });
+    }
+  };
 
   return (
     <View style={styles.cardWrapper}>
@@ -44,6 +77,15 @@ const CheckinCard = ({ item }: any) => {
           >
             {item.isCheckedOut ? "Checked Out" : "Active"}
           </Text>
+          {!item.isCheckedOut ? (
+            <TouchableOpacity
+              onPress={() => {
+                handlePrint(item);
+              }}
+            >
+              <Ionicons name="print" size={14} color="#000" />
+            </TouchableOpacity>
+          ) : null}
         </View>
         <View style={styles.vehicleRow}>
           <Text style={styles.vehiclePill}>{item.vehicleNo}</Text>
@@ -344,6 +386,8 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   statusPill: {
+    alignItems: "baseline",
+    justifyContent: "flex-end",
     fontSize: 10,
     fontWeight: "600",
     paddingHorizontal: 8,

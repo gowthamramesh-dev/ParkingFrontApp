@@ -30,6 +30,7 @@ const Profile = () => {
   const [showModal, setShowModal] = useState(false);
   const [PassModal, setShowPassModal] = useState(false);
   const [username, setUsername] = useState(parsedUser?.username || "");
+  const [parkingName, setParkingName] = useState(parsedUser?.parkingName || "");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -168,7 +169,7 @@ const Profile = () => {
 
   const handleUserNameUpdate = async () => {
     if (updating) return;
-    if (/\s/.test(username)) {
+    if (/\s/.test(username) || /\s/.test(parkingName)) {
       Toast.show({
         type: "error",
         text1: "No spaces allowed",
@@ -178,16 +179,23 @@ const Profile = () => {
       });
       return;
     }
-    if (!username.trim()) {
+    if (!username.trim() || !parkingName.trim()) {
       Toast.show({
         type: "error",
-        text1: "Username is required",
+        text1: "Username or ParkingName is required",
         position: "top",
         visibilityTime: 2000,
       });
     }
 
-    const result = await updateProfile(parsedUser._id, username, "", "", "");
+    const result = await updateProfile(
+      parsedUser._id,
+      username,
+      "",
+      "",
+      "",
+      parkingName
+    );
 
     Toast.show({
       type: result?.success ? "success" : "error",
@@ -244,6 +252,14 @@ const Profile = () => {
             </View>
             <View style={styles.card}>
               <View style={styles.inputGroup}>
+                <Text style={styles.label}>Parking Name</Text>
+                <View style={styles.inputBox}>
+                  <Text style={styles.inputText}>
+                    {parsedUser?.parkingName}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.inputGroup}>
                 <Text style={styles.label}>Username</Text>
                 <View style={styles.inputBox}>
                   <Text style={styles.inputText}>{parsedUser?.username}</Text>
@@ -285,6 +301,13 @@ const Profile = () => {
                   style={styles.modalInput}
                   placeholderTextColor="#888"
                   placeholder="Enter new username"
+                />
+                <TextInput
+                  value={parkingName}
+                  onChangeText={setParkingName}
+                  style={styles.modalInput}
+                  placeholderTextColor="#888"
+                  placeholder="Enter new Parking name"
                 />
 
                 <View style={styles.modalActions}>

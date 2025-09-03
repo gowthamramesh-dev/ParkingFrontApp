@@ -14,11 +14,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import userAuthStore from "@/utils/store";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { usePrintingStore } from "@/utils/printing";
 
 const screenHeight = Dimensions.get("window").height;
 
 function TopBar() {
   const { logOut, isLogged } = userAuthStore();
+  const { isPrinterConnected } = usePrintingStore();
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -50,13 +52,29 @@ function TopBar() {
       <View style={styles.greetingContainer}>
         <View style={styles.greetingBox}>
           <Link href="/profile" style={styles.backButton}>
-            <Ionicons name="person-circle-outline" size={35} color="#f6f6f6" />
+            <Ionicons name="person-circle-outline" size={35} color="#333" />
           </Link>
           <Text style={styles.greetingText}>Hi.. {user.username}</Text>
         </View>
-        <TouchableOpacity style={styles.profileIcon} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={33} color="black" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity
+            style={
+              isPrinterConnected
+                ? [styles.profileIcon, { backgroundColor: "#ffea93" }]
+                : styles.profileIcon
+            }
+            onPress={() => router.push("/PrintBill")}
+          >
+            <Ionicons
+              name="print"
+              size={28}
+              color={isPrinterConnected ? "green" : "#333"}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.profileIcon} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={28} color="#333" />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -161,6 +179,7 @@ export default function TabLayout() {
             <Tabs.Screen name="staffRevenue" options={{ href: null }} />
             <Tabs.Screen name="staffVehicleList" options={{ href: null }} />
             <Tabs.Screen name="listPage" options={{ href: null }} />
+            <Tabs.Screen name="PrintBill" options={{ href: null }} />
           </Tabs>
         </View>
       </SafeAreaView>

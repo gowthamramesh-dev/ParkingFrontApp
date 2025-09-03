@@ -21,6 +21,11 @@ def reactNativeAndroidDir = new File(
 )
 
 allprojects {
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
   repositories {
     maven {
       // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm

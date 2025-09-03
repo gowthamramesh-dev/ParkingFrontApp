@@ -30,6 +30,7 @@ const permissionList = [
   "staffRevenue",
   "staffPermissionPage",
   "adminUpdate",
+  "printerSettings",
 ];
 
 const PermissionPage = (id: any) => {

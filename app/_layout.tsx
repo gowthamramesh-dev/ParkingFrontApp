@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { Redirect, router, Stack } from "expo-router";
+import "react-native-get-random-values";
+import { router, Stack } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 import userAuthStore from "@/utils/store";
 import { ActivityIndicator, View, Text, TextInput } from "react-native";

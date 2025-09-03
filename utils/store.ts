@@ -2,9 +2,10 @@ import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { usePrintingStore } from "./printing";
 
 const URL = "https://parkingservers.vercel.app/";
-// const URL = "https://q8dcnx0t-5000.inc1.devtunnels.ms/";
+// const URL = "https://gmlhcrx5-5000.inc1.devtunnels.ms/";
 
 interface StaffPerformance {
   username: string;
@@ -183,7 +184,8 @@ interface UserAuthState extends Partial<VehicleData> {
     username?: string,
     newPassword?: string,
     avatar?: string,
-    oldPassword?: string
+    oldPassword?: string,
+    parkingName?: string
   ) => Promise<{ success: boolean; error?: any }>;
   createStaff: (
     username: string,
@@ -578,6 +580,16 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
+      const printData = {
+        title: get().user.parkingName || "CorpWings Parking",
+        qrCodeData: data.tokenId,
+        items: [
+          { label: "vehicle", value: data.vehicleType },
+          { label: "amount", value: `Rs.${amount}` },
+          { label: "vehicleNo", value: data.vehicleNo },
+        ],
+      };
+      usePrintingStore.getState().generateReceiptData(printData);
 
       return { success: true, tokenId: data.tokenId };
     } catch (err: any) {
@@ -747,7 +759,14 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
     }
   },
 
-  updateProfile: async (id, username, newPassword, avatar, oldPassword) => {
+  updateProfile: async (
+    id,
+    username,
+    newPassword,
+    avatar,
+    oldPassword,
+    parkingName
+  ) => {
     try {
       const token = get().token || (await AsyncStorage.getItem("token"));
       const updateBody: any = { id };
@@ -755,6 +774,7 @@ const userAuthStore = create<UserAuthState>((set, get) => ({
       if (oldPassword) updateBody.oldPassword = oldPassword;
       if (newPassword) updateBody.password = newPassword;
       if (avatar) updateBody.profileImage = avatar;
+      if (parkingName) updateBody.parkingName = parkingName;
       const res = await fetch(`${URL}api/updateAdmin`, {
         method: "PUT",
         headers: {

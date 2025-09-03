@@ -27,7 +27,7 @@ const AccountSettings = () => {
           />
           <SettingOption
             icon="person-circle-outline"
-            label="Account"
+            label="Profile"
             onPress={() => router.push("/adminProfile")}
           />
           <SettingOption
@@ -39,6 +39,11 @@ const AccountSettings = () => {
             icon="people-outline"
             label="Staff Settings"
             onPress={() => router.push("/staffPage")}
+          />
+          <SettingOption
+            icon="print-outline"
+            label="Printer Settings"
+            onPress={() => router.push("/PrintBill")}
           />
         </View>
       </View>
